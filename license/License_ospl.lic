@@ -1,0 +1,54 @@
+# AdlinkTech Software License,created on 3-Jun-2022 by PTLicensingService. 
+# Subject to the terms and conditions of AdlinkTech's Software License Agreement. 
+# Template: VORDO-3-Dep 
+# Serial number: LK19208 
+# Customer: Addverb Technologies Pvt. Ltd. 
+# Contact email: ithelpdesk@addverb.in 
+# License status: Original 
+# 
+PACKAGE prismtech OpenSpliceEnterpriseDep_PKG 6.99  
+FEATURE prismtech opensplice_cm 6.99 permanent uncounted
+  hostid=9aca68b9e951 _ck=d041fc832d sig="60PG4580P0A1NHQCD45GPSDTF00A
+  WGREW7EJFX3N08A32X0X0WJ8GVNG2F02CYE6BGYA5T8A22HG"
+FEATURE prismtech opensplice_dbms 6.99 permanent uncounted
+  hostid=9aca68b9e951 _ck=a641fc612c sig="60PG4580GSN6W7J0RTQTFYHV0KBA
+  1RMQ82BF6UFU08A7SN1QJMGSHNF0HFGV6F53S38H0CBVC3QG"
+FEATURE prismtech opensplice_ddsi2 6.99 permanent uncounted
+  hostid=9aca68b9e951 _ck=d641fcaf8f sig="60PG450XY49Y2H6RSBBWMEC6TUF7
+  UUXJ0REAC2822M0BY0CGVNSWNNKSWSRSTJY8WVYEN5VU893G"
+FEATURE prismtech opensplice_ddsi2e 6.99 permanent uncounted
+  hostid=9aca68b9e951 _ck=3b41fcbe8a sig="60Q04580PT99K3Q0VHD39A8WM75H
+  93FXBM70JNGM08AG185CEN3FQXM2FCDAQM7JWU9BMAEAC7CWE"
+FEATURE prismtech opensplice_durability_kv 6.99 permanent uncounted
+  hostid=9aca68b9e951 _ck=7941fca635 sig="60PG453BF5FS4G8J53J1A76QRAG5
+  D1SN5MEX3S022M0959CKD0X3C8KKB9CENX7B0221SUVVCKHG"
+FEATURE prismtech opensplice_durability 6.99 permanent uncounted
+  hostid=9aca68b9e951 _ck=3941fc7f37 sig="60P0451JMM70C2WY2PVKV4DH2GGE
+  0W6NMJMSV5R22GYVAQ2YNEGJN0UNSUC3QDAPJCAPCRF9P0"
+FEATURE prismtech opensplice_networking 6.99 permanent uncounted
+  hostid=9aca68b9e951 _ck=4841fc3b2f sig="60P0453TM65C74TTYM5F5GQ4MX39
+  2UGX1KEGA8R22GF0QJPCSASDM87UU3UTUYKBYMSHKRP8XV"
+FEATURE prismtech opensplice_record 6.99 permanent uncounted
+  hostid=9aca68b9e951 _ck=7f41fc4c62 sig="60PG4580Q8NX0MF11KXJNSPDV49C
+  9E6GXTXNRSX208A1UHAX55E46XGNB27DGMBGPUBS51Q5EPBG"
+FEATURE prismtech opensplice_rmi 6.99 permanent uncounted
+  hostid=9aca68b9e951 _ck=4841fc970a sig="60P0453T4M97YD6KBDRFFY0G3EV4
+  WU5ASD6KKE022HPHYNDEA2KMGA7QKC210Q9WMYHBBNQ3FG"
+FEATURE prismtech opensplice_secure 6.99 permanent uncounted
+  hostid=9aca68b9e951 _ck=8741fc8409 sig="60P045179UU9G4HFYK0YYYEXJJYJ
+  EWKM66D2DQ822HNQEHT0EJ6T45GVP9MDBF38AR03PJMQ9C"
+FEATURE prismtech opensplice_spliced 6.99 permanent uncounted
+  hostid=9aca68b9e951 _ck=e441fc1f5e sig="60PG4580KWEC8HCJK2GG3JYY5JGV
+  AMUUYXVK8QG608A53BHN07F0HQ3N7K763XECDWUTJX217RP0"
+FEATURE prismtech opensplice_streams 6.99 permanent uncounted
+  hostid=9aca68b9e951 _ck=ff41fc3966 sig="60PG452Q6VVWURVBXV1M62WGTSGG
+  GAS2NQMUVDR22M0AXAKQAHA38B2YYU8WS46KR0XJC91MJ1P0"
+FEATURE prismtech com.prismtech.domain.dds.recordreplay.ui 1.99
+  permanent uncounted hostid=9aca68b9e951 _ck=fb41fc455f sig="60P0451X
+  NXY7TTNBTV12X68MUPY3N4WCVG56NTG22GA57NAG6M0XMVTCJUSFTQ6EJG6UAKV7Q0"
+FEATURE prismtech opensplice_windows_service 6.99 permanent uncounted
+  hostid=9aca68b9e951 _ck=5b41fc9432 sig="60PG4580JP5NJDE1DW6GHFX82G99
+  BX6BWAPC93QS08A4UJ7RHBME824KYPPJHT8RMTA49317V2KG"
+FEATURE prismtech opensplice_dlite 6.99 permanent uncounted
+  hostid=9aca68b9e951 _ck=1241fc25f8 sig="60P045091VKVSPYY66NJ6TD68HQK
+  CUKREW5WQXR22GBY4V0SHED0YK6Q1FJPK0AX88NDQE6JKM"
