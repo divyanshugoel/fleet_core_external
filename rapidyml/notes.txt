@@ -1,0 +1,6 @@
+Built on Jan 6 2023, at commit https://github.com/biojppm/rapidyaml/commit/f63d12920f61d53ce059981f4f0b26926830c6fa
+Friday 06 January 2023 04:14:11 PM IST
+Linux mph 5.15.0-56-generic #62~20.04.1-Ubuntu SMP Tue Nov 22 21:24:20 UTC 2022 x86_64 x86_64 x86_64 GNU/Linux
+
+Options added:
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)

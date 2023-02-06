@@ -1,0 +1,6 @@
+
+# Always include the external folder as is.
+*
+!.gitignore
+# Ignore rules in external folder
+!*

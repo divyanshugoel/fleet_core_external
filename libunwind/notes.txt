@@ -1,0 +1,4 @@
+Built on Dec 17 2022, at commit https://github.com/libunwind/libunwind/commit/a09c0fe9551d115761c42d34a053cad02aca752e
+with options 
+./configure --prefix=/home/dg/code/libunwind/install --enable-shared --config-cache --disable-tests --enable-cxx-exceptions --with-pic
+
