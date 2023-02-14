@@ -170,12 +170,12 @@ public:
     // the halt should propagate to all the node if the nodes
     // have been implemented correctly
     rootNode()->halt();
-    rootNode()->setStatus(NodeStatus::IDLE);
+    rootNode()->setStatus(NodeStatus::E_IDLE);
 
     //but, just in case.... this should be no-op
     auto visitor = [](BT::TreeNode* node) {
       node->halt();
-      node->setStatus(BT::NodeStatus::IDLE);
+      node->setStatus(BT::NodeStatus::E_IDLE);
     };
     BT::applyRecursiveVisitor(rootNode(), visitor);
   }
@@ -197,9 +197,9 @@ public:
       throw RuntimeError("Empty Tree");
     }
     NodeStatus ret = rootNode()->executeTick();
-    if (ret == NodeStatus::SUCCESS || ret == NodeStatus::FAILURE)
+    if (ret == NodeStatus::E_SUCCESS || ret == NodeStatus::E_FAILURE)
     {
-      rootNode()->setStatus(BT::NodeStatus::IDLE);
+      rootNode()->setStatus(BT::NodeStatus::E_IDLE);
     }
     return ret;
   }

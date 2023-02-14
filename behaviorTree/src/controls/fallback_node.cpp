@@ -25,7 +25,7 @@ NodeStatus FallbackNode::tick()
 {
   const size_t children_count = children_nodes_.size();
 
-  setStatus(NodeStatus::RUNNING);
+  setStatus(NodeStatus::E_RUNNING);
 
   while (current_child_idx_ < children_count)
   {
@@ -34,20 +34,20 @@ NodeStatus FallbackNode::tick()
 
     switch (child_status)
     {
-      case NodeStatus::RUNNING: {
+      case NodeStatus::E_RUNNING: {
         return child_status;
       }
-      case NodeStatus::SUCCESS: {
+      case NodeStatus::E_SUCCESS: {
         haltChildren();
         current_child_idx_ = 0;
         return child_status;
       }
-      case NodeStatus::FAILURE: {
+      case NodeStatus::E_FAILURE: {
         current_child_idx_++;
       }
       break;
 
-      case NodeStatus::IDLE: {
+      case NodeStatus::E_IDLE: {
         throw LogicError("A child node must never return IDLE");
       }
     }   // end switch
@@ -60,7 +60,7 @@ NodeStatus FallbackNode::tick()
     current_child_idx_ = 0;
   }
 
-  return NodeStatus::FAILURE;
+  return NodeStatus::E_FAILURE;
 }
 
 void FallbackNode::halt()

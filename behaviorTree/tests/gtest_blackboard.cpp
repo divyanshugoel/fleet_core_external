@@ -40,7 +40,7 @@ public:
     {
       throw RuntimeError("BB_TestNode failed output");
     }
-    return NodeStatus::SUCCESS;
+    return NodeStatus::E_SUCCESS;
   }
 
   static PortsList providedPorts()
@@ -58,7 +58,7 @@ public:
 
   NodeStatus tick()
   {
-    return NodeStatus::SUCCESS;
+    return NodeStatus::E_SUCCESS;
   }
 
   static PortsList providedPorts()
@@ -178,7 +178,7 @@ TEST(BlackboardTest, WithFactory)
   auto tree = factory.createTreeFromText(xml_text, bb);
   NodeStatus status = tree.tickRoot();
 
-  ASSERT_EQ(status, NodeStatus::SUCCESS);
+  ASSERT_EQ(status, NodeStatus::E_SUCCESS);
   ASSERT_EQ(bb->get<int>("my_input_port"), 44);
   ASSERT_EQ(bb->get<int>("my_output_port"), 88);
 }

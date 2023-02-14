@@ -13,39 +13,39 @@ namespace DummyNodes
 BT::NodeStatus CheckBattery()
 {
     std::cout << "[ Battery: OK ]" << std::endl;
-    return BT::NodeStatus::SUCCESS;
+    return BT::NodeStatus::E_SUCCESS;
 }
 
 BT::NodeStatus CheckTemperature()
 {
     std::cout << "[ Temperature: OK ]" << std::endl;
-    return BT::NodeStatus::SUCCESS;
+    return BT::NodeStatus::E_SUCCESS;
 }
 
 BT::NodeStatus SayHello()
 {
     std::cout << "Robot says: Hello World" << std::endl;
-    return BT::NodeStatus::SUCCESS;
+    return BT::NodeStatus::E_SUCCESS;
 }
 
 BT::NodeStatus GripperInterface::open()
 {
     _opened = true;
     std::cout << "GripperInterface::open" << std::endl;
-    return BT::NodeStatus::SUCCESS;
+    return BT::NodeStatus::E_SUCCESS;
 }
 
 BT::NodeStatus GripperInterface::close()
 {
     std::cout << "GripperInterface::close" << std::endl;
     _opened = false;
-    return BT::NodeStatus::SUCCESS;
+    return BT::NodeStatus::E_SUCCESS;
 }
 
 BT::NodeStatus ApproachObject::tick()
 {
     std::cout << "ApproachObject: " << this->name() << std::endl;
-    return BT::NodeStatus::SUCCESS;
+    return BT::NodeStatus::E_SUCCESS;
 }
 
 BT::NodeStatus SaySomething::tick()
@@ -57,7 +57,7 @@ BT::NodeStatus SaySomething::tick()
     }
 
     std::cout << "Robot says: " << msg.value() << std::endl;
-    return BT::NodeStatus::SUCCESS;
+    return BT::NodeStatus::E_SUCCESS;
 }
 
 BT::NodeStatus SaySomethingSimple(BT::TreeNode &self)
@@ -69,7 +69,7 @@ BT::NodeStatus SaySomethingSimple(BT::TreeNode &self)
     }
 
     std::cout << "Robot says: " << msg.value() << std::endl;
-    return BT::NodeStatus::SUCCESS;
+    return BT::NodeStatus::E_SUCCESS;
 }
 
 }

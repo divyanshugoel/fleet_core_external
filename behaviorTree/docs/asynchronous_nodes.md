@@ -67,13 +67,13 @@ class SleepNode : public BT::StatefulActionNode
 
       if( msec <= 0 ) {
         // No need to go into the RUNNING state
-        return NodeStatus::SUCCESS;
+        return NodeStatus::E_SUCCESS;
       }
       else {
         using namespace std::chrono;
         // once the deadline is reached, we will return SUCCESS.
         deadline_ = system_clock::now() + milliseconds(msec);
-        return NodeStatus::RUNNING;
+        return NodeStatus::E_RUNNING;
       }
     }
 
@@ -81,10 +81,10 @@ class SleepNode : public BT::StatefulActionNode
     NodeStatus onRunning() override
     {
       if ( std::chrono::system_clock::now() >= deadline_ ) {
-        return NodeStatus::SUCCESS;
+        return NodeStatus::E_SUCCESS;
       }
       else {
-        return NodeStatus::RUNNING;
+        return NodeStatus::E_RUNNING;
       }
     }
 
@@ -131,7 +131,7 @@ class BadSleepNode : public BT::ActionNodeBase
       getInput("msec", msec);
       // This blocking function will FREEZE the entire tree :(
       std::this_thread::sleep_for( std::chrono::milliseconds(msec) );
-      return NodeStatus::SUCCESS;
+      return NodeStatus::E_SUCCESS;
      }
 
     void halt() override
@@ -178,7 +178,7 @@ class BadSleepNode : public BT::AsyncActionNode
       int msec = 0;
       getInput("msec", msec);
       std::this_thread::sleep_for( std::chrono::milliseconds(msec) );
-      return NodeStatus::SUCCESS;
+      return NodeStatus::E_SUCCESS;
     }
 
     // The halt() method can not kill the spawned thread :(
@@ -219,7 +219,7 @@ class ThreadedSleepNode : public BT::AsyncActionNode
       {
         std::this_thread::sleep_for( std::chrono::milliseconds(1) );
       }
-      return NodeStatus::SUCCESS;
+      return NodeStatus::E_SUCCESS;
     }
 
     // The halt() method will set isHaltRequested() to true 
@@ -265,10 +265,10 @@ class ActionClientNode : public BT::StatefulActionNode
       bool accepted = sendStartRequestToServer();
       // check if the request was rejected by the server
       if( !accepted ) {
-        return NodeStatus::FAILURE;
+        return NodeStatus::E_FAILURE;
       }
       else {
-        return NodeStatus::RUNNING;
+        return NodeStatus::E_RUNNING;
       }
     }
 
@@ -284,20 +284,20 @@ class ActionClientNode : public BT::StatefulActionNode
         auto result = getResult();
         // check if this result is "good"
         if( IsValidResult(result) ) {
-          return NodeStatus::SUCCESS;
+          return NodeStatus::E_SUCCESS;
         } 
         else {
-          return NodeStatus::FAILURE;
+          return NodeStatus::E_FAILURE;
         }
       }
       else if( current_state == ABORTED ) {
         // fail if the action was aborted by some other client
         // or by the server itself
-        return NodeStatus::FAILURE;
+        return NodeStatus::E_FAILURE;
       }
       else {
         // probably (current_state == EXECUTING) ?
-        return NodeStatus::RUNNING;
+        return NodeStatus::E_RUNNING;
       }
     }
 

@@ -10,13 +10,13 @@ std::string toStr<NodeStatus>(NodeStatus status)
 {
   switch (status)
   {
-    case NodeStatus::SUCCESS:
+    case NodeStatus::E_SUCCESS:
       return "SUCCESS";
-    case NodeStatus::FAILURE:
+    case NodeStatus::E_FAILURE:
       return "FAILURE";
-    case NodeStatus::RUNNING:
+    case NodeStatus::E_RUNNING:
       return "RUNNING";
-    case NodeStatus::IDLE:
+    case NodeStatus::E_IDLE:
       return "IDLE";
   }
   return "";
@@ -37,19 +37,19 @@ std::string toStr(NodeStatus status, bool colored)
   {
     switch (status)
     {
-      case NodeStatus::SUCCESS:
+      case NodeStatus::E_SUCCESS:
         return "\x1b[32m"
                "SUCCESS"
                "\x1b[0m";   // RED
-      case NodeStatus::FAILURE:
+      case NodeStatus::E_FAILURE:
         return "\x1b[31m"
                "FAILURE"
                "\x1b[0m";   // GREEN
-      case NodeStatus::RUNNING:
+      case NodeStatus::E_RUNNING:
         return "\x1b[33m"
                "RUNNING"
                "\x1b[0m";   // YELLOW
-      case NodeStatus::IDLE:
+      case NodeStatus::E_IDLE:
         return "\x1b[36m"
                "IDLE"
                "\x1b[0m";   // CYAN
@@ -209,13 +209,13 @@ template <>
 NodeStatus convertFromString<NodeStatus>(StringView str)
 {
   if (str == "IDLE")
-    return NodeStatus::IDLE;
+    return NodeStatus::E_IDLE;
   if (str == "RUNNING")
-    return NodeStatus::RUNNING;
+    return NodeStatus::E_RUNNING;
   if (str == "SUCCESS")
-    return NodeStatus::SUCCESS;
+    return NodeStatus::E_SUCCESS;
   if (str == "FAILURE")
-    return NodeStatus::FAILURE;
+    return NodeStatus::E_FAILURE;
   throw RuntimeError(std::string("Cannot convert this to NodeStatus: ") +
                      static_cast<std::string>(str));
 }

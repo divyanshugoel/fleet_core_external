@@ -25,25 +25,25 @@ NodeStatus ReactiveFallback::tick()
 
     switch (child_status)
     {
-      case NodeStatus::RUNNING: {
+      case NodeStatus::E_RUNNING: {
         for (size_t i = index + 1; i < childrenCount(); i++)
         {
           haltChild(i);
         }
-        return NodeStatus::RUNNING;
+        return NodeStatus::E_RUNNING;
       }
 
-      case NodeStatus::FAILURE: {
+      case NodeStatus::E_FAILURE: {
         failure_count++;
       }
       break;
 
-      case NodeStatus::SUCCESS: {
+      case NodeStatus::E_SUCCESS: {
         haltChildren();
-        return NodeStatus::SUCCESS;
+        return NodeStatus::E_SUCCESS;
       }
 
-      case NodeStatus::IDLE: {
+      case NodeStatus::E_IDLE: {
         throw LogicError("A child node must never return IDLE");
       }
     }   // end switch
@@ -52,10 +52,10 @@ NodeStatus ReactiveFallback::tick()
   if (failure_count == childrenCount())
   {
     haltChildren();
-    return NodeStatus::FAILURE;
+    return NodeStatus::E_FAILURE;
   }
 
-  return NodeStatus::RUNNING;
+  return NodeStatus::E_RUNNING;
 }
 
 }   // namespace BT

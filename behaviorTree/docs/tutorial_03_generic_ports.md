@@ -90,7 +90,7 @@ public:
     {
         Position2D mygoal = {1.1, 2.3};
         setOutput<Position2D>("goal", mygoal);
-        return NodeStatus::SUCCESS;
+        return NodeStatus::E_SUCCESS;
     }
 };
 
@@ -118,7 +118,7 @@ public:
         }
         Position2D target = res.value();
         printf("Target positions: [ %.1f, %.1f ]\n", target.x, target.y );
-        return NodeStatus::SUCCESS;
+        return NodeStatus::E_SUCCESS;
     }
 };
 ```   

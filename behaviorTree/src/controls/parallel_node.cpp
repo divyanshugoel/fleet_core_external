@@ -87,7 +87,7 @@ NodeStatus ParallelNode::tick()
 
     switch (child_status)
     {
-      case NodeStatus::SUCCESS: {
+      case NodeStatus::E_SUCCESS: {
         if (!in_skip_list)
         {
           skip_list_.insert(i);
@@ -98,12 +98,12 @@ NodeStatus ParallelNode::tick()
         {
           skip_list_.clear();
           haltChildren();
-          return NodeStatus::SUCCESS;
+          return NodeStatus::E_SUCCESS;
         }
       }
       break;
 
-      case NodeStatus::FAILURE: {
+      case NodeStatus::E_FAILURE: {
         if (!in_skip_list)
         {
           skip_list_.insert(i);
@@ -117,12 +117,12 @@ NodeStatus ParallelNode::tick()
         {
           skip_list_.clear();
           haltChildren();
-          return NodeStatus::FAILURE;
+          return NodeStatus::E_FAILURE;
         }
       }
       break;
 
-      case NodeStatus::RUNNING: {
+      case NodeStatus::E_RUNNING: {
         // do nothing
       }
       break;
@@ -133,7 +133,7 @@ NodeStatus ParallelNode::tick()
     }
   }
 
-  return NodeStatus::RUNNING;
+  return NodeStatus::E_RUNNING;
 }
 
 void ParallelNode::halt()

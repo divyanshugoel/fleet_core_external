@@ -52,20 +52,20 @@ void MinitraceLogger::callback(Duration /*timestamp*/, const TreeNode& node,
   using namespace minitrace;
 
   const bool statusCompleted =
-      (status == NodeStatus::SUCCESS || status == NodeStatus::FAILURE);
+      (status == NodeStatus::E_SUCCESS || status == NodeStatus::E_FAILURE);
 
   const char* category = toConstStr(node.type());
   const char* name = node.name().c_str();
 
-  if (prev_status == NodeStatus::IDLE && statusCompleted)
+  if (prev_status == NodeStatus::E_IDLE && statusCompleted)
   {
     MTR_INSTANT(category, name);
   }
-  else if (status == NodeStatus::RUNNING)
+  else if (status == NodeStatus::E_RUNNING)
   {
     MTR_BEGIN(category, name);
   }
-  else if (prev_status == NodeStatus::RUNNING && statusCompleted)
+  else if (prev_status == NodeStatus::E_RUNNING && statusCompleted)
   {
     MTR_END(category, name);
   }

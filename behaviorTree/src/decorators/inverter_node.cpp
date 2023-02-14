@@ -22,22 +22,22 @@ InverterNode::InverterNode(const std::string& name) : DecoratorNode(name, {})
 
 NodeStatus InverterNode::tick()
 {
-  setStatus(NodeStatus::RUNNING);
+  setStatus(NodeStatus::E_RUNNING);
 
   const NodeStatus child_state = child_node_->executeTick();
 
   switch (child_state)
   {
-    case NodeStatus::SUCCESS: {
-      return NodeStatus::FAILURE;
+    case NodeStatus::E_SUCCESS: {
+      return NodeStatus::E_FAILURE;
     }
 
-    case NodeStatus::FAILURE: {
-      return NodeStatus::SUCCESS;
+    case NodeStatus::E_FAILURE: {
+      return NodeStatus::E_SUCCESS;
     }
 
-    case NodeStatus::RUNNING: {
-      return NodeStatus::RUNNING;
+    case NodeStatus::E_RUNNING: {
+      return NodeStatus::E_RUNNING;
     }
 
     default: {

@@ -30,7 +30,7 @@ BT::NodeStatus MoveBaseAction::tick()
     }
 
     std::cout << "[ MoveBase: FINISHED ]" << std::endl;
-    return _halt_requested ? BT::NodeStatus::FAILURE : BT::NodeStatus::SUCCESS;
+    return _halt_requested ? BT::NodeStatus::E_FAILURE : BT::NodeStatus::E_SUCCESS;
 }
 
 void MoveBaseAction::halt()

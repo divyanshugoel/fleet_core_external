@@ -71,14 +71,14 @@ private:
     if (!timeout_started_)
     {
       timeout_started_ = true;
-      setStatus(NodeStatus::RUNNING);
+      setStatus(NodeStatus::E_RUNNING);
       child_halted_ = false;
 
       if (msec_ > 0)
       {
         timer_id_ = timer_.add(std::chrono::milliseconds(msec_), [this](bool aborted) {
           std::unique_lock<std::mutex> lk(timeout_mutex_);
-          if (!aborted && child()->status() == NodeStatus::RUNNING)
+          if (!aborted && child()->status() == NodeStatus::E_RUNNING)
           {
             child_halted_ = true;
             haltChild();
@@ -93,12 +93,12 @@ private:
     if (child_halted_)
     {
       timeout_started_ = false;
-      return NodeStatus::FAILURE;
+      return NodeStatus::E_FAILURE;
     }
     else
     {
       auto child_status = child()->executeTick();
-      if (child_status != NodeStatus::RUNNING)
+      if (child_status != NodeStatus::E_RUNNING)
       {
         timeout_started_ = false;
         timeout_mutex_.unlock();

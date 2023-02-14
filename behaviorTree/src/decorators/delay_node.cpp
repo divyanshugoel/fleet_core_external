@@ -38,7 +38,7 @@ NodeStatus DelayNode::tick()
     delay_complete_ = false;
     delay_aborted_ = false;
     delay_started_ = true;
-    setStatus(NodeStatus::RUNNING);
+    setStatus(NodeStatus::E_RUNNING);
 
     timer_id_ = timer_.add(std::chrono::milliseconds(msec_), [this](bool aborted) {
       std::unique_lock<std::mutex> lk(delay_mutex_);
@@ -59,7 +59,7 @@ NodeStatus DelayNode::tick()
   {
     delay_aborted_ = false;
     delay_started_ = false;
-    return NodeStatus::FAILURE;
+    return NodeStatus::E_FAILURE;
   }
   else if (delay_complete_)
   {
@@ -70,7 +70,7 @@ NodeStatus DelayNode::tick()
   }
   else
   {
-    return NodeStatus::RUNNING;
+    return NodeStatus::E_RUNNING;
   }
 }
 

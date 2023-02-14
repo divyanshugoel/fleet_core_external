@@ -16,7 +16,7 @@
 BT::ConditionTestNode::ConditionTestNode(const std::string& name) :
   ConditionNode::ConditionNode(name, {})
 {
-  expected_result_ = NodeStatus::SUCCESS;
+  expected_result_ = NodeStatus::E_SUCCESS;
   tick_count_ = 0;
 }
 

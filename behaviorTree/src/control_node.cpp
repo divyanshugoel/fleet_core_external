@@ -42,7 +42,7 @@ const std::vector<TreeNode*>& ControlNode::children() const
 void ControlNode::haltChild(size_t i)
 {
   auto child = children_nodes_[i];
-  if (child->status() == NodeStatus::RUNNING)
+  if (child->status() == NodeStatus::E_RUNNING)
   {
     child->halt();
   }

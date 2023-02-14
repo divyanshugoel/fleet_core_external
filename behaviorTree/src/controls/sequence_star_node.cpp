@@ -25,7 +25,7 @@ NodeStatus SequenceStarNode::tick()
 {
   const size_t children_count = children_nodes_.size();
 
-  setStatus(NodeStatus::RUNNING);
+  setStatus(NodeStatus::E_RUNNING);
 
   while (current_child_idx_ < children_count)
   {
@@ -34,10 +34,10 @@ NodeStatus SequenceStarNode::tick()
 
     switch (child_status)
     {
-      case NodeStatus::RUNNING: {
+      case NodeStatus::E_RUNNING: {
         return child_status;
       }
-      case NodeStatus::FAILURE: {
+      case NodeStatus::E_FAILURE: {
         // DO NOT reset current_child_idx_ on failure
         for (size_t i = current_child_idx_; i < childrenCount(); i++)
         {
@@ -46,12 +46,12 @@ NodeStatus SequenceStarNode::tick()
 
         return child_status;
       }
-      case NodeStatus::SUCCESS: {
+      case NodeStatus::E_SUCCESS: {
         current_child_idx_++;
       }
       break;
 
-      case NodeStatus::IDLE: {
+      case NodeStatus::E_IDLE: {
         throw LogicError("A child node must never return IDLE");
       }
     }   // end switch
@@ -63,7 +63,7 @@ NodeStatus SequenceStarNode::tick()
     haltChildren();
     current_child_idx_ = 0;
   }
-  return NodeStatus::SUCCESS;
+  return NodeStatus::E_SUCCESS;
 }
 
 void SequenceStarNode::halt()

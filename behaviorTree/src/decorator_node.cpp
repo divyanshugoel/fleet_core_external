@@ -50,7 +50,7 @@ void DecoratorNode::haltChild()
   {
     return;
   }
-  if (child_node_->status() == NodeStatus::RUNNING)
+  if (child_node_->status() == NodeStatus::E_RUNNING)
   {
     child_node_->halt();
   }
@@ -72,7 +72,7 @@ NodeStatus DecoratorNode::executeTick()
 {
   NodeStatus status = TreeNode::executeTick();
   NodeStatus child_status = child()->status();
-  if (child_status == NodeStatus::SUCCESS || child_status == NodeStatus::FAILURE)
+  if (child_status == NodeStatus::E_SUCCESS || child_status == NodeStatus::E_FAILURE)
   {
     child()->resetStatus();
   }

@@ -112,9 +112,9 @@ int main()
 
     //while (1)
     {
-        NodeStatus status = NodeStatus::RUNNING;
+        NodeStatus status = NodeStatus::E_RUNNING;
         // Keep on ticking until you get either a SUCCESS or FAILURE state
-        while( status == NodeStatus::RUNNING)
+        while( status == NodeStatus::E_RUNNING)
         {
             status = tree.tickRoot();
             // IMPORTANT: you must always add some sleep if you call tickRoot()

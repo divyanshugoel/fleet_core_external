@@ -37,7 +37,7 @@ TEST(SubTree, SiblingPorts_Issue_72)
 
   auto ret = tree.tickRoot();
 
-  ASSERT_EQ(ret, NodeStatus::SUCCESS);
+  ASSERT_EQ(ret, NodeStatus::E_SUCCESS);
   ASSERT_EQ(tree.blackboard_stack.size(), 3);
 }
 
@@ -56,7 +56,7 @@ public:
       throw BT::RuntimeError("missing required input [message]: ", msg.error());
     }
     setOutput("out", msg.value());
-    return BT::NodeStatus::SUCCESS;
+    return BT::NodeStatus::E_SUCCESS;
   }
 
   static BT::PortsList providedPorts()
@@ -90,7 +90,7 @@ TEST(SubTree, GoodRemapping)
 
   Tree tree = factory.createTreeFromText(xml_text);
   auto ret = tree.tickRoot();
-  ASSERT_EQ(ret, NodeStatus::SUCCESS);
+  ASSERT_EQ(ret, NodeStatus::E_SUCCESS);
 }
 
 TEST(SubTree, BadRemapping)
@@ -164,7 +164,7 @@ TEST(SubTree, SubtreePlusA)
 
   Tree tree = factory.createTreeFromText(xml_text);
   auto ret = tree.tickRoot();
-  ASSERT_EQ(ret, NodeStatus::SUCCESS);
+  ASSERT_EQ(ret, NodeStatus::E_SUCCESS);
 }
 
 TEST(SubTree, SubtreePlusB)
@@ -195,7 +195,7 @@ TEST(SubTree, SubtreePlusB)
 
   Tree tree = factory.createTreeFromText(xml_text);
   auto ret = tree.tickRoot();
-  ASSERT_EQ(ret, NodeStatus::SUCCESS);
+  ASSERT_EQ(ret, NodeStatus::E_SUCCESS);
 }
 
 TEST(SubTree, SubtreePlusC)
@@ -225,7 +225,7 @@ TEST(SubTree, SubtreePlusC)
 
   Tree tree = factory.createTreeFromText(xml_text);
   auto ret = tree.tickRoot();
-  ASSERT_EQ(ret, NodeStatus::SUCCESS);
+  ASSERT_EQ(ret, NodeStatus::E_SUCCESS);
 }
 
 class ReadInConstructor : public BT::SyncActionNode
@@ -243,7 +243,7 @@ public:
 
   BT::NodeStatus tick() override
   {
-    return BT::NodeStatus::SUCCESS;
+    return BT::NodeStatus::E_SUCCESS;
   }
   static BT::PortsList providedPorts()
   {
@@ -274,7 +274,7 @@ TEST(SubTree, SubtreePlusD)
   config.blackboard->set("message", "hello");
   BT::Tree tree = factory.createTreeFromText(xml_text, config.blackboard);
   auto ret = tree.tickRoot();
-  ASSERT_EQ(ret, BT::NodeStatus::SUCCESS);
+  ASSERT_EQ(ret, BT::NodeStatus::E_SUCCESS);
 }
 
 TEST(SubTree, SubtreeIssue433)
@@ -308,5 +308,5 @@ TEST(SubTree, SubtreeIssue433)
   BT::Tree tree = factory.createTreeFromText(xml_text, config.blackboard);
   auto ret = tree.tickRoot();
 
-  ASSERT_EQ(ret, BT::NodeStatus::SUCCESS);
+  ASSERT_EQ(ret, BT::NodeStatus::E_SUCCESS);
 }

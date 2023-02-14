@@ -8,9 +8,9 @@ BT::SubtreeNode::SubtreeNode(const std::string& name) : DecoratorNode(name, {})
 BT::NodeStatus BT::SubtreeNode::tick()
 {
   NodeStatus prev_status = status();
-  if (prev_status == NodeStatus::IDLE)
+  if (prev_status == NodeStatus::E_IDLE)
   {
-    setStatus(NodeStatus::RUNNING);
+    setStatus(NodeStatus::E_RUNNING);
   }
   return child_node_->executeTick();
 }
@@ -24,9 +24,9 @@ BT::SubtreePlusNode::SubtreePlusNode(const std::string& name) : DecoratorNode(na
 BT::NodeStatus BT::SubtreePlusNode::tick()
 {
   NodeStatus prev_status = status();
-  if (prev_status == NodeStatus::IDLE)
+  if (prev_status == NodeStatus::E_IDLE)
   {
-    setStatus(NodeStatus::RUNNING);
+    setStatus(NodeStatus::E_RUNNING);
   }
   return child_node_->executeTick();
 }

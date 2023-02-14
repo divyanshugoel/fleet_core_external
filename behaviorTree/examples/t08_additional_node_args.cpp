@@ -24,7 +24,7 @@ public:
   NodeStatus tick() override
   {
     std::cout << "Action_A: " << _arg1 << " / " << _arg2 << " / " << _arg3 << std::endl;
-    return NodeStatus::SUCCESS;
+    return NodeStatus::E_SUCCESS;
   }
   static PortsList providedPorts()
   {
@@ -56,7 +56,7 @@ public:
   NodeStatus tick() override
   {
     std::cout << "Action_B: " << _arg1 << " / " << _arg2 << " / " << _arg3 << std::endl;
-    return NodeStatus::SUCCESS;
+    return NodeStatus::E_SUCCESS;
   }
   static PortsList providedPorts()
   {

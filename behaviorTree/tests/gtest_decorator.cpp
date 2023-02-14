@@ -86,13 +86,13 @@ TEST_F(DeadlineTest, DeadlineTriggeredTest)
   BT::NodeStatus state = root.executeTick();
   // deadline in 300 ms, action requires 500 ms
 
-  ASSERT_EQ(NodeStatus::RUNNING, action.status());
-  ASSERT_EQ(NodeStatus::RUNNING, state);
+  ASSERT_EQ(NodeStatus::E_RUNNING, action.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, state);
 
   std::this_thread::sleep_for(std::chrono::milliseconds(400));
   state = root.executeTick();
-  ASSERT_EQ(NodeStatus::FAILURE, state);
-  ASSERT_EQ(NodeStatus::IDLE, action.status());
+  ASSERT_EQ(NodeStatus::E_FAILURE, state);
+  ASSERT_EQ(NodeStatus::E_IDLE, action.status());
 }
 
 TEST_F(DeadlineTest, DeadlineNotTriggeredTest)
@@ -102,90 +102,90 @@ TEST_F(DeadlineTest, DeadlineNotTriggeredTest)
 
   BT::NodeStatus state = root.executeTick();
 
-  ASSERT_EQ(NodeStatus::RUNNING, action.status());
-  ASSERT_EQ(NodeStatus::RUNNING, state);
+  ASSERT_EQ(NodeStatus::E_RUNNING, action.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, state);
 
   std::this_thread::sleep_for(std::chrono::milliseconds(400));
   state = root.executeTick();
-  ASSERT_EQ(NodeStatus::IDLE, action.status());
-  ASSERT_EQ(NodeStatus::SUCCESS, state);
+  ASSERT_EQ(NodeStatus::E_IDLE, action.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, state);
 }
 
 TEST_F(RetryTest, RetryTestA)
 {
-  action.setExpectedResult(NodeStatus::FAILURE);
+  action.setExpectedResult(NodeStatus::E_FAILURE);
 
   root.executeTick();
-  ASSERT_EQ(NodeStatus::FAILURE, root.status());
+  ASSERT_EQ(NodeStatus::E_FAILURE, root.status());
   ASSERT_EQ(3, action.tickCount());
 
-  action.setExpectedResult(NodeStatus::SUCCESS);
+  action.setExpectedResult(NodeStatus::E_SUCCESS);
   action.resetTicks();
 
   root.executeTick();
-  ASSERT_EQ(NodeStatus::SUCCESS, root.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, root.status());
   ASSERT_EQ(1, action.tickCount());
 }
 
 TEST_F(RepeatTestAsync, RepeatTestAsync)
 {
-  action.setExpectedResult(NodeStatus::SUCCESS);
+  action.setExpectedResult(NodeStatus::E_SUCCESS);
 
   auto res = root.executeTick();
 
-  while (res == NodeStatus::RUNNING)
+  while (res == NodeStatus::E_RUNNING)
   {
     std::this_thread::sleep_for(std::chrono::milliseconds(20));
     res = root.executeTick();
   }
 
-  ASSERT_EQ(NodeStatus::SUCCESS, root.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, root.status());
   ASSERT_EQ(3, action.successCount());
   ASSERT_EQ(0, action.failureCount());
 
   //-------------------
-  action.setExpectedResult(NodeStatus::FAILURE);
+  action.setExpectedResult(NodeStatus::E_FAILURE);
   action.resetCounters();
 
   res = root.executeTick();
-  while (res == NodeStatus::RUNNING)
+  while (res == NodeStatus::E_RUNNING)
   {
     std::this_thread::sleep_for(std::chrono::milliseconds(20));
     res = root.executeTick();
   }
 
-  ASSERT_EQ(NodeStatus::FAILURE, root.status());
+  ASSERT_EQ(NodeStatus::E_FAILURE, root.status());
   ASSERT_EQ(0, action.successCount());
   ASSERT_EQ(1, action.failureCount());
 }
 
 TEST_F(RepeatTest, RepeatTestA)
 {
-  action.setExpectedResult(NodeStatus::FAILURE);
+  action.setExpectedResult(NodeStatus::E_FAILURE);
 
   root.executeTick();
-  ASSERT_EQ(NodeStatus::FAILURE, root.status());
+  ASSERT_EQ(NodeStatus::E_FAILURE, root.status());
   ASSERT_EQ(1, action.tickCount());
 
   //-------------------
   action.resetTicks();
-  action.setExpectedResult(NodeStatus::SUCCESS);
+  action.setExpectedResult(NodeStatus::E_SUCCESS);
 
   root.executeTick();
-  ASSERT_EQ(NodeStatus::SUCCESS, root.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, root.status());
   ASSERT_EQ(3, action.tickCount());
 }
 
 // https://github.com/BehaviorTree/BehaviorTree.CPP/issues/57
 TEST_F(TimeoutAndRetry, Issue57)
 {
-  action.setExpectedResult(NodeStatus::FAILURE);
+  action.setExpectedResult(NodeStatus::E_FAILURE);
 
   auto t1 = std::chrono::high_resolution_clock::now();
 
   while (std::chrono::high_resolution_clock::now() < t1 + std::chrono::seconds(2))
   {
-    ASSERT_NE(timeout_root.executeTick(), BT::NodeStatus::IDLE);
+    ASSERT_NE(timeout_root.executeTick(), BT::NodeStatus::E_IDLE);
     std::this_thread::sleep_for(std::chrono::microseconds(50));
   }
 }

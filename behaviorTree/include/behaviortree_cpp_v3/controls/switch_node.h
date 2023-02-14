@@ -113,7 +113,7 @@ inline NodeStatus SwitchNode<NUM_CASES>::tick()
 
   auto& selected_child = children_nodes_[match_index];
   NodeStatus ret = selected_child->executeTick();
-  if (ret == NodeStatus::RUNNING)
+  if (ret == NodeStatus::E_RUNNING)
   {
     running_child_ = match_index;
   }

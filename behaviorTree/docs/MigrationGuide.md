@@ -105,7 +105,7 @@ NodeStatus CalculateGoal(TreeNode& self)
     const Pose2D mygoal = { 1, 2, 3.14};
     // "GoalPose" is hardcoded... we don't like that
     self.blackboard()->set("GoalPose", mygoal);
-    return NodeStatus::SUCCESS;
+    return NodeStatus::E_SUCCESS;
 }
 
 class MoveBase : public AsyncActionNode
@@ -127,11 +127,11 @@ class MoveBase : public AsyncActionNode
         if (getParam<Pose2D>("goal", goal))
         {
             printf("[ MoveBase: DONE ]\n");
-            return NodeStatus::SUCCESS;
+            return NodeStatus::E_SUCCESS;
         }
         else{
             printf("MoveBase: Failed for some reason\n");
-            return NodeStatus::FAILURE;
+            return NodeStatus::E_FAILURE;
         }
     }
     /// etc.
@@ -177,7 +177,7 @@ public:
     {
         const Pose2D myTarget = { 1, 2, 3.14 };
         setOutput("target", myTarget);
-        return NodeStatus::SUCCESS;
+        return NodeStatus::E_SUCCESS;
     }
 };
 
@@ -199,11 +199,11 @@ public:
         if (auto res = getInput<Pose2D>("goal", goal))
         {
             printf("[ MoveBase: DONE ]\n");
-            return NodeStatus::SUCCESS;
+            return NodeStatus::E_SUCCESS;
         }
         else{
             printf("MoveBase: Failed. Error code: %s\n", res.error());
-            return NodeStatus::FAILURE;
+            return NodeStatus::E_FAILURE;
         }
     }
     /// etc.

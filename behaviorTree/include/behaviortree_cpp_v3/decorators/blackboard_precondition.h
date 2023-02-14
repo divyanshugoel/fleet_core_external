@@ -78,9 +78,9 @@ inline NodeStatus BlackboardPreconditionNode<T>::tick()
 {
   T value_A;
   T value_B;
-  NodeStatus default_return_status = NodeStatus::FAILURE;
+  NodeStatus default_return_status = NodeStatus::E_FAILURE;
 
-  setStatus(NodeStatus::RUNNING);
+  setStatus(NodeStatus::E_RUNNING);
 
   if (getInput("value_A", value_A) && getInput("value_B", value_B) &&
       IsSame(value_A, value_B))
@@ -88,7 +88,7 @@ inline NodeStatus BlackboardPreconditionNode<T>::tick()
     return child_node_->executeTick();
   }
 
-  if (child()->status() == NodeStatus::RUNNING)
+  if (child()->status() == NodeStatus::E_RUNNING)
   {
     haltChild();
   }

@@ -35,21 +35,21 @@ NodeStatus IfThenElseNode::tick()
     throw std::logic_error("IfThenElseNode must have either 2 or 3 children");
   }
 
-  setStatus(NodeStatus::RUNNING);
+  setStatus(NodeStatus::E_RUNNING);
 
   if (child_idx_ == 0)
   {
     NodeStatus condition_status = children_nodes_[0]->executeTick();
 
-    if (condition_status == NodeStatus::RUNNING)
+    if (condition_status == NodeStatus::E_RUNNING)
     {
       return condition_status;
     }
-    else if (condition_status == NodeStatus::SUCCESS)
+    else if (condition_status == NodeStatus::E_SUCCESS)
     {
       child_idx_ = 1;
     }
-    else if (condition_status == NodeStatus::FAILURE)
+    else if (condition_status == NodeStatus::E_FAILURE)
     {
       if (children_count == 3)
       {
@@ -65,9 +65,9 @@ NodeStatus IfThenElseNode::tick()
   if (child_idx_ > 0)
   {
     NodeStatus status = children_nodes_[child_idx_]->executeTick();
-    if (status == NodeStatus::RUNNING)
+    if (status == NodeStatus::E_RUNNING)
     {
-      return NodeStatus::RUNNING;
+      return NodeStatus::E_RUNNING;
     }
     else
     {

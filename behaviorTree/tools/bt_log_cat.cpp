@@ -71,19 +71,19 @@ int main(int argc, char* argv[])
     auto printStatus = [](Serialization::NodeStatus status) {
         switch (status)
         {
-            case Serialization::NodeStatus::SUCCESS:
+            case Serialization::NodeStatus::E_SUCCESS:
                 return ("\x1b[32m"
                         "SUCCESS"
                         "\x1b[0m");   // RED
-            case Serialization::NodeStatus::FAILURE:
+            case Serialization::NodeStatus::E_FAILURE:
                 return ("\x1b[31m"
                         "FAILURE"
                         "\x1b[0m");   // GREEN
-            case Serialization::NodeStatus::RUNNING:
+            case Serialization::NodeStatus::E_RUNNING:
                 return ("\x1b[33m"
                         "RUNNING"
                         "\x1b[0m");   // YELLOW
-            case Serialization::NodeStatus::IDLE:
+            case Serialization::NodeStatus::E_IDLE:
                 return ("\x1b[36m"
                         "IDLE   "
                         "\x1b[0m");   // CYAN

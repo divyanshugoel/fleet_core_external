@@ -95,7 +95,7 @@ class SaySomething : public SyncActionNode
 
         // use the method value() to extract the valid message.
         std::cout << "Robot says: " << msg.value() << std::endl;
-        return NodeStatus::SUCCESS;
+        return NodeStatus::E_SUCCESS;
     }
 };
 
@@ -116,7 +116,7 @@ BT::NodeStatus SaySomethingSimple(BT::TreeNode& self)
 
   // use the method value() to extract the valid message.
   std::cout << "Robot says: " << msg.value() << std::endl;
-  return NodeStatus::SUCCESS;
+  return NodeStatus::E_SUCCESS;
 }
 ```
 
@@ -135,7 +135,7 @@ The input from the port `message` can be read using the template method
 This method may fail for multiple reasons. It is up to the user to
 check the validity of the returned value and to decide what to do:
 
-- Return `NodeStatus::FAILURE`?
+- Return `NodeStatus::E_FAILURE`?
 - Throw an exception?
 - Use a different default value?
 
@@ -175,7 +175,7 @@ class ThinkWhatToSay : public SyncActionNode
     {
         // the output may change at each tick(). Here we keep it simple.
         setOutput("text", "The answer is 42" );
-        return NodeStatus::SUCCESS;
+        return NodeStatus::E_SUCCESS;
     }
 };
 ```

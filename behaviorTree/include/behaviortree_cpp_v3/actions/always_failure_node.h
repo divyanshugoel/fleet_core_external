@@ -30,7 +30,7 @@ public:
 private:
   virtual BT::NodeStatus tick() override
   {
-    return NodeStatus::FAILURE;
+    return NodeStatus::E_FAILURE;
   }
 };
 }   // namespace BT

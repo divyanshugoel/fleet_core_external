@@ -82,7 +82,7 @@ class MyAsyncAction: public CoroActionNode
         std::cout << name() <<": Done. 'Waiting Reply' loop repeated "
                   << count << " times" << std::endl;
         cleanup(false);
-        return NodeStatus::SUCCESS;
+        return NodeStatus::E_SUCCESS;
     }
 
     // you might want to cleanup differently if it was halted or successful
@@ -148,7 +148,7 @@ int main()
 
     //---------------------------------------
     // keep executing tick until it returns either SUCCESS or FAILURE
-    while( tree.tickRoot() == NodeStatus::RUNNING)
+    while( tree.tickRoot() == NodeStatus::E_RUNNING)
     {
         tree.sleep( std::chrono::milliseconds(10) );
     }

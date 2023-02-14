@@ -58,7 +58,7 @@ protected:
 
     std::cout << "Done" << std::endl;
     start_time_ = Timepoint::min();
-    return (will_fail_ ? BT::NodeStatus::FAILURE : BT::NodeStatus::SUCCESS);
+    return (will_fail_ ? BT::NodeStatus::E_FAILURE : BT::NodeStatus::E_SUCCESS);
   }
 
 public:
@@ -73,7 +73,7 @@ private:
 BT::NodeStatus executeWhileRunning(BT::TreeNode& node)
 {
   auto status = node.executeTick();
-  while (status == BT::NodeStatus::RUNNING)
+  while (status == BT::NodeStatus::E_RUNNING)
   {
     status = node.executeTick();
     std::this_thread::sleep_for(Millisecond(1));
@@ -88,19 +88,19 @@ TEST(CoroTest, do_action)
   BT::assignDefaultRemapping<SimpleCoroAction>(node_config_);
   SimpleCoroAction node(milliseconds(200), false, "Action", node_config_);
 
-  EXPECT_EQ(BT::NodeStatus::SUCCESS, executeWhileRunning(node));
+  EXPECT_EQ(BT::NodeStatus::E_SUCCESS, executeWhileRunning(node));
   EXPECT_FALSE(node.wasHalted());
 
-  EXPECT_EQ(BT::NodeStatus::SUCCESS, executeWhileRunning(node)) << "Second call to coro "
+  EXPECT_EQ(BT::NodeStatus::E_SUCCESS, executeWhileRunning(node)) << "Second call to coro "
                                                                    "action";
   EXPECT_FALSE(node.wasHalted());
 
   node.will_fail_ = true;
-  EXPECT_EQ(BT::NodeStatus::FAILURE, executeWhileRunning(node)) << "Should execute again "
+  EXPECT_EQ(BT::NodeStatus::E_FAILURE, executeWhileRunning(node)) << "Should execute again "
                                                                    "and retun failure";
   EXPECT_FALSE(node.wasHalted());
 
-  EXPECT_EQ(BT::NodeStatus::FAILURE, executeWhileRunning(node)) << "Shoudln't fail "
+  EXPECT_EQ(BT::NodeStatus::E_FAILURE, executeWhileRunning(node)) << "Shoudln't fail "
                                                                    "because we set "
                                                                    "status to idle";
   EXPECT_FALSE(node.wasHalted());
@@ -117,12 +117,12 @@ TEST(CoroTest, do_action_timeout)
 
   timeout.setChild(&node);
 
-  EXPECT_EQ(BT::NodeStatus::FAILURE, executeWhileRunning(timeout)) << "should timeout";
+  EXPECT_EQ(BT::NodeStatus::E_FAILURE, executeWhileRunning(timeout)) << "should timeout";
   EXPECT_TRUE(node.wasHalted());
 
   node.setRequiredTime(Millisecond(100));
 
-  EXPECT_EQ(BT::NodeStatus::SUCCESS, executeWhileRunning(timeout));
+  EXPECT_EQ(BT::NodeStatus::E_SUCCESS, executeWhileRunning(timeout));
   EXPECT_FALSE(node.wasHalted());
 }
 
@@ -141,7 +141,7 @@ TEST(CoroTest, sequence_child)
   sequence.addChild(&actionA);
   sequence.addChild(&actionB);
 
-  EXPECT_EQ(BT::NodeStatus::FAILURE, executeWhileRunning(timeout)) << "should timeout";
+  EXPECT_EQ(BT::NodeStatus::E_FAILURE, executeWhileRunning(timeout)) << "should timeout";
   EXPECT_FALSE(actionA.wasHalted());
   EXPECT_TRUE(actionB.wasHalted());
 }

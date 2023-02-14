@@ -19,9 +19,9 @@ public:
     if (getInput("in_port_A", val_A) && getInput("in_port_B", val_B) && val_A == 42 &&
         val_B == 66)
     {
-      return NodeStatus::SUCCESS;
+      return NodeStatus::E_SUCCESS;
     }
-    return NodeStatus::FAILURE;
+    return NodeStatus::E_FAILURE;
   }
 
   static PortsList providedPorts()
@@ -48,7 +48,7 @@ TEST(PortTest, DefaultPorts)
   auto tree = factory.createTreeFromText(xml_txt);
 
   NodeStatus status = tree.tickRoot();
-  ASSERT_EQ(status, NodeStatus::SUCCESS);
+  ASSERT_EQ(status, NodeStatus::E_SUCCESS);
 }
 
 TEST(PortTest, Descriptions)
@@ -74,7 +74,7 @@ TEST(PortTest, Descriptions)
   auto tree = factory.createTreeFromText(xml_txt);
 
   NodeStatus status = tree.tickRoot();
-  ASSERT_EQ(status, NodeStatus::FAILURE);   // failure because in_port_B="99"
+  ASSERT_EQ(status, NodeStatus::E_FAILURE);   // failure because in_port_B="99"
 }
 
 struct MyType
@@ -95,9 +95,9 @@ public:
     MyType val_B;
     if (getInput("int_port", val_A) && getInput("any_port", val_B))
     {
-      return NodeStatus::SUCCESS;
+      return NodeStatus::E_SUCCESS;
     }
-    return NodeStatus::FAILURE;
+    return NodeStatus::E_FAILURE;
   }
 
   static PortsList providedPorts()
@@ -115,7 +115,7 @@ public:
 
   NodeStatus tick()
   {
-    return NodeStatus::SUCCESS;
+    return NodeStatus::E_SUCCESS;
   }
 
   static PortsList providedPorts()
@@ -144,7 +144,7 @@ TEST(PortTest, EmptyPort)
 
   NodeStatus status = tree.tickRoot();
   // expect failure because port is not set yet
-  ASSERT_EQ(status, NodeStatus::FAILURE);
+  ASSERT_EQ(status, NodeStatus::E_FAILURE);
 }
 
 class IllegalPorts : public SyncActionNode
@@ -156,7 +156,7 @@ public:
 
   NodeStatus tick()
   {
-    return NodeStatus::SUCCESS;
+    return NodeStatus::E_SUCCESS;
   }
 
   static PortsList providedPorts()

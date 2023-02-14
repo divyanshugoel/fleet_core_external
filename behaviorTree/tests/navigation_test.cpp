@@ -54,7 +54,7 @@ public:
   }
   NodeStatus expectedResult() const
   {
-    return _expected_result ? NodeStatus::SUCCESS : NodeStatus::FAILURE;
+    return _expected_result ? NodeStatus::E_SUCCESS : NodeStatus::E_FAILURE;
   }
   void resetTickCount()
   {
@@ -125,9 +125,9 @@ public:
 
   NodeStatus tick() override
   {
-    if (status() == NodeStatus::IDLE)
+    if (status() == NodeStatus::E_IDLE)
     {
-      setStatus(NodeStatus::RUNNING);
+      setStatus(NodeStatus::E_RUNNING);
       _halted = false;
       std::cout << "FollowPath::started" << std::endl;
       _initial_time = Now();
@@ -136,11 +136,11 @@ public:
     // Yield for 1 second
     while (Now() < _initial_time + Milliseconds(600) || _halted)
     {
-      return NodeStatus::RUNNING;
+      return NodeStatus::E_RUNNING;
     }
     if (_halted)
     {
-      return NodeStatus::IDLE;
+      return NodeStatus::E_IDLE;
     }
     return tickImpl();
   }
@@ -217,18 +217,18 @@ TEST(Navigationtest, MoveBaseRecovery)
   std::cout << "-----------------------" << std::endl;
 
   // First case: not stuck, everything fine.
-  NodeStatus status = NodeStatus::IDLE;
+  NodeStatus status = NodeStatus::E_IDLE;
 
   first_stuck_node->setExpectedResult(false);
 
-  while (status == NodeStatus::IDLE || status == NodeStatus::RUNNING)
+  while (status == NodeStatus::E_IDLE || status == NodeStatus::E_RUNNING)
   {
     status = tree.tickRoot();
     std::this_thread::sleep_for(Milliseconds(100));
   }
 
   // SUCCESS expected
-  ASSERT_EQ(status, NodeStatus::SUCCESS);
+  ASSERT_EQ(status, NodeStatus::E_SUCCESS);
   // IsStuck on the left branch must run several times
   ASSERT_GE(first_stuck_node->tickCount(), 6);
   // Never take the right branch (recovery)
@@ -249,10 +249,10 @@ TEST(Navigationtest, MoveBaseRecovery)
   compute_node->resetTickCount();
   follow_node->resetTickCount();
   back_spin_node->resetTickCount();
-  status = NodeStatus::IDLE;
+  status = NodeStatus::E_IDLE;
   int cycle = 0;
 
-  while (status == NodeStatus::IDLE || status == NodeStatus::RUNNING)
+  while (status == NodeStatus::E_IDLE || status == NodeStatus::E_RUNNING)
   {
     // At the fifth cycle get stucked
     if (++cycle == 2)
@@ -265,7 +265,7 @@ TEST(Navigationtest, MoveBaseRecovery)
   }
 
   // SUCCESS expected
-  ASSERT_EQ(status, NodeStatus::SUCCESS);
+  ASSERT_EQ(status, NodeStatus::E_SUCCESS);
 
   // First IsStuck must run several times
   ASSERT_GE(first_stuck_node->tickCount(), 2);
@@ -279,9 +279,9 @@ TEST(Navigationtest, MoveBaseRecovery)
   ASSERT_EQ(follow_node->tickCount(), 0);   // started but never completed
   ASSERT_TRUE(follow_node->wasHalted());
 
-  ASSERT_EQ(compute_node->status(), NodeStatus::IDLE);
-  ASSERT_EQ(follow_node->status(), NodeStatus::IDLE);
-  ASSERT_EQ(back_spin_node->status(), NodeStatus::IDLE);
+  ASSERT_EQ(compute_node->status(), NodeStatus::E_IDLE);
+  ASSERT_EQ(follow_node->status(), NodeStatus::E_IDLE);
+  ASSERT_EQ(back_spin_node->status(), NodeStatus::E_IDLE);
 
   std::cout << "-----------------------" << std::endl;
 
@@ -293,25 +293,25 @@ TEST(Navigationtest, MoveBaseRecovery)
   compute_node->resetTickCount();
   follow_node->resetTickCount();
   back_spin_node->resetTickCount();
-  status = NodeStatus::IDLE;
+  status = NodeStatus::E_IDLE;
   first_stuck_node->setExpectedResult(false);
   second_stuck_node->setExpectedResult(false);
 
-  while (status == NodeStatus::IDLE || status == NodeStatus::RUNNING)
+  while (status == NodeStatus::E_IDLE || status == NodeStatus::E_RUNNING)
   {
     status = tree.tickRoot();
     std::this_thread::sleep_for(Milliseconds(100));
   }
 
   // SUCCESS expected
-  ASSERT_EQ(status, NodeStatus::SUCCESS);
+  ASSERT_EQ(status, NodeStatus::E_SUCCESS);
 
   ASSERT_GE(first_stuck_node->tickCount(), 6);
   ASSERT_EQ(second_stuck_node->tickCount(), 0);
   ASSERT_EQ(back_spin_node->tickCount(), 0);
 
-  ASSERT_EQ(compute_node->status(), NodeStatus::IDLE);
-  ASSERT_EQ(follow_node->status(), NodeStatus::IDLE);
-  ASSERT_EQ(back_spin_node->status(), NodeStatus::IDLE);
+  ASSERT_EQ(compute_node->status(), NodeStatus::E_IDLE);
+  ASSERT_EQ(follow_node->status(), NodeStatus::E_IDLE);
+  ASSERT_EQ(back_spin_node->status(), NodeStatus::E_IDLE);
   ASSERT_FALSE(follow_node->wasHalted());
 }

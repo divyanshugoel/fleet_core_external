@@ -68,7 +68,7 @@ inline StatusChangeLogger::StatusChangeLogger(TreeNode* root_node) :
 
   auto subscribeCallback = [this](TimePoint timestamp, const TreeNode& node,
                                   NodeStatus prev, NodeStatus status) {
-    if (enabled_ && (status != NodeStatus::IDLE || show_transition_to_idle_))
+    if (enabled_ && (status != NodeStatus::E_IDLE || show_transition_to_idle_))
     {
       if (type_ == TimestampType::absolute)
       {

@@ -92,29 +92,29 @@ TEST_F(SimpleParallelTest, ConditionsTrue)
 {
   BT::NodeStatus state = root.executeTick();
 
-  ASSERT_EQ(NodeStatus::SUCCESS, condition_1.status());
-  ASSERT_EQ(NodeStatus::SUCCESS, condition_2.status());
-  ASSERT_EQ(NodeStatus::RUNNING, action_1.status());
-  ASSERT_EQ(NodeStatus::RUNNING, action_2.status());
-  ASSERT_EQ(NodeStatus::RUNNING, state);
+  ASSERT_EQ(NodeStatus::E_SUCCESS, condition_1.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, condition_2.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, action_1.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, action_2.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, state);
 
   std::this_thread::sleep_for(milliseconds(200));
   state = root.executeTick();
 
-  ASSERT_EQ(NodeStatus::SUCCESS, condition_1.status());
-  ASSERT_EQ(NodeStatus::SUCCESS, condition_2.status());
-  ASSERT_EQ(NodeStatus::SUCCESS, action_1.status());
-  ASSERT_EQ(NodeStatus::RUNNING, action_2.status());
-  ASSERT_EQ(NodeStatus::RUNNING, state);
+  ASSERT_EQ(NodeStatus::E_SUCCESS, condition_1.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, condition_2.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, action_1.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, action_2.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, state);
 
   std::this_thread::sleep_for(milliseconds(200));
   state = root.executeTick();
 
-  ASSERT_EQ(NodeStatus::IDLE, condition_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_2.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_2.status());
-  ASSERT_EQ(NodeStatus::SUCCESS, state);
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_2.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_2.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, state);
 }
 
 TEST_F(SimpleParallelTest, Threshold_3)
@@ -125,21 +125,21 @@ TEST_F(SimpleParallelTest, Threshold_3)
 
   BT::NodeStatus state = root.executeTick();
   // first tick, zero wait
-  ASSERT_EQ(NodeStatus::SUCCESS, condition_1.status());
-  ASSERT_EQ(NodeStatus::SUCCESS, condition_2.status());
-  ASSERT_EQ(NodeStatus::RUNNING, action_1.status());
-  ASSERT_EQ(NodeStatus::RUNNING, action_2.status());
-  ASSERT_EQ(NodeStatus::RUNNING, state);
+  ASSERT_EQ(NodeStatus::E_SUCCESS, condition_1.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, condition_2.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, action_1.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, action_2.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, state);
 
   std::this_thread::sleep_for(milliseconds(150));
   state = root.executeTick();
   // second tick: action1 should be completed, but not action2
   // nevertheless it is sufficient because threshold is 3
-  ASSERT_EQ(NodeStatus::IDLE, condition_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_2.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_2.status());
-  ASSERT_EQ(NodeStatus::SUCCESS, state);
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_2.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_2.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, state);
 }
 
 TEST_F(SimpleParallelTest, Threshold_neg2)
@@ -150,21 +150,21 @@ TEST_F(SimpleParallelTest, Threshold_neg2)
 
   BT::NodeStatus state = root.executeTick();
   // first tick, zero wait
-  ASSERT_EQ(NodeStatus::SUCCESS, condition_1.status());
-  ASSERT_EQ(NodeStatus::SUCCESS, condition_2.status());
-  ASSERT_EQ(NodeStatus::RUNNING, action_1.status());
-  ASSERT_EQ(NodeStatus::RUNNING, action_2.status());
-  ASSERT_EQ(NodeStatus::RUNNING, state);
+  ASSERT_EQ(NodeStatus::E_SUCCESS, condition_1.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, condition_2.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, action_1.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, action_2.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, state);
 
   std::this_thread::sleep_for(milliseconds(150));
   state = root.executeTick();
   // second tick: action1 should be completed, but not action2
   // nevertheless it is sufficient because threshold is 3
-  ASSERT_EQ(NodeStatus::IDLE, condition_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_2.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_2.status());
-  ASSERT_EQ(NodeStatus::SUCCESS, state);
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_2.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_2.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, state);
 }
 
 TEST_F(SimpleParallelTest, Threshold_neg1)
@@ -175,29 +175,29 @@ TEST_F(SimpleParallelTest, Threshold_neg1)
 
   BT::NodeStatus state = root.executeTick();
   // first tick, zero wait
-  ASSERT_EQ(NodeStatus::SUCCESS, condition_1.status());
-  ASSERT_EQ(NodeStatus::SUCCESS, condition_2.status());
-  ASSERT_EQ(NodeStatus::RUNNING, action_1.status());
-  ASSERT_EQ(NodeStatus::RUNNING, action_2.status());
-  ASSERT_EQ(NodeStatus::RUNNING, state);
+  ASSERT_EQ(NodeStatus::E_SUCCESS, condition_1.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, condition_2.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, action_1.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, action_2.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, state);
 
   std::this_thread::sleep_for(milliseconds(150));
   state = root.executeTick();
   // second tick: action1 should be completed, but not action2
-  ASSERT_EQ(NodeStatus::SUCCESS, condition_1.status());
-  ASSERT_EQ(NodeStatus::SUCCESS, condition_2.status());
-  ASSERT_EQ(NodeStatus::SUCCESS, action_1.status());
-  ASSERT_EQ(NodeStatus::RUNNING, action_2.status());
-  ASSERT_EQ(NodeStatus::RUNNING, state);
+  ASSERT_EQ(NodeStatus::E_SUCCESS, condition_1.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, condition_2.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, action_1.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, action_2.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, state);
 
   std::this_thread::sleep_for(milliseconds(650));
   state = root.executeTick();
   // third tick: all actions completed
-  ASSERT_EQ(NodeStatus::IDLE, condition_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_2.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_2.status());
-  ASSERT_EQ(NodeStatus::SUCCESS, state);
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_2.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_2.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, state);
 }
 
 TEST_F(SimpleParallelTest, Threshold_thresholdFneg1)
@@ -205,18 +205,18 @@ TEST_F(SimpleParallelTest, Threshold_thresholdFneg1)
   root.setSuccessThreshold(1);
   root.setFailureThreshold(-1);
   action_1.setTime(milliseconds(100));
-  action_1.setExpectedResult(NodeStatus::FAILURE);
-  condition_1.setExpectedResult(NodeStatus::FAILURE);
+  action_1.setExpectedResult(NodeStatus::E_FAILURE);
+  condition_1.setExpectedResult(NodeStatus::E_FAILURE);
   action_2.setTime(milliseconds(200));
-  condition_2.setExpectedResult(NodeStatus::FAILURE);
-  action_2.setExpectedResult(NodeStatus::FAILURE);
+  condition_2.setExpectedResult(NodeStatus::E_FAILURE);
+  action_2.setExpectedResult(NodeStatus::E_FAILURE);
 
   BT::NodeStatus state = root.executeTick();
-  ASSERT_EQ(NodeStatus::RUNNING, state);
+  ASSERT_EQ(NodeStatus::E_RUNNING, state);
 
   std::this_thread::sleep_for(milliseconds(250));
   state = root.executeTick();
-  ASSERT_EQ(NodeStatus::FAILURE, state);
+  ASSERT_EQ(NodeStatus::E_FAILURE, state);
 }
 
 TEST_F(SimpleParallelTest, Threshold_2)
@@ -224,130 +224,130 @@ TEST_F(SimpleParallelTest, Threshold_2)
   root.setSuccessThreshold(2);
   BT::NodeStatus state = root.executeTick();
 
-  ASSERT_EQ(NodeStatus::IDLE, condition_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_2.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_2.status());
-  ASSERT_EQ(NodeStatus::SUCCESS, state);
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_2.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_2.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, state);
 }
 
 TEST_F(ComplexParallelTest, ConditionsTrue)
 {
   BT::NodeStatus state = parallel_root.executeTick();
 
-  ASSERT_EQ(NodeStatus::RUNNING, parallel_left.status());
-  ASSERT_EQ(NodeStatus::SUCCESS, condition_L1.status());
-  ASSERT_EQ(NodeStatus::SUCCESS, condition_L2.status());
-  ASSERT_EQ(NodeStatus::RUNNING, action_L1.status());
-  ASSERT_EQ(NodeStatus::RUNNING, action_L2.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, parallel_left.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, condition_L1.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, condition_L2.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, action_L1.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, action_L2.status());
 
-  ASSERT_EQ(NodeStatus::SUCCESS, parallel_right.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_R.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_R.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, parallel_right.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_R.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_R.status());
 
-  ASSERT_EQ(NodeStatus::RUNNING, state);
+  ASSERT_EQ(NodeStatus::E_RUNNING, state);
   //----------------------------------------
   std::this_thread::sleep_for(milliseconds(200));
   state = parallel_root.executeTick();
 
-  ASSERT_EQ(NodeStatus::IDLE, parallel_left.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_L1.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_L2.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_L1.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_L2.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, parallel_left.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_L1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_L2.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_L1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_L2.status());
 
-  ASSERT_EQ(NodeStatus::IDLE, parallel_right.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_R.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_R.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, parallel_right.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_R.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_R.status());
 
-  ASSERT_EQ(NodeStatus::SUCCESS, state);
+  ASSERT_EQ(NodeStatus::E_SUCCESS, state);
 }
 
 TEST_F(ComplexParallelTest, ConditionsLeftFalse)
 {
   parallel_left.setFailureThreshold(3);
   parallel_left.setSuccessThreshold(3);
-  condition_L1.setExpectedResult(NodeStatus::FAILURE);
-  condition_L2.setExpectedResult(NodeStatus::FAILURE);
+  condition_L1.setExpectedResult(NodeStatus::E_FAILURE);
+  condition_L2.setExpectedResult(NodeStatus::E_FAILURE);
   BT::NodeStatus state = parallel_root.executeTick();
 
   // It fails because Parallel Left it will never succeed (two already fail)
   // even though threshold_failure == 3
 
-  ASSERT_EQ(NodeStatus::IDLE, parallel_left.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_L1.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_L2.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_L1.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_L2.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, parallel_left.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_L1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_L2.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_L1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_L2.status());
 
-  ASSERT_EQ(NodeStatus::IDLE, parallel_right.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_R.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_R.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, parallel_right.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_R.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_R.status());
 
-  ASSERT_EQ(NodeStatus::FAILURE, state);
+  ASSERT_EQ(NodeStatus::E_FAILURE, state);
 }
 
 TEST_F(ComplexParallelTest, ConditionRightFalse)
 {
-  condition_R.setExpectedResult(NodeStatus::FAILURE);
+  condition_R.setExpectedResult(NodeStatus::E_FAILURE);
   BT::NodeStatus state = parallel_root.executeTick();
 
   // It fails because threshold_failure is 1 for parallel right and
   // condition_R fails
 
-  ASSERT_EQ(NodeStatus::IDLE, parallel_left.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_L1.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_L2.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_L1.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_L2.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, parallel_left.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_L1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_L2.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_L1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_L2.status());
 
-  ASSERT_EQ(NodeStatus::IDLE, parallel_right.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_R.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_R.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, parallel_right.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_R.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_R.status());
 
-  ASSERT_EQ(NodeStatus::FAILURE, state);
+  ASSERT_EQ(NodeStatus::E_FAILURE, state);
 }
 
 TEST_F(ComplexParallelTest, ConditionRightFalse_thresholdF_2)
 {
   parallel_right.setFailureThreshold(2);
-  condition_R.setExpectedResult(NodeStatus::FAILURE);
+  condition_R.setExpectedResult(NodeStatus::E_FAILURE);
   BT::NodeStatus state = parallel_root.executeTick();
 
   // All the actions are running
 
-  ASSERT_EQ(NodeStatus::RUNNING, parallel_left.status());
-  ASSERT_EQ(NodeStatus::SUCCESS, condition_L1.status());
-  ASSERT_EQ(NodeStatus::SUCCESS, condition_L2.status());
-  ASSERT_EQ(NodeStatus::RUNNING, action_L1.status());
-  ASSERT_EQ(NodeStatus::RUNNING, action_L2.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, parallel_left.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, condition_L1.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, condition_L2.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, action_L1.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, action_L2.status());
 
-  ASSERT_EQ(NodeStatus::RUNNING, parallel_right.status());
-  ASSERT_EQ(NodeStatus::FAILURE, condition_R.status());
-  ASSERT_EQ(NodeStatus::RUNNING, action_R.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, parallel_right.status());
+  ASSERT_EQ(NodeStatus::E_FAILURE, condition_R.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, action_R.status());
 
-  ASSERT_EQ(NodeStatus::RUNNING, state);
+  ASSERT_EQ(NodeStatus::E_RUNNING, state);
 
   //----------------------------------------
   std::this_thread::sleep_for(milliseconds(500));
   state = parallel_root.executeTick();
 
-  ASSERT_EQ(NodeStatus::IDLE, parallel_left.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_L1.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_L2.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_L1.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_L2.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, parallel_left.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_L1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_L2.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_L1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_L2.status());
 
-  ASSERT_EQ(NodeStatus::IDLE, parallel_right.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_R.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_R.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, parallel_right.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_R.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_R.status());
 
-  ASSERT_EQ(NodeStatus::SUCCESS, state);
+  ASSERT_EQ(NodeStatus::E_SUCCESS, state);
 }
 
 TEST_F(ComplexParallelTest, ConditionRightFalseAction1Done)
 {
-  condition_R.setExpectedResult(NodeStatus::FAILURE);
+  condition_R.setExpectedResult(NodeStatus::E_FAILURE);
 
   parallel_right.setFailureThreshold(2);
   parallel_left.setSuccessThreshold(4);
@@ -356,37 +356,37 @@ TEST_F(ComplexParallelTest, ConditionRightFalseAction1Done)
   std::this_thread::sleep_for(milliseconds(300));
 
   // parallel_1 hasn't realize (yet) that action_1 has succeeded
-  ASSERT_EQ(NodeStatus::RUNNING, parallel_left.status());
-  ASSERT_EQ(NodeStatus::SUCCESS, condition_L1.status());
-  ASSERT_EQ(NodeStatus::SUCCESS, condition_L2.status());
-  ASSERT_EQ(NodeStatus::SUCCESS, action_L1.status());
-  ASSERT_EQ(NodeStatus::SUCCESS, action_L2.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, parallel_left.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, condition_L1.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, condition_L2.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, action_L1.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, action_L2.status());
 
-  ASSERT_EQ(NodeStatus::RUNNING, parallel_right.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, parallel_right.status());
 
   //------------------------
   state = parallel_root.executeTick();
 
-  ASSERT_EQ(NodeStatus::SUCCESS, parallel_left.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_L1.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_L2.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_L1.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_L2.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, parallel_left.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_L1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_L2.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_L1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_L2.status());
 
-  ASSERT_EQ(NodeStatus::RUNNING, parallel_right.status());
-  ASSERT_EQ(NodeStatus::RUNNING, action_R.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, parallel_right.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, action_R.status());
 
-  ASSERT_EQ(NodeStatus::RUNNING, state);
+  ASSERT_EQ(NodeStatus::E_RUNNING, state);
 
   //----------------------------------
   std::this_thread::sleep_for(milliseconds(300));
   state = parallel_root.executeTick();
 
-  ASSERT_EQ(NodeStatus::IDLE, parallel_left.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_L1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, parallel_left.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_L1.status());
 
-  ASSERT_EQ(NodeStatus::IDLE, parallel_right.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_R.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, parallel_right.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_R.status());
 
-  ASSERT_EQ(NodeStatus::SUCCESS, state);
+  ASSERT_EQ(NodeStatus::E_SUCCESS, state);
 }

@@ -48,7 +48,7 @@ public:
   {
     Position2D mygoal = {1.1, 2.3};
     setOutput("goal", mygoal);
-    return NodeStatus::SUCCESS;
+    return NodeStatus::E_SUCCESS;
   }
   static PortsList providedPorts()
   {
@@ -72,7 +72,7 @@ public:
     }
     Position2D goal = res.value();
     printf("Target positions: [ %.1f, %.1f ]\n", goal.x, goal.y);
-    return NodeStatus::SUCCESS;
+    return NodeStatus::E_SUCCESS;
   }
 
   static PortsList providedPorts()

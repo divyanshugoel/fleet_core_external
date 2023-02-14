@@ -26,26 +26,26 @@ NodeStatus ReactiveSequence::tick()
 
     switch (child_status)
     {
-      case NodeStatus::RUNNING: {
+      case NodeStatus::E_RUNNING: {
         running_count++;
 
         for (size_t i = index + 1; i < childrenCount(); i++)
         {
           haltChild(i);
         }
-        return NodeStatus::RUNNING;
+        return NodeStatus::E_RUNNING;
       }
 
-      case NodeStatus::FAILURE: {
+      case NodeStatus::E_FAILURE: {
         haltChildren();
-        return NodeStatus::FAILURE;
+        return NodeStatus::E_FAILURE;
       }
-      case NodeStatus::SUCCESS: {
+      case NodeStatus::E_SUCCESS: {
         success_count++;
       }
       break;
 
-      case NodeStatus::IDLE: {
+      case NodeStatus::E_IDLE: {
         throw LogicError("A child node must never return IDLE");
       }
     }   // end switch
@@ -54,9 +54,9 @@ NodeStatus ReactiveSequence::tick()
   if (success_count == childrenCount())
   {
     haltChildren();
-    return NodeStatus::SUCCESS;
+    return NodeStatus::E_SUCCESS;
   }
-  return NodeStatus::RUNNING;
+  return NodeStatus::E_RUNNING;
 }
 
 }   // namespace BT
