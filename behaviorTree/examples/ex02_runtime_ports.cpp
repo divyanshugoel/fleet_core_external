@@ -24,7 +24,7 @@ public:
   BT::NodeStatus tick() override
   {
     setOutput("text", "The answer is 42");
-    return NodeStatus::SUCCESS;
+    return NodeStatus::E_SUCCESS;
   }
 };
 
@@ -44,7 +44,7 @@ public:
       throw BT::RuntimeError("missing required input [message]: ", msg.error());
     }
     std::cout << "Robot says: " << msg.value() << std::endl;
-    return BT::NodeStatus::SUCCESS;
+    return BT::NodeStatus::E_SUCCESS;
   }
 };
 

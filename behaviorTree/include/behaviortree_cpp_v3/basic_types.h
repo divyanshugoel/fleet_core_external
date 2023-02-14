@@ -1,32 +1,34 @@
 #ifndef BT_BASIC_TYPES_H
 #define BT_BASIC_TYPES_H
 
+#include <chrono>
+#include <functional>
 #include <iostream>
-#include <vector>
+#include <memory>
 #include <sstream>
+#include <typeinfo>
 #include <unordered_map>
 #include <unordered_set>
-#include <typeinfo>
-#include <functional>
-#include <chrono>
-#include <memory>
-#include "behaviortree_cpp_v3/utils/string_view.hpp"
-#include "behaviortree_cpp_v3/utils/safe_any.hpp"
-#include "behaviortree_cpp_v3/exceptions.h"
+#include <vector>
+
 #include "behaviortree_cpp_v3/utils/expected.hpp"
 #include "behaviortree_cpp_v3/utils/make_unique.hpp"
+#include "behaviortree_cpp_v3/utils/safe_any.hpp"
+#include "behaviortree_cpp_v3/utils/string_view.hpp"
+
+#include "behaviortree_cpp_v3/exceptions.h"
 
 namespace BT
 {
 /// Enumerates the possible types of nodes
 enum class NodeType
 {
-  UNDEFINED = 0,
-  ACTION,
-  CONDITION,
-  CONTROL,
-  DECORATOR,
-  SUBTREE
+    UNDEFINED = 0,
+    ACTION,
+    CONDITION,
+    CONTROL,
+    DECORATOR,
+    SUBTREE
 };
 
 /// Enumerates the states every node can be in after execution during a particular
@@ -34,22 +36,22 @@ enum class NodeType
 /// IMPORTANT: Your custom nodes should NEVER return IDLE.
 enum class NodeStatus
 {
-  IDLE = 0,
-  RUNNING,
-  SUCCESS,
-  FAILURE
+    E_IDLE = 0,
+    E_RUNNING,
+    E_SUCCESS,
+    E_FAILURE
 };
 
 inline bool StatusCompleted(const NodeStatus& status)
 {
-  return status == NodeStatus::SUCCESS || status == NodeStatus::FAILURE;
+    return status == NodeStatus::E_SUCCESS || status == NodeStatus::E_FAILURE;
 }
 
 enum class PortDirection
 {
-  INPUT,
-  OUTPUT,
-  INOUT
+    INPUT,
+    OUTPUT,
+    INOUT
 };
 
 typedef nonstd::string_view StringView;
@@ -65,15 +67,15 @@ typedef nonstd::string_view StringView;
 template <typename T>
 inline T convertFromString(StringView /*str*/)
 {
-  auto type_name = BT::demangle(typeid(T));
+    auto type_name = BT::demangle(typeid(T));
 
-  std::cerr << "You (maybe indirectly) called BT::convertFromString() for type ["
-            << type_name << "], but I can't find the template specialization.\n"
-            << std::endl;
+    std::cerr << "You (maybe indirectly) called BT::convertFromString() for type ["
+              << type_name << "], but I can't find the template specialization.\n"
+              << std::endl;
 
-  throw LogicError(std::string("You didn't implement the template specialization of "
-                               "convertFromString for this type: ") +
-                   type_name);
+    throw LogicError(std::string("You didn't implement the template specialization of "
+                                 "convertFromString for this type: ")
+                     + type_name);
 }
 
 template <>
@@ -100,19 +102,19 @@ float convertFromString<float>(StringView str);
 template <>
 double convertFromString<double>(StringView str);
 
-template <>   // Integer numbers separated by the characted ";"
+template <> // Integer numbers separated by the characted ";"
 std::vector<int> convertFromString<std::vector<int>>(StringView str);
 
-template <>   // Real numbers separated by the characted ";"
+template <> // Real numbers separated by the characted ";"
 std::vector<double> convertFromString<std::vector<double>>(StringView str);
 
-template <>   // This recognizes either 0/1, true/false, TRUE/FALSE
+template <> // This recognizes either 0/1, true/false, TRUE/FALSE
 bool convertFromString<bool>(StringView str);
 
-template <>   // Names with all capital letters
+template <> // Names with all capital letters
 NodeStatus convertFromString<NodeStatus>(StringView str);
 
-template <>   // Names with all capital letters
+template <> // Names with all capital letters
 NodeType convertFromString<NodeType>(StringView str);
 
 template <>
@@ -126,13 +128,15 @@ typedef std::unordered_map<const std::type_info*, StringConverter> StringConvert
 template <typename T>
 inline StringConverter GetAnyFromStringFunctor()
 {
-  return [](StringView str) { return Any(convertFromString<T>(str)); };
+    return [](StringView str) {
+        return Any(convertFromString<T>(str));
+    };
 }
 
 template <>
 inline StringConverter GetAnyFromStringFunctor<void>()
 {
-  return {};
+    return {};
 }
 
 //------------------------------------------------------------------
@@ -140,7 +144,7 @@ inline StringConverter GetAnyFromStringFunctor<void>()
 template <typename T>
 std::string toStr(T value)
 {
-  return std::to_string(value);
+    return std::to_string(value);
 }
 
 std::string toStr(std::string value);
@@ -221,112 +225,106 @@ const std::unordered_set<std::string> ReservedPortNames = {"ID", "name", "_descr
 class PortInfo
 {
 public:
-  PortInfo(PortDirection direction = PortDirection::INOUT) :
-    _type(direction), _info(nullptr)
-  {}
+    PortInfo(PortDirection direction = PortDirection::INOUT)
+        : _type(direction), _info(nullptr)
+    {
+    }
 
-  PortInfo(PortDirection direction, const std::type_info& type_info,
-           StringConverter conv) :
-    _type(direction), _info(&type_info), _converter(conv)
-  {}
+    PortInfo(PortDirection direction, const std::type_info& type_info, StringConverter conv)
+        : _type(direction), _info(&type_info), _converter(conv)
+    {
+    }
 
-  PortDirection direction() const;
+    PortDirection direction() const;
 
-  const std::type_info* type() const;
+    const std::type_info* type() const;
 
-  Any parseString(const char* str) const;
+    Any parseString(const char* str) const;
 
-  Any parseString(const std::string& str) const;
+    Any parseString(const std::string& str) const;
 
-  template <typename T>
-  Any parseString(const T&) const
-  {
-    // avoid compilation errors
-    return {};
-  }
+    template <typename T>
+    Any parseString(const T&) const
+    {
+        // avoid compilation errors
+        return {};
+    }
 
-  void setDescription(StringView description);
+    void setDescription(StringView description);
 
-  void setDefaultValue(StringView default_value_as_string);
+    void setDefaultValue(StringView default_value_as_string);
 
-  const std::string& description() const;
+    const std::string& description() const;
 
-  const std::string& defaultValue() const;
+    const std::string& defaultValue() const;
 
 private:
-  PortDirection _type;
-  const std::type_info* _info;
-  StringConverter _converter;
-  std::string description_;
-  std::string default_value_;
+    PortDirection _type;
+    const std::type_info* _info;
+    StringConverter _converter;
+    std::string description_;
+    std::string default_value_;
 };
 
 template <typename T = void>
-std::pair<std::string, PortInfo> CreatePort(PortDirection direction, StringView name,
-                                            StringView description = {})
+std::pair<std::string, PortInfo> CreatePort(PortDirection direction, StringView name, StringView description = {})
 {
-  auto sname = static_cast<std::string>(name);
-  if (ReservedPortNames.count(sname) != 0)
-  {
-    throw std::runtime_error("A port can not use a reserved name. See ReservedPortNames");
-  }
+    auto sname = static_cast<std::string>(name);
+    if (ReservedPortNames.count(sname) != 0)
+    {
+        throw std::runtime_error("A port can not use a reserved name. See ReservedPortNames");
+    }
 
-  std::pair<std::string, PortInfo> out;
+    std::pair<std::string, PortInfo> out;
 
-  if (std::is_same<T, void>::value)
-  {
-    out = {sname, PortInfo(direction)};
-  }
-  else
-  {
-    out = {sname, PortInfo(direction, typeid(T), GetAnyFromStringFunctor<T>())};
-  }
-  if (!description.empty())
-  {
-    out.second.setDescription(description);
-  }
-  return out;
+    if (std::is_same<T, void>::value)
+    {
+        out = {sname, PortInfo(direction)};
+    }
+    else
+    {
+        out = {sname, PortInfo(direction, typeid(T), GetAnyFromStringFunctor<T>())};
+    }
+    if (!description.empty())
+    {
+        out.second.setDescription(description);
+    }
+    return out;
 }
 
 //----------
 template <typename T = void>
-inline std::pair<std::string, PortInfo> InputPort(StringView name,
-                                                  StringView description = {})
+inline std::pair<std::string, PortInfo> InputPort(StringView name, StringView description = {})
 {
-  return CreatePort<T>(PortDirection::INPUT, name, description);
+    return CreatePort<T>(PortDirection::INPUT, name, description);
 }
 
 template <typename T = void>
-inline std::pair<std::string, PortInfo> OutputPort(StringView name,
-                                                   StringView description = {})
+inline std::pair<std::string, PortInfo> OutputPort(StringView name, StringView description = {})
 {
-  return CreatePort<T>(PortDirection::OUTPUT, name, description);
+    return CreatePort<T>(PortDirection::OUTPUT, name, description);
 }
 
 template <typename T = void>
-inline std::pair<std::string, PortInfo> BidirectionalPort(StringView name,
-                                                          StringView description = {})
+inline std::pair<std::string, PortInfo> BidirectionalPort(StringView name, StringView description = {})
 {
-  return CreatePort<T>(PortDirection::INOUT, name, description);
+    return CreatePort<T>(PortDirection::INOUT, name, description);
 }
 //----------
 template <typename T = void>
-inline std::pair<std::string, PortInfo> InputPort(StringView name, const T& default_value,
-                                                  StringView description)
+inline std::pair<std::string, PortInfo> InputPort(StringView name, const T& default_value, StringView description)
 {
-  auto out = CreatePort<T>(PortDirection::INPUT, name, description);
-  out.second.setDefaultValue(BT::toStr(default_value));
-  return out;
+    auto out = CreatePort<T>(PortDirection::INPUT, name, description);
+    out.second.setDefaultValue(BT::toStr(default_value));
+    return out;
 }
 
 template <typename T = void>
-inline std::pair<std::string, PortInfo> BidirectionalPort(StringView name,
-                                                          const T& default_value,
-                                                          StringView description)
+inline std::pair<std::string, PortInfo> BidirectionalPort(StringView name, const T& default_value, StringView description)
 {
-  auto out = CreatePort<T>(PortDirection::INOUT, name, description);
-  out.second.setDefaultValue(BT::toStr(default_value));
-  return out;
+    auto out = CreatePort<T>(PortDirection::INOUT, name, description);
+    out.second.setDefaultValue(BT::toStr(default_value));
+    return out;
 }
 //----------
 
@@ -341,26 +339,26 @@ template <typename T>
 struct has_static_method_providedPorts<
     T, typename std::enable_if<
            std::is_same<decltype(T::providedPorts()), PortsList>::value>::type>
-  : std::true_type
+    : std::true_type
 {
 };
 
 template <typename T>
 inline PortsList getProvidedPorts(enable_if<has_static_method_providedPorts<T>> = nullptr)
 {
-  return T::providedPorts();
+    return T::providedPorts();
 }
 
 template <typename T>
 inline PortsList
-    getProvidedPorts(enable_if_not<has_static_method_providedPorts<T>> = nullptr)
+getProvidedPorts(enable_if_not<has_static_method_providedPorts<T>> = nullptr)
 {
-  return {};
+    return {};
 }
 
 typedef std::chrono::high_resolution_clock::time_point TimePoint;
 typedef std::chrono::high_resolution_clock::duration Duration;
 
-}   // namespace BT
+} // namespace BT
 
-#endif   // BT_BASIC_TYPES_H
+#endif // BT_BASIC_TYPES_H

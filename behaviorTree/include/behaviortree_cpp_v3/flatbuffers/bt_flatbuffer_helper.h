@@ -32,16 +32,16 @@ inline Serialization::NodeStatus convertToFlatbuffers(BT::NodeStatus type)
 {
   switch (type)
   {
-    case BT::NodeStatus::IDLE:
-      return Serialization::NodeStatus::IDLE;
-    case BT::NodeStatus::SUCCESS:
-      return Serialization::NodeStatus::SUCCESS;
-    case BT::NodeStatus::RUNNING:
-      return Serialization::NodeStatus::RUNNING;
-    case BT::NodeStatus::FAILURE:
-      return Serialization::NodeStatus::FAILURE;
+    case BT::NodeStatus::E_IDLE:
+      return Serialization::NodeStatus::E_IDLE;
+    case BT::NodeStatus::E_SUCCESS:
+      return Serialization::NodeStatus::E_SUCCESS;
+    case BT::NodeStatus::E_RUNNING:
+      return Serialization::NodeStatus::E_RUNNING;
+    case BT::NodeStatus::E_FAILURE:
+      return Serialization::NodeStatus::E_FAILURE;
   }
-  return Serialization::NodeStatus::IDLE;
+  return Serialization::NodeStatus::E_IDLE;
 }
 
 inline Serialization::PortDirection convertToFlatbuffers(BT::PortDirection direction)

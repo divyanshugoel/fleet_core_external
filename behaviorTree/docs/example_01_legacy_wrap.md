@@ -75,7 +75,7 @@ int main()
 
         bool res = move_to.go( goal );
         // convert bool to NodeStatus
-        return res ? NodeStatus::SUCCESS : NodeStatus::FAILURE;
+        return res ? NodeStatus::E_SUCCESS : NodeStatus::E_FAILURE;
     };
 
     BehaviorTreeFactory factory;

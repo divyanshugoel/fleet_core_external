@@ -89,13 +89,13 @@ class SleepNode : public BT::StatefulActionNode
         if( msec <= 0 )
         {
             // no need to go into the RUNNING state
-            return NodeStatus::SUCCESS;
+            return NodeStatus::E_SUCCESS;
         }
         else {
             using namespace std::chrono;
             // once the deadline is reached, we will return SUCCESS.
             deadline_ = system_clock::now() + milliseconds(msec);
-            return NodeStatus::RUNNING;
+            return NodeStatus::E_RUNNING;
         }
     }
 
@@ -104,10 +104,10 @@ class SleepNode : public BT::StatefulActionNode
     {
         if ( std::chrono::system_clock::now() >= deadline_ )
         {
-            return NodeStatus::SUCCESS;
+            return NodeStatus::E_SUCCESS;
         }
         else {
-            return NodeStatus::RUNNING;
+            return NodeStatus::E_RUNNING;
         }
     }
 

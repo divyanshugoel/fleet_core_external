@@ -49,27 +49,27 @@ NodeStatus RetryNode::tick()
     }
   }
 
-  setStatus(NodeStatus::RUNNING);
+  setStatus(NodeStatus::E_RUNNING);
 
   while (try_count_ < max_attempts_ || max_attempts_ == -1)
   {
     NodeStatus child_state = child_node_->executeTick();
     switch (child_state)
     {
-      case NodeStatus::SUCCESS: {
+      case NodeStatus::E_SUCCESS: {
         try_count_ = 0;
         haltChild();
-        return (NodeStatus::SUCCESS);
+        return (NodeStatus::E_SUCCESS);
       }
 
-      case NodeStatus::FAILURE: {
+      case NodeStatus::E_FAILURE: {
         try_count_++;
         haltChild();
       }
       break;
 
-      case NodeStatus::RUNNING: {
-        return NodeStatus::RUNNING;
+      case NodeStatus::E_RUNNING: {
+        return NodeStatus::E_RUNNING;
       }
 
       default: {
@@ -79,7 +79,7 @@ NodeStatus RetryNode::tick()
   }
 
   try_count_ = 0;
-  return NodeStatus::FAILURE;
+  return NodeStatus::E_FAILURE;
 }
 
 }   // namespace BT

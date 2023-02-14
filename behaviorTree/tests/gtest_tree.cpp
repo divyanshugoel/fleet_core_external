@@ -53,30 +53,30 @@ struct BehaviorTreeTest : testing::Test
 
 TEST_F(BehaviorTreeTest, Condition1ToFalseCondition2True)
 {
-  condition_1.setExpectedResult(NodeStatus::FAILURE);
-  condition_2.setExpectedResult(NodeStatus::SUCCESS);
+  condition_1.setExpectedResult(NodeStatus::E_FAILURE);
+  condition_2.setExpectedResult(NodeStatus::E_SUCCESS);
 
   BT::NodeStatus state = root.executeTick();
 
-  ASSERT_EQ(NodeStatus::RUNNING, state);
-  ASSERT_EQ(NodeStatus::SUCCESS, fal_conditions.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_2.status());
-  ASSERT_EQ(NodeStatus::RUNNING, action_1.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, state);
+  ASSERT_EQ(NodeStatus::E_SUCCESS, fal_conditions.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_2.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, action_1.status());
 }
 
 TEST_F(BehaviorTreeTest, Condition2ToFalseCondition1True)
 {
-  condition_2.setExpectedResult(NodeStatus::FAILURE);
-  condition_1.setExpectedResult(NodeStatus::SUCCESS);
+  condition_2.setExpectedResult(NodeStatus::E_FAILURE);
+  condition_1.setExpectedResult(NodeStatus::E_SUCCESS);
 
   BT::NodeStatus state = root.executeTick();
 
-  ASSERT_EQ(NodeStatus::RUNNING, state);
-  ASSERT_EQ(NodeStatus::SUCCESS, fal_conditions.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_2.status());
-  ASSERT_EQ(NodeStatus::RUNNING, action_1.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, state);
+  ASSERT_EQ(NodeStatus::E_SUCCESS, fal_conditions.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_2.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, action_1.status());
 }
 
 TEST_F(BehaviorTreeTest, PrintWithStream)

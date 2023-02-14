@@ -24,7 +24,7 @@ static uint16_t getUID()
 
 TreeNode::TreeNode(std::string name, NodeConfiguration config) :
   name_(std::move(name)),
-  status_(NodeStatus::IDLE),
+  status_(NodeStatus::E_IDLE),
   uid_(getUID()),
   config_(std::move(config))
 {}
@@ -79,7 +79,7 @@ void TreeNode::setStatus(NodeStatus new_status)
 void TreeNode::resetStatus()
 {
   std::unique_lock<std::mutex> lock(state_mutex_);
-  status_ = NodeStatus::IDLE;
+  status_ = NodeStatus::E_IDLE;
 }
 
 NodeStatus TreeNode::status() const
@@ -106,7 +106,7 @@ const std::string& TreeNode::name() const
 
 bool TreeNode::isHalted() const
 {
-  return status_ == NodeStatus::IDLE;
+  return status_ == NodeStatus::E_IDLE;
 }
 
 TreeNode::StatusChangeSubscriber

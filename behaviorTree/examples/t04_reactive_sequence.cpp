@@ -84,17 +84,17 @@ int main()
 
     std::cout << "\n--- 1st executeTick() ---" << std::endl;
     status = tree.tickRoot();
-    Assert(status == NodeStatus::RUNNING);
+    Assert(status == NodeStatus::E_RUNNING);
 
     tree.sleep(milliseconds(150));
     std::cout << "\n--- 2nd executeTick() ---" << std::endl;
     status = tree.tickRoot();
-    Assert(status == NodeStatus::RUNNING);
+    Assert(status == NodeStatus::E_RUNNING);
 
     tree.sleep(milliseconds(150));
     std::cout << "\n--- 3rd executeTick() ---" << std::endl;
     status = tree.tickRoot();
-    Assert(status == NodeStatus::SUCCESS);
+    Assert(status == NodeStatus::E_SUCCESS);
 
     std::cout << std::endl;
   }

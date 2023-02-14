@@ -54,7 +54,7 @@ public:
   BT::NodeStatus tick() override
   {
     setOutput("text", "The answer is 42");
-    return BT::NodeStatus::SUCCESS;
+    return BT::NodeStatus::E_SUCCESS;
   }
 
   // A node having ports MUST implement this STATIC method

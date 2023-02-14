@@ -17,7 +17,7 @@
 BT::AsyncActionTest::AsyncActionTest(const std::string& name, BT::Duration deadline_ms) :
   AsyncActionNode(name, {}), success_count_(0), failure_count_(0)
 {
-  expected_result_ = NodeStatus::SUCCESS;
+  expected_result_ = NodeStatus::E_SUCCESS;
   time_ = deadline_ms;
   tick_count_ = 0;
 }
@@ -38,14 +38,14 @@ BT::NodeStatus BT::AsyncActionTest::tick()
   // check if we exited the while() loop because of the flag stop_loop_
   if (isHaltRequested())
   {
-    return NodeStatus::IDLE;
+    return NodeStatus::E_IDLE;
   }
 
-  if (expected_result_ == NodeStatus::SUCCESS)
+  if (expected_result_ == NodeStatus::E_SUCCESS)
   {
     success_count_++;
   }
-  else if (expected_result_ == NodeStatus::FAILURE)
+  else if (expected_result_ == NodeStatus::E_FAILURE)
   {
     failure_count_++;
   }
@@ -74,7 +74,7 @@ void BT::AsyncActionTest::setExpectedResult(BT::NodeStatus res)
 BT::SyncActionTest::SyncActionTest(const std::string& name) : SyncActionNode(name, {})
 {
   tick_count_ = 0;
-  expected_result_ = NodeStatus::SUCCESS;
+  expected_result_ = NodeStatus::E_SUCCESS;
 }
 
 BT::NodeStatus BT::SyncActionTest::tick()

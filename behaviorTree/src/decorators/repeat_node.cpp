@@ -43,7 +43,7 @@ NodeStatus RepeatNode::tick()
     }
   }
 
-  setStatus(NodeStatus::RUNNING);
+  setStatus(NodeStatus::E_RUNNING);
 
   while (repeat_count_ < num_cycles_ || num_cycles_ == -1)
   {
@@ -51,20 +51,20 @@ NodeStatus RepeatNode::tick()
 
     switch (child_state)
     {
-      case NodeStatus::SUCCESS: {
+      case NodeStatus::E_SUCCESS: {
         repeat_count_++;
         haltChild();
       }
       break;
 
-      case NodeStatus::FAILURE: {
+      case NodeStatus::E_FAILURE: {
         repeat_count_ = 0;
         haltChild();
-        return (NodeStatus::FAILURE);
+        return (NodeStatus::E_FAILURE);
       }
 
-      case NodeStatus::RUNNING: {
-        return NodeStatus::RUNNING;
+      case NodeStatus::E_RUNNING: {
+        return NodeStatus::E_RUNNING;
       }
 
       default: {
@@ -74,7 +74,7 @@ NodeStatus RepeatNode::tick()
   }
 
   repeat_count_ = 0;
-  return NodeStatus::SUCCESS;
+  return NodeStatus::E_SUCCESS;
 }
 
 void RepeatNode::halt()

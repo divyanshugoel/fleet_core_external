@@ -104,7 +104,7 @@ protected:
  * - in the overriden halt() method, you can do some cleanup, but do not forget to
  *   invoke the base class method AsyncActionNode::halt();
  *
- * - remember, with few exceptions, a halted AsyncAction must return NodeStatus::IDLE.
+ * - remember, with few exceptions, a halted AsyncAction must return NodeStatus::E_IDLE.
  *
  * For a complete example, look at __AsyncActionTest__ in action_test_node.h in the folder test.
  *

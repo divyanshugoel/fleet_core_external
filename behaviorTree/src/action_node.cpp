@@ -31,10 +31,10 @@ NodeStatus SimpleActionNode::tick()
 {
   NodeStatus prev_status = status();
 
-  if (prev_status == NodeStatus::IDLE)
+  if (prev_status == NodeStatus::E_IDLE)
   {
-    setStatus(NodeStatus::RUNNING);
-    prev_status = NodeStatus::RUNNING;
+    setStatus(NodeStatus::E_RUNNING);
+    prev_status = NodeStatus::E_RUNNING;
   }
 
   NodeStatus status = tick_functor_(*this);
@@ -54,7 +54,7 @@ SyncActionNode::SyncActionNode(const std::string& name, const NodeConfiguration&
 NodeStatus SyncActionNode::executeTick()
 {
   auto stat = ActionNodeBase::executeTick();
-  if (stat == NodeStatus::RUNNING)
+  if (stat == NodeStatus::E_RUNNING)
   {
     throw LogicError("SyncActionNode MUST never return RUNNING");
   }
@@ -95,7 +95,7 @@ CoroActionNode::~CoroActionNode()
 
 void CoroActionNode::setStatusRunningAndYield()
 {
-  setStatus(NodeStatus::RUNNING);
+  setStatus(NodeStatus::E_RUNNING);
   (*_p->yield_ptr)();
 }
 
@@ -107,7 +107,7 @@ NodeStatus CoroActionNode::executeTick()
     return status();
   }
 
-  if (status() == NodeStatus::RUNNING && (bool)_p->coro)
+  if (status() == NodeStatus::E_RUNNING && (bool)_p->coro)
   {
     (*_p->coro)();
   }
@@ -125,20 +125,20 @@ NodeStatus StatefulActionNode::tick()
 {
   const NodeStatus initial_status = status();
 
-  if (initial_status == NodeStatus::IDLE)
+  if (initial_status == NodeStatus::E_IDLE)
   {
     NodeStatus new_status = onStart();
-    if (new_status == NodeStatus::IDLE)
+    if (new_status == NodeStatus::E_IDLE)
     {
       throw std::logic_error("StatefulActionNode::onStart() must not return IDLE");
     }
     return new_status;
   }
   //------------------------------------------
-  if (initial_status == NodeStatus::RUNNING)
+  if (initial_status == NodeStatus::E_RUNNING)
   {
     NodeStatus new_status = onRunning();
-    if (new_status == NodeStatus::IDLE)
+    if (new_status == NodeStatus::E_IDLE)
     {
       throw std::logic_error("StatefulActionNode::onRunning() must not return "
                              "IDLE");
@@ -151,7 +151,7 @@ NodeStatus StatefulActionNode::tick()
 
 void StatefulActionNode::halt()
 {
-  if (status() == NodeStatus::RUNNING)
+  if (status() == NodeStatus::E_RUNNING)
   {
     onHalted();
   }
@@ -162,9 +162,9 @@ NodeStatus BT::AsyncActionNode::executeTick()
   using lock_type = std::unique_lock<std::mutex>;
   //send signal to other thread.
   // The other thread is in charge for changing the status
-  if (status() == NodeStatus::IDLE)
+  if (status() == NodeStatus::E_IDLE)
   {
-    setStatus(NodeStatus::RUNNING);
+    setStatus(NodeStatus::E_RUNNING);
     halt_requested_ = false;
     thread_handle_ = std::async(std::launch::async, [this]() {
       try
@@ -183,7 +183,7 @@ NodeStatus BT::AsyncActionNode::executeTick()
         // Set the exception pointer and the status atomically.
         lock_type l(mutex_);
         exptr_ = std::current_exception();
-        setStatus(BT::NodeStatus::IDLE);
+        setStatus(BT::NodeStatus::E_IDLE);
       }
       emitStateChanged();
     });

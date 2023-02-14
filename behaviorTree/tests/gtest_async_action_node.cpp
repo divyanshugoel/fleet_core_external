@@ -24,7 +24,7 @@ struct MockedAsyncActionNode : public BT::AsyncActionNode
     do
     {
       executeTick();
-    } while (status() == BT::NodeStatus::RUNNING);
+    } while (status() == BT::NodeStatus::E_RUNNING);
     return status();
   }
 
@@ -48,8 +48,8 @@ struct NodeStatusFixture : public testing::WithParamInterface<BT::NodeStatus>,
 };
 
 INSTANTIATE_TEST_CASE_P(/**/, NodeStatusFixture,
-                        testing::Values(BT::NodeStatus::SUCCESS,
-                                        BT::NodeStatus::FAILURE));
+                        testing::Values(BT::NodeStatus::E_SUCCESS,
+                                        BT::NodeStatus::E_FAILURE));
 
 TEST_P(NodeStatusFixture, normal_routine)
 {
@@ -75,7 +75,7 @@ TEST_F(MockedAsyncActionFixture, no_halt)
   ASSERT_TRUE(sn.isHaltRequested());
 
   // Below we further verify that the halt flag is cleaned up properly.
-  const BT::NodeStatus state{BT::NodeStatus::SUCCESS};
+  const BT::NodeStatus state{BT::NodeStatus::E_SUCCESS};
   EXPECT_CALL(sn, tick()).WillOnce(testing::Return(state));
 
   // Spin the node and check.
@@ -90,7 +90,7 @@ TEST_F(MockedAsyncActionFixture, halt)
   std::mutex m;
   std::condition_variable cv;
 
-  const BT::NodeStatus state{BT::NodeStatus::SUCCESS};
+  const BT::NodeStatus state{BT::NodeStatus::E_SUCCESS};
   EXPECT_CALL(sn, tick()).WillOnce(testing::Invoke([&]() {
     // Sleep until we send the release signal.
     std::unique_lock<std::mutex> l(m);
@@ -106,7 +106,7 @@ TEST_F(MockedAsyncActionFixture, halt)
   // Try to halt the node (cv will block it...)
   std::future<void> halted = std::async(std::launch::async, [&]() { sn.halt(); });
   ASSERT_EQ(halted.wait_for(std::chrono::milliseconds(10)), std::future_status::timeout);
-  ASSERT_EQ(sn.status(), BT::NodeStatus::RUNNING);
+  ASSERT_EQ(sn.status(), BT::NodeStatus::E_RUNNING);
 
   // Release the method.
   {
@@ -128,15 +128,15 @@ TEST_F(MockedAsyncActionFixture, exception)
   // Setup the mock.
   EXPECT_CALL(sn, tick()).WillOnce(testing::Invoke([&]() {
     throw std::runtime_error("This is not good!");
-    return BT::NodeStatus::SUCCESS;
+    return BT::NodeStatus::E_SUCCESS;
   }));
 
   ASSERT_ANY_THROW(sn.spinUntilDone());
   testing::Mock::VerifyAndClearExpectations(&sn);
 
   // Now verify that the exception is cleared up (we succeed).
-  sn.setStatus(BT::NodeStatus::IDLE);
-  const BT::NodeStatus state{BT::NodeStatus::SUCCESS};
+  sn.setStatus(BT::NodeStatus::E_IDLE);
+  const BT::NodeStatus state{BT::NodeStatus::E_SUCCESS};
   EXPECT_CALL(sn, tick()).WillOnce(testing::Return(state));
   ASSERT_EQ(sn.spinUntilDone(), state);
 }

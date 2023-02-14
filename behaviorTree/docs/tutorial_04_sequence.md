@@ -71,7 +71,7 @@ NodeStatus MoveBaseAction::tick()
     }
 
     std::cout << "[ MoveBase: FINISHED ]" << std::endl;
-    return _halt_requested ? NodeStatus::FAILURE : NodeStatus::SUCCESS;
+    return _halt_requested ? NodeStatus::E_FAILURE : NodeStatus::E_SUCCESS;
 }
 ```
 

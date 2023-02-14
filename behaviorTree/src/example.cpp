@@ -16,7 +16,7 @@ BT::ReturnStatus MyCondition::Tick()
 {
   std::cout << "The Condition is true" << std::endl;
 
-  return NodeStatus::SUCCESS;
+  return NodeStatus::E_SUCCESS;
 }
 
 class MyAction : public BT::ActionNode
@@ -37,25 +37,25 @@ BT::ReturnStatus MyAction::Tick()
   std::this_thread::sleep_for(std::chrono::milliseconds(500));
   if (is_halted())
   {
-    return NodeStatus::IDLE;
+    return NodeStatus::E_IDLE;
   }
 
   std::cout << "The Action is doing some others operations" << std::endl;
   std::this_thread::sleep_for(std::chrono::milliseconds(500));
   if (is_halted())
   {
-    return NodeStatus::IDLE;
+    return NodeStatus::E_IDLE;
   }
 
   std::cout << "The Action is doing more operations" << std::endl;
   std::this_thread::sleep_for(std::chrono::milliseconds(500));
   if (is_halted())
   {
-    return NodeStatus::IDLE;
+    return NodeStatus::E_IDLE;
   }
 
   std::cout << "The Action has succeeded" << std::endl;
-  return NodeStatus::SUCCESS;
+  return NodeStatus::E_SUCCESS;
 }
 
 void MyAction::Halt()

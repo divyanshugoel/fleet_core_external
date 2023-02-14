@@ -7,7 +7,7 @@ using namespace BT;
 NodeStatus SayHello()
 {
   printf("hello\n");
-  return NodeStatus::SUCCESS;
+  return NodeStatus::E_SUCCESS;
 }
 
 class ActionTestNode : public ActionNode
@@ -25,13 +25,13 @@ public:
     {
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-    return NodeStatus::SUCCESS;
+    return NodeStatus::E_SUCCESS;
   }
 
   virtual void halt() override
   {
     stop_loop_ = true;
-    setStatus(NodeStatus::IDLE);
+    setStatus(NodeStatus::E_IDLE);
   }
 
 private:
@@ -50,9 +50,9 @@ int main()
 
   int count = 0;
 
-  NodeStatus status = NodeStatus::RUNNING;
+  NodeStatus status = NodeStatus::E_RUNNING;
 
-  while (status == NodeStatus::RUNNING)
+  while (status == NodeStatus::E_RUNNING)
   {
     status = root.executeTick();
 

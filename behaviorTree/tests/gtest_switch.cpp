@@ -63,18 +63,18 @@ TEST_F(SwitchTest, DefaultCase)
 {
   BT::NodeStatus state = root->executeTick();
 
-  ASSERT_EQ(NodeStatus::IDLE, action_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_42.status());
-  ASSERT_EQ(NodeStatus::RUNNING, action_def.status());
-  ASSERT_EQ(NodeStatus::RUNNING, state);
+  ASSERT_EQ(NodeStatus::E_IDLE, action_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_42.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, action_def.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, state);
 
   std::this_thread::sleep_for(milliseconds(110));
   state = root->executeTick();
 
-  ASSERT_EQ(NodeStatus::IDLE, action_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_42.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_def.status());
-  ASSERT_EQ(NodeStatus::SUCCESS, state);
+  ASSERT_EQ(NodeStatus::E_IDLE, action_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_42.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_def.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, state);
 }
 
 TEST_F(SwitchTest, Case1)
@@ -82,18 +82,18 @@ TEST_F(SwitchTest, Case1)
   bb->set("my_var", "1");
   BT::NodeStatus state = root->executeTick();
 
-  ASSERT_EQ(NodeStatus::RUNNING, action_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_42.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_def.status());
-  ASSERT_EQ(NodeStatus::RUNNING, state);
+  ASSERT_EQ(NodeStatus::E_RUNNING, action_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_42.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_def.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, state);
 
   std::this_thread::sleep_for(milliseconds(110));
   state = root->executeTick();
 
-  ASSERT_EQ(NodeStatus::IDLE, action_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_42.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_def.status());
-  ASSERT_EQ(NodeStatus::SUCCESS, state);
+  ASSERT_EQ(NodeStatus::E_IDLE, action_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_42.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_def.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, state);
 }
 
 TEST_F(SwitchTest, Case2)
@@ -101,18 +101,18 @@ TEST_F(SwitchTest, Case2)
   bb->set("my_var", "42");
   BT::NodeStatus state = root->executeTick();
 
-  ASSERT_EQ(NodeStatus::IDLE, action_1.status());
-  ASSERT_EQ(NodeStatus::RUNNING, action_42.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_def.status());
-  ASSERT_EQ(NodeStatus::RUNNING, state);
+  ASSERT_EQ(NodeStatus::E_IDLE, action_1.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, action_42.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_def.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, state);
 
   std::this_thread::sleep_for(milliseconds(110));
   state = root->executeTick();
 
-  ASSERT_EQ(NodeStatus::IDLE, action_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_42.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_def.status());
-  ASSERT_EQ(NodeStatus::SUCCESS, state);
+  ASSERT_EQ(NodeStatus::E_IDLE, action_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_42.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_def.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, state);
 }
 
 TEST_F(SwitchTest, CaseNone)
@@ -120,18 +120,18 @@ TEST_F(SwitchTest, CaseNone)
   bb->set("my_var", "none");
   BT::NodeStatus state = root->executeTick();
 
-  ASSERT_EQ(NodeStatus::IDLE, action_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_42.status());
-  ASSERT_EQ(NodeStatus::RUNNING, action_def.status());
-  ASSERT_EQ(NodeStatus::RUNNING, state);
+  ASSERT_EQ(NodeStatus::E_IDLE, action_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_42.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, action_def.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, state);
 
   std::this_thread::sleep_for(milliseconds(110));
   state = root->executeTick();
 
-  ASSERT_EQ(NodeStatus::IDLE, action_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_42.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_def.status());
-  ASSERT_EQ(NodeStatus::SUCCESS, state);
+  ASSERT_EQ(NodeStatus::E_IDLE, action_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_42.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_def.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, state);
 }
 
 TEST_F(SwitchTest, CaseSwitchToDefault)
@@ -139,42 +139,42 @@ TEST_F(SwitchTest, CaseSwitchToDefault)
   bb->set("my_var", "1");
   BT::NodeStatus state = root->executeTick();
 
-  ASSERT_EQ(NodeStatus::RUNNING, action_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_42.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_def.status());
-  ASSERT_EQ(NodeStatus::RUNNING, state);
+  ASSERT_EQ(NodeStatus::E_RUNNING, action_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_42.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_def.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, state);
 
   std::this_thread::sleep_for(milliseconds(10));
   state = root->executeTick();
-  ASSERT_EQ(NodeStatus::RUNNING, action_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_42.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_def.status());
-  ASSERT_EQ(NodeStatus::RUNNING, state);
+  ASSERT_EQ(NodeStatus::E_RUNNING, action_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_42.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_def.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, state);
 
   // Switch Node does not feels changes. Only when tick.
   // (not reactive)
   std::this_thread::sleep_for(milliseconds(10));
   bb->set("my_var", "");
   std::this_thread::sleep_for(milliseconds(10));
-  ASSERT_EQ(NodeStatus::RUNNING, action_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_42.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_def.status());
-  ASSERT_EQ(NodeStatus::RUNNING, root->status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, action_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_42.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_def.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, root->status());
 
   std::this_thread::sleep_for(milliseconds(10));
   state = root->executeTick();
-  ASSERT_EQ(NodeStatus::IDLE, action_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_42.status());
-  ASSERT_EQ(NodeStatus::RUNNING, action_def.status());
-  ASSERT_EQ(NodeStatus::RUNNING, state);
+  ASSERT_EQ(NodeStatus::E_IDLE, action_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_42.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, action_def.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, state);
 
   std::this_thread::sleep_for(milliseconds(110));
   state = root->executeTick();
 
-  ASSERT_EQ(NodeStatus::IDLE, action_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_42.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_def.status());
-  ASSERT_EQ(NodeStatus::SUCCESS, root->status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_42.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_def.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, root->status());
 }
 
 TEST_F(SwitchTest, CaseSwitchToAction2)
@@ -182,26 +182,26 @@ TEST_F(SwitchTest, CaseSwitchToAction2)
   bb->set("my_var", "1");
   BT::NodeStatus state = root->executeTick();
 
-  ASSERT_EQ(NodeStatus::RUNNING, action_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_42.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_def.status());
-  ASSERT_EQ(NodeStatus::RUNNING, state);
+  ASSERT_EQ(NodeStatus::E_RUNNING, action_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_42.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_def.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, state);
 
   bb->set("my_var", "42");
   std::this_thread::sleep_for(milliseconds(10));
   state = root->executeTick();
-  ASSERT_EQ(NodeStatus::IDLE, action_1.status());
-  ASSERT_EQ(NodeStatus::RUNNING, action_42.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_def.status());
-  ASSERT_EQ(NodeStatus::RUNNING, state);
+  ASSERT_EQ(NodeStatus::E_IDLE, action_1.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, action_42.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_def.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, state);
 
   std::this_thread::sleep_for(milliseconds(110));
   state = root->executeTick();
 
-  ASSERT_EQ(NodeStatus::IDLE, action_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_42.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_def.status());
-  ASSERT_EQ(NodeStatus::SUCCESS, root->status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_42.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_def.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, root->status());
 }
 
 TEST_F(SwitchTest, ActionFailure)
@@ -209,18 +209,18 @@ TEST_F(SwitchTest, ActionFailure)
   bb->set("my_var", "1");
   BT::NodeStatus state = root->executeTick();
 
-  action_1.setExpectedResult(NodeStatus::FAILURE);
+  action_1.setExpectedResult(NodeStatus::E_FAILURE);
 
-  ASSERT_EQ(NodeStatus::RUNNING, action_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_42.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_def.status());
-  ASSERT_EQ(NodeStatus::RUNNING, state);
+  ASSERT_EQ(NodeStatus::E_RUNNING, action_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_42.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_def.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, state);
 
   std::this_thread::sleep_for(milliseconds(110));
   state = root->executeTick();
 
-  ASSERT_EQ(NodeStatus::FAILURE, state);
-  ASSERT_EQ(NodeStatus::IDLE, action_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_42.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_def.status());
+  ASSERT_EQ(NodeStatus::E_FAILURE, state);
+  ASSERT_EQ(NodeStatus::E_IDLE, action_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_42.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_def.status());
 }

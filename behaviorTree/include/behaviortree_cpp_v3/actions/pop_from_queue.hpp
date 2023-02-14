@@ -72,17 +72,17 @@ class PopFromQueue : public SyncActionNode
 
             if( items.empty() )
             {
-                return NodeStatus::FAILURE;
+                return NodeStatus::E_FAILURE;
             }
             else{
                 T val = items.front();
                 items.pop_front();
                 setOutput("popped_item", val);
-                return NodeStatus::SUCCESS;
+                return NodeStatus::E_SUCCESS;
             }
         }
         else{
-            return NodeStatus::FAILURE;
+            return NodeStatus::E_FAILURE;
         }
     }
 
@@ -123,14 +123,14 @@ class QueueSize : public SyncActionNode
 
             if( items.empty() )
             {
-                return NodeStatus::FAILURE;
+                return NodeStatus::E_FAILURE;
             }
             else{
                 setOutput("size", int(items.size()) );
-                return NodeStatus::SUCCESS;
+                return NodeStatus::E_SUCCESS;
             }
         }
-        return NodeStatus::FAILURE;
+        return NodeStatus::E_FAILURE;
     }
 
     static PortsList providedPorts()

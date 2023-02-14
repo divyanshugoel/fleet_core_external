@@ -19,7 +19,7 @@ public:
   BT::NodeStatus tick() override
   {
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    return BT::NodeStatus::SUCCESS;
+    return BT::NodeStatus::E_SUCCESS;
   }
 };
 

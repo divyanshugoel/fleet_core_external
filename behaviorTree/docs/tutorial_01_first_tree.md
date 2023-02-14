@@ -36,7 +36,7 @@ class ApproachObject : public BT::SyncActionNode
     BT::NodeStatus tick() override
     {
         std::cout << "ApproachObject: " << this->name() << std::endl;
-        return BT::NodeStatus::SUCCESS;
+        return BT::NodeStatus::E_SUCCESS;
     }
 };
 ``` 
@@ -70,7 +70,7 @@ using namespace BT;
 BT::NodeStatus CheckBattery()
 {
     std::cout << "[ Battery: OK ]" << std::endl;
-    return BT::NodeStatus::SUCCESS;
+    return BT::NodeStatus::E_SUCCESS;
 }
 
 // We want to wrap into an ActionNode the methods open() and close()
@@ -82,13 +82,13 @@ public:
 	NodeStatus open() {
 		_open = true;
 		std::cout << "GripperInterface::open" << std::endl;
-		return NodeStatus::SUCCESS;
+		return NodeStatus::E_SUCCESS;
 	}
 
 	NodeStatus close() {
 		std::cout << "GripperInterface::close" << std::endl;
 		_open = false;
-		return NodeStatus::SUCCESS;
+		return NodeStatus::E_SUCCESS;
 	}
 
 private:

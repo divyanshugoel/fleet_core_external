@@ -20,13 +20,13 @@ static bool _door_locked = true;
 NodeStatus CrossDoor::IsDoorOpen()
 {
     SleepMS(500);
-    return _door_open ? NodeStatus::SUCCESS : NodeStatus::FAILURE;
+    return _door_open ? NodeStatus::E_SUCCESS : NodeStatus::E_FAILURE;
 }
 
 NodeStatus CrossDoor::IsDoorLocked()
 {
     SleepMS(500);
-    return _door_locked ? NodeStatus::SUCCESS : NodeStatus::FAILURE;
+    return _door_locked ? NodeStatus::E_SUCCESS : NodeStatus::E_FAILURE;
 }
 
 NodeStatus CrossDoor::UnlockDoor()
@@ -36,30 +36,30 @@ NodeStatus CrossDoor::UnlockDoor()
         SleepMS(2000);
         _door_locked = false;
     }
-    return NodeStatus::SUCCESS;
+    return NodeStatus::E_SUCCESS;
 }
 
 NodeStatus CrossDoor::PassThroughDoor()
 {
     SleepMS(1000);
-    return _door_open ? NodeStatus::SUCCESS : NodeStatus::FAILURE;
+    return _door_open ? NodeStatus::E_SUCCESS : NodeStatus::E_FAILURE;
 }
 
 NodeStatus CrossDoor::PassThroughWindow()
 {
     SleepMS(1000);
-    return NodeStatus::SUCCESS;
+    return NodeStatus::E_SUCCESS;
 }
 
 NodeStatus CrossDoor::OpenDoor()
 {
     if (_door_locked)
     {
-        return NodeStatus::FAILURE;
+        return NodeStatus::E_FAILURE;
     }
     SleepMS(2000);
     _door_open = true;
-    return NodeStatus::SUCCESS;
+    return NodeStatus::E_SUCCESS;
 }
 
 NodeStatus CrossDoor::CloseDoor()
@@ -69,7 +69,7 @@ NodeStatus CrossDoor::CloseDoor()
         SleepMS(1500);
         _door_open = false;
     }
-    return NodeStatus::SUCCESS;
+    return NodeStatus::E_SUCCESS;
 }
 
 // Register at once all the Actions and Conditions in this file

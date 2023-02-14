@@ -308,7 +308,7 @@ TEST(BehaviorTreeFactory, CreateTreeFromFile)
   auto path = (environment->executable_path.parent_path() / "trees/"
                                                             "parent_no_include.xml");
   Tree tree = factory.createTreeFromFile(path.str());
-  ASSERT_EQ(NodeStatus::SUCCESS, tree.tickRoot());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, tree.tickRoot());
 }
 
 TEST(BehaviorTreeFactory, CreateTreeFromFileWhichIncludesFileFromSameDirectory)
@@ -319,7 +319,7 @@ TEST(BehaviorTreeFactory, CreateTreeFromFileWhichIncludesFileFromSameDirectory)
   auto path = (environment->executable_path.parent_path() / "trees/child/"
                                                             "child_include_sibling.xml");
   Tree tree = factory.createTreeFromFile(path.str());
-  ASSERT_EQ(NodeStatus::SUCCESS, tree.tickRoot());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, tree.tickRoot());
 }
 
 TEST(BehaviorTreeFactory, CreateTreeFromFileWhichIncludesFileFromChildDirectory)
@@ -330,7 +330,7 @@ TEST(BehaviorTreeFactory, CreateTreeFromFileWhichIncludesFileFromChildDirectory)
   auto path = (environment->executable_path.parent_path() / "trees/"
                                                             "parent_include_child.xml");
   Tree tree = factory.createTreeFromFile(path.str());
-  ASSERT_EQ(NodeStatus::SUCCESS, tree.tickRoot());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, tree.tickRoot());
 }
 
 TEST(
@@ -344,7 +344,7 @@ TEST(
                                                             "parent_include_child_"
                                                             "include_sibling.xml");
   Tree tree = factory.createTreeFromFile(path.str());
-  ASSERT_EQ(NodeStatus::SUCCESS, tree.tickRoot());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, tree.tickRoot());
 }
 
 TEST(
@@ -358,7 +358,7 @@ TEST(
                                                             "parent_include_child_"
                                                             "include_child.xml");
   Tree tree = factory.createTreeFromFile(path.str());
-  ASSERT_EQ(NodeStatus::SUCCESS, tree.tickRoot());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, tree.tickRoot());
 }
 
 TEST(
@@ -372,7 +372,7 @@ TEST(
                                                             "parent_include_child_"
                                                             "include_parent.xml");
   Tree tree = factory.createTreeFromFile(path.str());
-  ASSERT_EQ(NodeStatus::SUCCESS, tree.tickRoot());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, tree.tickRoot());
 }
 #endif
 

@@ -26,7 +26,7 @@ TEST(BlackboardPreconditionTest, IntEquals)
 
   auto tree = factory.createTreeFromText(xml_text);
   const auto status = tree.tickRoot();
-  ASSERT_EQ(status, NodeStatus::FAILURE);
+  ASSERT_EQ(status, NodeStatus::E_FAILURE);
 }
 
 TEST(BlackboardPreconditionTest, IntDoesNotEqual)
@@ -50,7 +50,7 @@ TEST(BlackboardPreconditionTest, IntDoesNotEqual)
 
   auto tree = factory.createTreeFromText(xml_text);
   const auto status = tree.tickRoot();
-  ASSERT_EQ(status, NodeStatus::SUCCESS);
+  ASSERT_EQ(status, NodeStatus::E_SUCCESS);
 }
 
 TEST(BlackboardPreconditionTest, DoubleEquals)
@@ -74,7 +74,7 @@ TEST(BlackboardPreconditionTest, DoubleEquals)
 
   auto tree = factory.createTreeFromText(xml_text);
   const auto status = tree.tickRoot();
-  ASSERT_EQ(status, NodeStatus::FAILURE);
+  ASSERT_EQ(status, NodeStatus::E_FAILURE);
 }
 
 TEST(BlackboardPreconditionTest, DoubleDoesNotEqual)
@@ -98,7 +98,7 @@ TEST(BlackboardPreconditionTest, DoubleDoesNotEqual)
 
   auto tree = factory.createTreeFromText(xml_text);
   const auto status = tree.tickRoot();
-  ASSERT_EQ(status, NodeStatus::SUCCESS);
+  ASSERT_EQ(status, NodeStatus::E_SUCCESS);
 }
 
 TEST(BlackboardPreconditionTest, StringEquals)
@@ -122,7 +122,7 @@ TEST(BlackboardPreconditionTest, StringEquals)
 
   auto tree = factory.createTreeFromText(xml_text);
   const auto status = tree.tickRoot();
-  ASSERT_EQ(status, NodeStatus::FAILURE);
+  ASSERT_EQ(status, NodeStatus::E_FAILURE);
 }
 
 TEST(BlackboardPreconditionTest, StringDoesNotEqual)
@@ -146,7 +146,7 @@ TEST(BlackboardPreconditionTest, StringDoesNotEqual)
 
   auto tree = factory.createTreeFromText(xml_text);
   const auto status = tree.tickRoot();
-  ASSERT_EQ(status, NodeStatus::SUCCESS);
+  ASSERT_EQ(status, NodeStatus::E_SUCCESS);
 }
 
 TEST(BlackboardPreconditionTest, BoolEquals)
@@ -170,7 +170,7 @@ TEST(BlackboardPreconditionTest, BoolEquals)
 
   auto tree = factory.createTreeFromText(xml_text);
   const auto status = tree.tickRoot();
-  ASSERT_EQ(status, NodeStatus::FAILURE);
+  ASSERT_EQ(status, NodeStatus::E_FAILURE);
 }
 
 TEST(BlackboardPreconditionTest, BoolDoesNotEqual)
@@ -194,5 +194,5 @@ TEST(BlackboardPreconditionTest, BoolDoesNotEqual)
 
   auto tree = factory.createTreeFromText(xml_text);
   const auto status = tree.tickRoot();
-  ASSERT_EQ(status, NodeStatus::SUCCESS);
+  ASSERT_EQ(status, NodeStatus::E_SUCCESS);
 }

@@ -56,26 +56,26 @@ NodeStatus ManualSelectorNode::tick()
   }
   else
   {
-    setStatus(NodeStatus::RUNNING);
+    setStatus(NodeStatus::E_RUNNING);
     idx = selectChild();
     previously_executed_idx_ = idx;
 
     if (idx == NUM_SUCCESS)
     {
-      return NodeStatus::SUCCESS;
+      return NodeStatus::E_SUCCESS;
     }
     if (idx == NUM_FAILURE)
     {
-      return NodeStatus::FAILURE;
+      return NodeStatus::E_FAILURE;
     }
     if (idx == NUM_RUNNING)
     {
-      return NodeStatus::RUNNING;
+      return NodeStatus::E_RUNNING;
     }
   }
 
   NodeStatus ret = children_nodes_[idx]->executeTick();
-  if (ret == NodeStatus::RUNNING)
+  if (ret == NodeStatus::E_RUNNING)
   {
     running_child_idx_ = idx;
   }
@@ -106,17 +106,17 @@ NodeStatus ManualSelectorNode::selectStatus() const
   {
     if (ch == 's' || ch == 'S')
     {
-      ret = NodeStatus::SUCCESS;
+      ret = NodeStatus::E_SUCCESS;
       break;
     }
     else if (ch == 'f' || ch == 'F')
     {
-      ret = NodeStatus::FAILURE;
+      ret = NodeStatus::E_FAILURE;
       break;
     }
     else if (ch == 'r' || ch == 'R')
     {
-      ret = NodeStatus::RUNNING;
+      ret = NodeStatus::E_RUNNING;
       break;
     }
     ch = wgetch(win);

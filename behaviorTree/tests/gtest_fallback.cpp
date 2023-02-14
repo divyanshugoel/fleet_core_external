@@ -113,188 +113,188 @@ struct ComplexFallbackWithMemoryTest : testing::Test
 TEST_F(SimpleFallbackTest, ConditionTrue)
 {
   // Ticking the root node
-  condition.setExpectedResult(NodeStatus::SUCCESS);
+  condition.setExpectedResult(NodeStatus::E_SUCCESS);
   BT::NodeStatus state = root.executeTick();
 
-  ASSERT_EQ(NodeStatus::SUCCESS, state);
-  ASSERT_EQ(NodeStatus::IDLE, condition.status());
-  ASSERT_EQ(NodeStatus::IDLE, action.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, state);
+  ASSERT_EQ(NodeStatus::E_IDLE, condition.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action.status());
 }
 
 TEST_F(SimpleFallbackTest, ConditionChangeWhileRunning)
 {
-  BT::NodeStatus state = BT::NodeStatus::IDLE;
+  BT::NodeStatus state = BT::NodeStatus::E_IDLE;
 
-  condition.setExpectedResult(NodeStatus::FAILURE);
+  condition.setExpectedResult(NodeStatus::E_FAILURE);
   state = root.executeTick();
 
-  ASSERT_EQ(NodeStatus::RUNNING, state);
-  ASSERT_EQ(NodeStatus::FAILURE, condition.status());
-  ASSERT_EQ(NodeStatus::RUNNING, action.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, state);
+  ASSERT_EQ(NodeStatus::E_FAILURE, condition.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, action.status());
 
-  condition.setExpectedResult(NodeStatus::SUCCESS);
+  condition.setExpectedResult(NodeStatus::E_SUCCESS);
   state = root.executeTick();
 
-  ASSERT_EQ(NodeStatus::RUNNING, state);
-  ASSERT_EQ(NodeStatus::FAILURE, condition.status());
-  ASSERT_EQ(NodeStatus::RUNNING, action.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, state);
+  ASSERT_EQ(NodeStatus::E_FAILURE, condition.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, action.status());
 }
 
 TEST_F(ReactiveFallbackTest, Condition1ToTrue)
 {
-  condition_1.setExpectedResult(NodeStatus::FAILURE);
-  condition_2.setExpectedResult(NodeStatus::FAILURE);
+  condition_1.setExpectedResult(NodeStatus::E_FAILURE);
+  condition_2.setExpectedResult(NodeStatus::E_FAILURE);
 
   BT::NodeStatus state = root.executeTick();
 
-  ASSERT_EQ(NodeStatus::RUNNING, state);
-  ASSERT_EQ(NodeStatus::FAILURE, condition_1.status());
-  ASSERT_EQ(NodeStatus::FAILURE, condition_2.status());
-  ASSERT_EQ(NodeStatus::RUNNING, action_1.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, state);
+  ASSERT_EQ(NodeStatus::E_FAILURE, condition_1.status());
+  ASSERT_EQ(NodeStatus::E_FAILURE, condition_2.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, action_1.status());
 
-  condition_1.setExpectedResult(NodeStatus::SUCCESS);
+  condition_1.setExpectedResult(NodeStatus::E_SUCCESS);
 
   state = root.executeTick();
 
-  ASSERT_EQ(NodeStatus::SUCCESS, state);
-  ASSERT_EQ(NodeStatus::IDLE, condition_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_2.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_1.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, state);
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_2.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_1.status());
 }
 
 TEST_F(ReactiveFallbackTest, Condition2ToTrue)
 {
-  condition_1.setExpectedResult(NodeStatus::FAILURE);
-  condition_2.setExpectedResult(NodeStatus::FAILURE);
+  condition_1.setExpectedResult(NodeStatus::E_FAILURE);
+  condition_2.setExpectedResult(NodeStatus::E_FAILURE);
 
   BT::NodeStatus state = root.executeTick();
 
-  ASSERT_EQ(NodeStatus::RUNNING, state);
-  ASSERT_EQ(NodeStatus::FAILURE, condition_1.status());
-  ASSERT_EQ(NodeStatus::FAILURE, condition_2.status());
-  ASSERT_EQ(NodeStatus::RUNNING, action_1.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, state);
+  ASSERT_EQ(NodeStatus::E_FAILURE, condition_1.status());
+  ASSERT_EQ(NodeStatus::E_FAILURE, condition_2.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, action_1.status());
 
-  condition_2.setExpectedResult(NodeStatus::SUCCESS);
+  condition_2.setExpectedResult(NodeStatus::E_SUCCESS);
 
   state = root.executeTick();
 
-  ASSERT_EQ(NodeStatus::SUCCESS, state);
-  ASSERT_EQ(NodeStatus::IDLE, condition_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_2.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_1.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, state);
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_2.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_1.status());
 }
 
 TEST_F(SimpleFallbackWithMemoryTest, ConditionFalse)
 {
-  condition.setExpectedResult(NodeStatus::FAILURE);
+  condition.setExpectedResult(NodeStatus::E_FAILURE);
   BT::NodeStatus state = root.executeTick();
 
-  ASSERT_EQ(NodeStatus::RUNNING, state);
-  ASSERT_EQ(NodeStatus::FAILURE, condition.status());
-  ASSERT_EQ(NodeStatus::RUNNING, action.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, state);
+  ASSERT_EQ(NodeStatus::E_FAILURE, condition.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, action.status());
 }
 
 TEST_F(SimpleFallbackWithMemoryTest, ConditionTurnToTrue)
 {
-  condition.setExpectedResult(NodeStatus::FAILURE);
+  condition.setExpectedResult(NodeStatus::E_FAILURE);
   BT::NodeStatus state = root.executeTick();
 
-  ASSERT_EQ(NodeStatus::RUNNING, state);
-  ASSERT_EQ(NodeStatus::FAILURE, condition.status());
-  ASSERT_EQ(NodeStatus::RUNNING, action.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, state);
+  ASSERT_EQ(NodeStatus::E_FAILURE, condition.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, action.status());
 
-  condition.setExpectedResult(NodeStatus::SUCCESS);
+  condition.setExpectedResult(NodeStatus::E_SUCCESS);
   state = root.executeTick();
 
-  ASSERT_EQ(NodeStatus::RUNNING, state);
-  ASSERT_EQ(NodeStatus::FAILURE, condition.status());
-  ASSERT_EQ(NodeStatus::RUNNING, action.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, state);
+  ASSERT_EQ(NodeStatus::E_FAILURE, condition.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, action.status());
 }
 
 TEST_F(ComplexFallbackWithMemoryTest, ConditionsTrue)
 {
   BT::NodeStatus state = root.executeTick();
 
-  ASSERT_EQ(NodeStatus::SUCCESS, state);
-  ASSERT_EQ(NodeStatus::IDLE, fal_conditions.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_2.status());
-  ASSERT_EQ(NodeStatus::IDLE, fal_actions.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_2.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, state);
+  ASSERT_EQ(NodeStatus::E_IDLE, fal_conditions.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_2.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, fal_actions.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_2.status());
 }
 
 TEST_F(ComplexFallbackWithMemoryTest, Condition1False)
 {
-  condition_1.setExpectedResult(NodeStatus::FAILURE);
+  condition_1.setExpectedResult(NodeStatus::E_FAILURE);
   BT::NodeStatus state = root.executeTick();
 
-  ASSERT_EQ(NodeStatus::SUCCESS, state);
-  ASSERT_EQ(NodeStatus::IDLE, fal_conditions.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_2.status());
-  ASSERT_EQ(NodeStatus::IDLE, fal_actions.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_2.status());
+  ASSERT_EQ(NodeStatus::E_SUCCESS, state);
+  ASSERT_EQ(NodeStatus::E_IDLE, fal_conditions.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_2.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, fal_actions.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_2.status());
 }
 
 TEST_F(ComplexFallbackWithMemoryTest, ConditionsFalse)
 {
-  condition_1.setExpectedResult(NodeStatus::FAILURE);
-  condition_2.setExpectedResult(NodeStatus::FAILURE);
+  condition_1.setExpectedResult(NodeStatus::E_FAILURE);
+  condition_2.setExpectedResult(NodeStatus::E_FAILURE);
   BT::NodeStatus state = root.executeTick();
 
-  ASSERT_EQ(NodeStatus::RUNNING, state);
-  ASSERT_EQ(NodeStatus::FAILURE, fal_conditions.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_2.status());
-  ASSERT_EQ(NodeStatus::RUNNING, fal_actions.status());
-  ASSERT_EQ(NodeStatus::RUNNING, action_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_2.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, state);
+  ASSERT_EQ(NodeStatus::E_FAILURE, fal_conditions.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_2.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, fal_actions.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, action_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_2.status());
 }
 
 TEST_F(ComplexFallbackWithMemoryTest, Conditions1ToTrue)
 {
-  condition_1.setExpectedResult(NodeStatus::FAILURE);
-  condition_2.setExpectedResult(NodeStatus::FAILURE);
+  condition_1.setExpectedResult(NodeStatus::E_FAILURE);
+  condition_2.setExpectedResult(NodeStatus::E_FAILURE);
   BT::NodeStatus state = root.executeTick();
 
-  condition_1.setExpectedResult(NodeStatus::SUCCESS);
+  condition_1.setExpectedResult(NodeStatus::E_SUCCESS);
   state = root.executeTick();
 
-  ASSERT_EQ(NodeStatus::RUNNING, state);
-  ASSERT_EQ(NodeStatus::FAILURE, fal_conditions.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_2.status());
-  ASSERT_EQ(NodeStatus::RUNNING, fal_actions.status());
-  ASSERT_EQ(NodeStatus::RUNNING, action_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_2.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, state);
+  ASSERT_EQ(NodeStatus::E_FAILURE, fal_conditions.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_2.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, fal_actions.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, action_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_2.status());
 }
 
 TEST_F(ComplexFallbackWithMemoryTest, Conditions2ToTrue)
 {
-  condition_1.setExpectedResult(NodeStatus::FAILURE);
-  condition_2.setExpectedResult(NodeStatus::FAILURE);
+  condition_1.setExpectedResult(NodeStatus::E_FAILURE);
+  condition_2.setExpectedResult(NodeStatus::E_FAILURE);
   BT::NodeStatus state = root.executeTick();
 
-  condition_2.setExpectedResult(NodeStatus::SUCCESS);
+  condition_2.setExpectedResult(NodeStatus::E_SUCCESS);
   state = root.executeTick();
 
-  ASSERT_EQ(NodeStatus::RUNNING, state);
-  ASSERT_EQ(NodeStatus::FAILURE, fal_conditions.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_2.status());
-  ASSERT_EQ(NodeStatus::RUNNING, fal_actions.status());
-  ASSERT_EQ(NodeStatus::RUNNING, action_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, action_2.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, state);
+  ASSERT_EQ(NodeStatus::E_FAILURE, fal_conditions.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_2.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, fal_actions.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, action_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, action_2.status());
 }
 
 TEST_F(ComplexFallbackWithMemoryTest, Action1Failed)
 {
-  action_1.setExpectedResult(NodeStatus::FAILURE);
-  action_2.setExpectedResult(NodeStatus::SUCCESS);
-  condition_1.setExpectedResult(NodeStatus::FAILURE);
-  condition_2.setExpectedResult(NodeStatus::FAILURE);
+  action_1.setExpectedResult(NodeStatus::E_FAILURE);
+  action_2.setExpectedResult(NodeStatus::E_SUCCESS);
+  condition_1.setExpectedResult(NodeStatus::E_FAILURE);
+  condition_2.setExpectedResult(NodeStatus::E_FAILURE);
 
   BT::NodeStatus state = root.executeTick();
 
@@ -302,11 +302,11 @@ TEST_F(ComplexFallbackWithMemoryTest, Action1Failed)
   std::this_thread::sleep_for(std::chrono::milliseconds(500));
   state = root.executeTick();
 
-  ASSERT_EQ(NodeStatus::RUNNING, state);
-  ASSERT_EQ(NodeStatus::FAILURE, fal_conditions.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_1.status());
-  ASSERT_EQ(NodeStatus::IDLE, condition_2.status());
-  ASSERT_EQ(NodeStatus::RUNNING, fal_actions.status());
-  ASSERT_EQ(NodeStatus::FAILURE, action_1.status());
-  ASSERT_EQ(NodeStatus::RUNNING, action_2.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, state);
+  ASSERT_EQ(NodeStatus::E_FAILURE, fal_conditions.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_2.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, fal_actions.status());
+  ASSERT_EQ(NodeStatus::E_FAILURE, action_1.status());
+  ASSERT_EQ(NodeStatus::E_RUNNING, action_2.status());
 }

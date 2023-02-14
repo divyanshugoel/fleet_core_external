@@ -34,31 +34,31 @@ NodeStatus WhileDoElseNode::tick()
     throw std::logic_error("WhileDoElse must have 3 children");
   }
 
-  setStatus(NodeStatus::RUNNING);
+  setStatus(NodeStatus::E_RUNNING);
 
   NodeStatus condition_status = children_nodes_[0]->executeTick();
 
-  if (condition_status == NodeStatus::RUNNING)
+  if (condition_status == NodeStatus::E_RUNNING)
   {
     return condition_status;
   }
 
-  NodeStatus status = NodeStatus::IDLE;
+  NodeStatus status = NodeStatus::E_IDLE;
 
-  if (condition_status == NodeStatus::SUCCESS)
+  if (condition_status == NodeStatus::E_SUCCESS)
   {
     haltChild(2);
     status = children_nodes_[1]->executeTick();
   }
-  else if (condition_status == NodeStatus::FAILURE)
+  else if (condition_status == NodeStatus::E_FAILURE)
   {
     haltChild(1);
     status = children_nodes_[2]->executeTick();
   }
 
-  if (status == NodeStatus::RUNNING)
+  if (status == NodeStatus::E_RUNNING)
   {
-    return NodeStatus::RUNNING;
+    return NodeStatus::E_RUNNING;
   }
   else
   {

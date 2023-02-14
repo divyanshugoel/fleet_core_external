@@ -38,10 +38,10 @@ public:
     if (running_child_)
     {
       NodeStatus child_state = child_node_->executeTick();
-      running_child_ = (child_state == NodeStatus::RUNNING);
+      running_child_ = (child_state == NodeStatus::E_RUNNING);
       if (running_child_)
       {
-        return NodeStatus::RUNNING;
+        return NodeStatus::E_RUNNING;
       }
       else
       {
@@ -57,7 +57,7 @@ public:
 
       while (!items.empty())
       {
-        setStatus(NodeStatus::RUNNING);
+        setStatus(NodeStatus::E_RUNNING);
 
         T val = items.front();
         items.pop_front();
@@ -67,23 +67,23 @@ public:
         NodeStatus child_state = child_node_->executeTick();
         lk.lock();
 
-        running_child_ = (child_state == NodeStatus::RUNNING);
+        running_child_ = (child_state == NodeStatus::E_RUNNING);
         if (running_child_)
         {
-          return NodeStatus::RUNNING;
+          return NodeStatus::E_RUNNING;
         }
         else
         {
           haltChild();
-          if (child_state == NodeStatus::FAILURE)
+          if (child_state == NodeStatus::E_FAILURE)
           {
-            return NodeStatus::FAILURE;
+            return NodeStatus::E_FAILURE;
           }
         }
       }
     }
 
-    return NodeStatus::SUCCESS;
+    return NodeStatus::E_SUCCESS;
   }
 
   static PortsList providedPorts()

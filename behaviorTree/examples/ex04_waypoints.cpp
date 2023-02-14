@@ -36,7 +36,7 @@ public:
       queue->items.push_back(Pose2D{double(i), double(i), 0});
     }
     setOutput("waypoints", queue);
-    return NodeStatus::SUCCESS;
+    return NodeStatus::E_SUCCESS;
   }
 
   static PortsList providedPorts()
@@ -68,7 +68,7 @@ public:
         auto& waypoints = queue->items;
         if (waypoints.empty())
         {
-          return NodeStatus::FAILURE;
+          return NodeStatus::E_FAILURE;
         }
         wp = waypoints.front();
         waypoints.pop_front();
@@ -78,11 +78,11 @@ public:
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
       std::cout << "Using waypoint: " << wp.x << "/" << wp.y << std::endl;
 
-      return NodeStatus::SUCCESS;
+      return NodeStatus::E_SUCCESS;
     }
     else
     {
-      return NodeStatus::FAILURE;
+      return NodeStatus::E_FAILURE;
     }
   }
 
@@ -109,11 +109,11 @@ public:
     {
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
       std::cout << "Using waypoint: " << wp.x << "/" << wp.y << std::endl;
-      return NodeStatus::SUCCESS;
+      return NodeStatus::E_SUCCESS;
     }
     else
     {
-      return NodeStatus::FAILURE;
+      return NodeStatus::E_FAILURE;
     }
   }
 
@@ -186,7 +186,7 @@ int main()
   for (const auto& xml_text : {xml_implicit, xml_A, xml_B})
   {
     auto tree = factory.createTreeFromText(xml_text);
-    while (tree.tickRoot() == NodeStatus::RUNNING)
+    while (tree.tickRoot() == NodeStatus::E_RUNNING)
     {
       tree.sleep(std::chrono::milliseconds(10));
     }

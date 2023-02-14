@@ -58,7 +58,7 @@ private:
       throw RuntimeError("missing port [value]");
     }
     setOutput("output_key", value);
-    return NodeStatus::SUCCESS;
+    return NodeStatus::E_SUCCESS;
   }
 };
 }   // namespace BT
