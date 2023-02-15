@@ -41,7 +41,7 @@
 #define ACQUIRE_SHARED(...) \
   THREAD_ANNOTATION_ATTRIBUTE__(acquire_shared_capability(__VA_ARGS__))
 
-#define RELEASE(...) \
+#define RELEASE_(...) \
   THREAD_ANNOTATION_ATTRIBUTE__(release_capability(__VA_ARGS__))
 
 #define RELEASE_SHARED(...) \
@@ -78,7 +78,7 @@ namespace SimpleWeb {
       mutex.lock();
     }
 
-    void unlock() RELEASE() {
+    void unlock() RELEASE_() {
       mutex.unlock();
     }
   };
@@ -92,11 +92,11 @@ namespace SimpleWeb {
     LockGuard(Mutex &mutex_) ACQUIRE(mutex_) : mutex(mutex_) {
       mutex.lock();
     }
-    void unlock() RELEASE() {
+    void unlock() RELEASE_() {
       mutex.unlock();
       locked = false;
     }
-    ~LockGuard() RELEASE() {
+    ~LockGuard() RELEASE_() {
       if(locked)
         mutex.unlock();
     }
