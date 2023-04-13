@@ -148,7 +148,7 @@ void amqp_abort(const char *fmt, ...) {
   vfprintf(stderr, fmt, ap);
   va_end(ap);
   fputc('\n', stderr);
-  abort();
+  // abort(); // https://github.com/alanxz/rabbitmq-c/issues/203
 }
 
 const amqp_bytes_t amqp_empty_bytes = {0, NULL};
