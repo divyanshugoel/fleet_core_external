@@ -617,7 +617,7 @@ Finish:
         BB->isfloor = !BB->isfloor;
       /* Header initialization */
       BB->isfloor = !BB->isfloor;
-      while(!OKstatus && /* !userabort(lp, -1) */ lp->spx_status != TIMEOUT && !lp->bb_break && (BB->nodesleft > 0))
+      while(!OKstatus && /* !userabort(lp, -1) */ lp->spx_status != TIMEOUT_LP && !lp->bb_break && (BB->nodesleft > 0))
         OKstatus = nextbranch_BB( BB );
     }
 
@@ -872,7 +872,7 @@ STATIC int solve_LP(lprec *lp, BBrec *BB)
   if(status != OPTIMAL) {
     if(lp->bb_level <= 1)
       lp->bb_parentOF = lp->infinite;
-    if((status == USERABORT) || (status == TIMEOUT)) {
+    if((status == USERABORT) || (status == TIMEOUT_LP)) {
       /* Construct the last feasible solution, if available */
       if((lp->solutioncount == 0) &&
          /*
@@ -952,7 +952,7 @@ STATIC int solve_LP(lprec *lp, BBrec *BB)
   }
 
   /* status can have the following values:
-     OPTIMAL, SUBOPTIMAL, TIMEOUT, USERABORT, PROCFAIL, UNBOUNDED and INFEASIBLE. */
+     OPTIMAL, SUBOPTIMAL, TIMEOUT_LP, USERABORT, PROCFAIL, UNBOUNDED and INFEASIBLE. */
 
   return( status );
 } /* solve_LP */
@@ -1446,7 +1446,7 @@ STATIC int run_BB(lprec *lp)
 
   /* Check if we should adjust status */
   if(lp->solutioncount > prevsolutions) {
-    if((status == PROCBREAK) || (status == USERABORT) || (status == TIMEOUT) || userabort(lp, -1))
+    if((status == PROCBREAK) || (status == USERABORT) || (status == TIMEOUT_LP) || userabort(lp, -1))
       status = SUBOPTIMAL;
     else
       status = OPTIMAL;

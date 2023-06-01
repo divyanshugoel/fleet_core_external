@@ -130,7 +130,7 @@ STATIC int yieldformessages(lprec *lp)
 {
   if((lp->sectimeout > 0) &&
      ((timeNow()-lp->timestart)-(REAL)lp->sectimeout>0))
-    lp->spx_status = TIMEOUT;
+    lp->spx_status = TIMEOUT_LP;
 
   if(lp->ctrlc != NULL) {
     int retcode = lp->ctrlc(lp, lp->ctrlchandle);
@@ -1349,7 +1349,7 @@ char * __WINAPI get_statustext(lprec *lp, int statuscode)
   else if (statuscode == NUMFAILURE)   return("NUMERIC FAILURE encountered");
   else if (statuscode == DEGENERATE)   return("DEGENERATE situation");
   else if (statuscode == USERABORT)    return("User-requested termination");
-  else if (statuscode == TIMEOUT)      return("Termination due to timeout");
+  else if (statuscode == TIMEOUT_LP)      return("Termination due to timeout");
   else if (statuscode == PRESOLVED)    return("Model solved by presolve");
   else if (statuscode == ACCURACYERROR) return("Accuracy errors detected");
   else if (statuscode == PROCFAIL)     return("B&B routine failed");

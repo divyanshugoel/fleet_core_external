@@ -558,7 +558,7 @@
 #define DEGENERATE               4
 #define NUMFAILURE               5
 #define USERABORT                6
-#define TIMEOUT                  7
+#define TIMEOUT_LP                  7
 #define RUNNING                  8
 #define PRESOLVED                9
 #define ACCURACYERROR           25

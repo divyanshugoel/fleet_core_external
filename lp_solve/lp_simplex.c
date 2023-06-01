@@ -908,7 +908,7 @@ Optimality:
       if(minit != ITERATE_MAJORMAJOR)
         minitcount++;
 
-      if((lp->spx_status == USERABORT) || (lp->spx_status == TIMEOUT))
+      if((lp->spx_status == USERABORT) || (lp->spx_status == TIMEOUT_LP))
         break;
       else if(minit == ITERATE_MINORMAJOR)
         continue;
@@ -1245,7 +1245,7 @@ RetryRow:
       else if(!refactRecent(lp) && (minit != ITERATE_MAJORMAJOR) && (colnr != minitcolnr)) {
         minitcolnr = colnr;
         i = invert(lp, INITSOL_USEZERO, TRUE);
-        if((lp->spx_status == USERABORT) || (lp->spx_status == TIMEOUT))
+        if((lp->spx_status == USERABORT) || (lp->spx_status == TIMEOUT_LP))
           break;
         else if(!i) {
           lp->spx_status = SINGULAR_BASIS;
@@ -1961,7 +1961,7 @@ STATIC int lag_solve(lprec *lp, REAL start_bound, int num_iter)
       goto Leave;
     }
     else if((lp->spx_status == NUMFAILURE)   || (lp->spx_status == PROCFAIL) ||
-            (lp->spx_status == USERABORT) || (lp->spx_status == TIMEOUT) ||
+            (lp->spx_status == USERABORT) || (lp->spx_status == TIMEOUT_LP) ||
             (lp->spx_status == INFEASIBLE)) {
       lp->lag_status = lp->spx_status;
     }

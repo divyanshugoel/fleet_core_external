@@ -302,7 +302,7 @@ static struct _functions functions[] =
   { "DEBUG", setMYBOOLfunction(is_debug, set_debug), setNULLvalues, WRITE_COMMENTED },
   { "OBJ_BOUND", setREALfunction(get_obj_bound, set_obj_bound), setNULLvalues, WRITE_COMMENTED },
   { "PRINT_SOL", setintfunction(get_print_sol, set_print_sol), setvalues(print_sol, ~0), WRITE_COMMENTED },
-  { "TIMEOUT", setlongfunction(get_timeout, set_timeout), setNULLvalues, WRITE_COMMENTED },
+  { "TIMEOUT_LP", setlongfunction(get_timeout, set_timeout), setNULLvalues, WRITE_COMMENTED },
   { "TRACE", setMYBOOLfunction(is_trace, set_trace), setNULLvalues, WRITE_COMMENTED },
   { "VERBOSE", setintfunction(get_verbose, set_verbose), setvalues(verbose, ~0), WRITE_COMMENTED },
 };

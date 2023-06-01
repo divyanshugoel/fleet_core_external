@@ -1335,7 +1335,7 @@ int main(int argc, char *argv[])
   }
 
 /*
-  if((timeoutok) && (result == TIMEOUT) && (get_solutioncount(lp) > 0))
+  if((timeoutok) && (result == TIMEOUT_LP) && (get_solutioncount(lp) > 0))
     result = OPTIMAL;
 */
 
@@ -1363,7 +1363,7 @@ int main(int argc, char *argv[])
    if (PRINT_SOLUTION >= 1)
       printf("The B&B routine failed\n");
     break;
-  case TIMEOUT:
+  case TIMEOUT_LP:
     if (PRINT_SOLUTION >= 1)
       printf("Timeout\n");
     break;
