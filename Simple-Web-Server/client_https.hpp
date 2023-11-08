@@ -27,7 +27,7 @@ namespace SimpleWeb {
     Client(const std::string &server_port_path, bool verify_certificate = true, const std::string &certification_file = std::string(),
            const std::string &private_key_file = std::string(), const std::string &verify_file = std::string())
         : ClientBase<HTTPS>::ClientBase(server_port_path, 443),
-#if(ASIO_STANDALONE && ASIO_VERSION >= 101300) || BOOST_ASIO_VERSION >= 101300
+#if(defined(ASIO_STANDALONE) && ASIO_VERSION >= 101300) || BOOST_ASIO_VERSION >= 101300
           context(asio::ssl::context::tls_client) {
       // Disabling TLS 1.0 and 1.1 (see RFC 8996)
       context.set_options(asio::ssl::context::no_tlsv1);
@@ -56,6 +56,11 @@ namespace SimpleWeb {
 
   protected:
     asio::ssl::context context;
+
+    /// Ignore for end of file and SSL_R_SHORT_READ error codes
+    error_code clean_error_code(const error_code &ec) override {
+      return ec == error::eof || ec == asio::ssl::error::stream_truncated ? error_code() : ec;
+    }
 
     std::shared_ptr<Connection> create_connection() noexcept override {
       return std::make_shared<Connection>(handler_runner, *io_service, context);

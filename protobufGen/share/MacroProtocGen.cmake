@@ -9,12 +9,19 @@
 
 function(PROTOC_GEN protocfilenameArg protofolderNameArg outPath)
 	file(MAKE_DIRECTORY ${outPath})
-	set(PROTOC_EXECECUTABLE ${PROTOBUF_PROTOC_EXEC}
-		${protocfilenameArg}
-		--proto_path=${protofolderNameArg}
-		--plugin=protoc-gen-grpc=${GRPC_PLUGIN_EXEC_CPP}
-		--grpc_out=${outPath}
-		--cpp_out=${outPath})
+	if (EXISTS ${GRPC_PLUGIN_EXEC_CPP})
+		set(PROTOC_EXECECUTABLE ${PROTOBUF_PROTOC_EXEC}
+			${protocfilenameArg}
+			--proto_path=${protofolderNameArg}
+			--plugin=protoc-gen-grpc=${GRPC_PLUGIN_EXEC_CPP}
+			--grpc_out=${outPath}
+			--cpp_out=${outPath})
+	else()
+		set(PROTOC_EXECECUTABLE ${PROTOBUF_PROTOC_EXEC}
+			${protocfilenameArg}
+			--proto_path=${protofolderNameArg}
+			--cpp_out=${outPath})
+	endif()
 	project_execute_process(COMMAND "${PROTOC_EXECECUTABLE}")
 endfunction(PROTOC_GEN)
 

@@ -670,13 +670,18 @@ namespace SimpleWeb {
       });
     }
 
+    /// Ignore end of file error codes
+    virtual error_code clean_error_code(const error_code &ec) {
+      return ec == error::eof ? error_code() : ec;
+    }
+
     void read_content(const std::shared_ptr<Session> &session) {
       asio::async_read(*session->connection->socket, session->response->streambuf, [this, session](const error_code &ec_, std::size_t /*bytes_transferred*/) {
         auto lock = session->connection->handler_runner->continue_lock();
         if(!lock)
           return;
 
-        auto ec = ec_ == error::eof ? error_code() : ec_;
+        auto ec = clean_error_code(ec_);
 
         if(!ec) {
           {
