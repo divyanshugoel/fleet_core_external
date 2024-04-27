@@ -36,7 +36,11 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 
 set(default_build_type "Release")
 
-add_definitions(-Wno-deprecated-declarations)
+if (MSVC)
+  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+else()
+  add_definitions(-Wno-deprecated-declarations)
+endif()
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   message(STATUS "Setting build type to '${default_build_type}' as none was specified.")

@@ -22,7 +22,13 @@ set(LPSOLVE_VERSION ${LPSOLVE_VERSION_MAJOR}.${LPSOLVE_VERSION_MINOR}.${LPSOLVE_
 
 option (BUILD_SHARED_LIBS "Build NLopt as a shared library" ON)
 
-add_definitions(-Wno-deprecated-declarations)
+if (NOT WIN32)
+	add_definitions(-Wno-deprecated-declarations)
+endif()
+
+if (MSVC)
+	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+endif()
 
 # Set up install directories
 # include(GNUInstallDirs)
