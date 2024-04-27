@@ -28,7 +28,7 @@ set_property(TARGET rapidXML PROPERTY PUBLIC_HEADER
 )
 
 
-target_include_directories(lpsolve55 PRIVATE
+target_include_directories(rapidXML PRIVATE
 	"${CMAKE_CURRENT_SOURCE_DIR}"
 )
 
