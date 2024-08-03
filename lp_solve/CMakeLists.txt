@@ -136,12 +136,7 @@ set_target_properties(lpsolve55 PROPERTIES VERSION ${LPSOLVE_VERSION}
 
 # set(${CMAKE_INSTALL_PREFIX} PROJECT_DIR_ROOT)
 # Install the library
-# install(TARGETS lpsolve55 EXPORT LibraryExport
-# 	RUNTIME DESTINATION ${PROJECT_DIR_BIN}
-# 	LIBRARY DESTINATION ${PROJECT_DIR_LIB}
-# 	ARCHIVE DESTINATION ${PROJECT_DIR_LIB}
-# 	PUBLIC_HEADER DESTINATION ${PROJECT_DIR_INCLUDE}/lpsolve
-# )
+install(TARGETS lpsolve55)
 
 # Set include directories for users of this library
 # target_include_directories(lpsolve55 INTERFACE ${CMAKE_INSTALL_FULL_INCLUDEDIR}/lpsolve)
