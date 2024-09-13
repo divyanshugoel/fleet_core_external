@@ -4301,7 +4301,7 @@ MYBOOL __WINAPI set_constr_type(lprec *lp, int rownr, int con_type)
     lp->equalities++;
     lp->orig_upbo[rownr] = 0;
   }
-  else if(((con_type & LE) > 0) || ((con_type & GE) > 0) || (con_type == FR))
+  else if(((con_type & LE) > 0) || ((con_type & GE) > 0) || (con_type == LP_FR))
     lp->orig_upbo[rownr] = lp->infinite;
   else {
     report(lp, IMPORTANT, "set_constr_type: Constraint type %d not implemented (row %d)\n",
@@ -4311,7 +4311,7 @@ MYBOOL __WINAPI set_constr_type(lprec *lp, int rownr, int con_type)
 
   /* Change the signs of the row, if necessary */
   oldchsign = is_chsign(lp, rownr);
-  if(con_type == FR)
+  if(con_type == LP_FR)
     lp->row_type[rownr] = LE;
   else
     lp->row_type[rownr] = con_type;
@@ -4326,7 +4326,7 @@ MYBOOL __WINAPI set_constr_type(lprec *lp, int rownr, int con_type)
       lp->orig_rhs[rownr] *= -1;
     set_action(&lp->spx_action, ACTION_RECOMPUTE);
   }
-  if(con_type == FR)
+  if(con_type == LP_FR)
       lp->orig_rhs[rownr] = lp->infinite;
 
   set_action(&lp->spx_action, ACTION_REINVERT);
@@ -4429,7 +4429,7 @@ STATIC char *get_str_constr_class(lprec *lp, int con_class)
 STATIC char *get_str_constr_type(lprec *lp, int con_type)
 {
   switch(con_type) {
-    case FR: return("FR");
+    case LP_FR: return("LP_FR");
     case LE: return("LE");
     case GE: return("GE");
     case EQ: return("EQ");
@@ -7817,7 +7817,7 @@ STATIC int find_int_bbvar(lprec *lp, int *count, BBrec *BB, MYBOOL *isfeasible)
 #ifdef UseMilpExpandedRCF
       if(rcostmode) {
         bestvar = rcfbound_BB(BB, i, isINT, NULL, isfeasible);
-        if(bestvar != FR)
+        if(bestvar != LP_FR)
           BB->lastrcf++;
       }
 #endif
@@ -7850,15 +7850,15 @@ STATIC int find_int_bbvar(lprec *lp, int *count, BBrec *BB, MYBOOL *isfeasible)
            variables are integer-valued at the current relaxation) */
         if(rcostmode) {
           bestvar = rcfbound_BB(BB, i, isINT, NULL, isfeasible);
-          if(bestvar != FR)
+          if(bestvar != LP_FR)
             BB->lastrcf++;
         }
         else
-          bestvar = FR;
+          bestvar = LP_FR;
 
         /* Only qualify variable as branching node if it is non-integer and
            it will not be subsequently fixed via reduced cost fixing logic */
-        if(!valINT && (bestvar >= FR)) {
+        if(!valINT && (bestvar >= LP_FR)) {
 
           n++;
           nonint[n] = ii;
@@ -7876,7 +7876,7 @@ STATIC int find_int_bbvar(lprec *lp, int *count, BBrec *BB, MYBOOL *isfeasible)
       /* Skip already fixed slacks (equalities) */
       if(lowbo[i] < upbo[i]) {
         bestvar = rcfbound_BB(BB, i, FALSE, NULL, isfeasible);
-        if(bestvar != FR)
+        if(bestvar != LP_FR)
           BB->lastrcf++;
       }
     }
@@ -10106,7 +10106,7 @@ int preprocess(lprec *lp)
   /* Compute a minimum step improvement step requirement */
   pre_MIPOBJ(lp);
 
- /* First create extra columns for FR variables or flip MI variables */
+ /* First create extra columns for LP_FR variables or flip MI variables */
   for (j = 1; j <= lp->columns; j++) {
 
 #ifdef Paranoia

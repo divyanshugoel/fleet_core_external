@@ -320,7 +320,7 @@ Change history:
   Fields that must be blank are now also tested accordingly so that if data is there that it is
   not ignored as before.
 - FREE MPS format was not read ok if row/column name were all numbers
-  or a FR, MI, PL, BV bound was defined. Fixed.
+  or a LP_FR, MI, PL, BV bound was defined. Fixed.
 - The lp-format now also supports a bin(ary) section to define binary variables.
 - When an integer model is aborted before the most optimal solution is found
   via break at first or break at value, solve returned OPTIMAL (0) instead of SUBOPTIMAL (1).

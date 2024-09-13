@@ -972,7 +972,7 @@ STATIC BBrec *findself_BB(BBrec *BB)
    reduced cost at the current relaxation - inspired by Wolsley */
 STATIC int rcfbound_BB(BBrec *BB, int varno, MYBOOL isINT, REAL *newbound, MYBOOL *isfeasible)
 {
-  int   i = FR;
+  int   i = LP_FR;
   lprec *lp = BB->lp;
   REAL  deltaRC, rangeLU, deltaOF, lowbo, upbo;
 

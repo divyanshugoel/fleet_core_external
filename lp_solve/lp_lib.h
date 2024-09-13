@@ -378,7 +378,7 @@
 #define ROWTYPE_CHSIGN           ROWTYPE_GE
 
 /* Public constraint codes */
-#define FR                       ROWTYPE_EMPTY
+#define LP_FR                       ROWTYPE_EMPTY
 #define LE                       ROWTYPE_LE
 #define GE                       ROWTYPE_GE
 #define EQ                       ROWTYPE_EQ

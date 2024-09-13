@@ -324,7 +324,7 @@ STATIC int scan_lineFREE(lprec *lp, int section, char* line, char *field1, char 
       ptr1 = field3;
     }
     else if((section == MPSBOUNDS) &&
-            ((strcmp(field1, "FR") == 0) || (strcmp(field1, "MI") == 0) || (strcmp(field1, "PL") == 0) || (strcmp(field1, "BV") == 0)))
+            ((strcmp(field1, "LP_FR") == 0) || (strcmp(field1, "MI") == 0) || (strcmp(field1, "PL") == 0) || (strcmp(field1, "BV") == 0)))
       /* field3 *is* the variable name */;
     else {
       /* Some free MPS formats allow that field 2 is not provided after the first time.
@@ -369,7 +369,7 @@ STATIC int scan_lineFREE(lprec *lp, int section, char* line, char *field1, char 
   else {
     ptr1 = NULL;
     if((section == MPSBOUNDS) &&
-       ((strcmp(field1, "FR") == 0) || (strcmp(field1, "MI") == 0) || (strcmp(field1, "PL") == 0) || (strcmp(field1, "BV") == 0))) {
+       ((strcmp(field1, "LP_FR") == 0) || (strcmp(field1, "MI") == 0) || (strcmp(field1, "PL") == 0) || (strcmp(field1, "BV") == 0))) {
       strcpy(field3, field2);
       *field2 = 0;
       items++;
@@ -911,7 +911,7 @@ MYBOOL __WINAPI MPS_readex(lprec **newlp, void *userhandle, read_modeldata_func 
             if(!set_lowbo(lp, var, -lp->infinite))
               break;
           }
-          else if(strcmp(field1, "FR") == 0) { /* free variable */
+          else if(strcmp(field1, "LP_FR") == 0) { /* free variable */
             set_unbounded(lp, var);
           }
           else if(strcmp(field1, "FX") == 0) {
@@ -1500,7 +1500,7 @@ MYBOOL __WINAPI MPS_writefileex(lprec *lp, int typeMPS, void *userhandle, write_
           write_data(userhandle, write_modeldata, "BOUNDS\n");
           putheader = FALSE;
         }
-        write_data(userhandle, write_modeldata, " FR BND       %s\n",
+        write_data(userhandle, write_modeldata, " LP_FR BND       %s\n",
                         MPSname(name0, get_col_name(lp, j)));
       }
       else {
