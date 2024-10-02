@@ -1,7 +1,10 @@
 // Copyright 2022 Alan Antonuk.
 // If this file can be moved to external or  it exists in external eliminate it from here.
 #pragma once
+
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 
 #include <cstdint>
 #include <vector>

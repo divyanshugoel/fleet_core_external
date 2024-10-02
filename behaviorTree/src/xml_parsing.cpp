@@ -809,7 +809,7 @@ void XMLParser::Pimpl::getPortsRecursively(const XMLElement* element,
 std::string writeTreeNodesModelXML(const BehaviorTreeFactory& factory,
                                    bool include_builtin)
 {
-  XMLDocument doc;
+  tinyxml2::XMLDocument doc;
 
   XMLElement* rootXML = doc.NewElement("root");
   doc.InsertFirstChild(rootXML);
