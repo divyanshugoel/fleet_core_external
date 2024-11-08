@@ -1,7 +1,6 @@
-#include "behaviortree_cpp_v3/bt_factory.h"
+#include "behaviortree_cpp/bt_factory.h"
 
 #include "dummy_nodes.h"
-#include "movebase_node.h"
 
 using namespace BT;
 
@@ -28,7 +27,7 @@ using namespace BT;
 // clang-format off
 static const char* xml_text = R"(
 
- <root main_tree_to_execute = "MainTree" >
+ <root BTCPP_format="4" >
 
      <BehaviorTree ID="MainTree">
         <Sequence name="root">
@@ -46,8 +45,8 @@ static const char* xml_text = R"(
 class ThinkWhatToSay : public BT::SyncActionNode
 {
 public:
-  ThinkWhatToSay(const std::string& name, const BT::NodeConfiguration& config) :
-    BT::SyncActionNode(name, config)
+  ThinkWhatToSay(const std::string& name, const BT::NodeConfig& config)
+    : BT::SyncActionNode(name, config)
   {}
 
   // This Action simply write a value in the port "text"
@@ -60,7 +59,7 @@ public:
   // A node having ports MUST implement this STATIC method
   static BT::PortsList providedPorts()
   {
-    return {BT::OutputPort<std::string>("text")};
+    return { BT::OutputPort<std::string>("text") };
   }
 };
 
@@ -81,7 +80,7 @@ int main()
   // SimpleActionNodes can not define their own method providedPorts(), therefore
   // we have to pass the PortsList explicitly if we want the Action to use getInput()
   // or setOutput();
-  PortsList say_something_ports = {InputPort<std::string>("message")};
+  PortsList say_something_ports = { InputPort<std::string>("message") };
   factory.registerSimpleAction("SaySomething2", SaySomethingSimple, say_something_ports);
 
   /* An INPUT can be either a string, for instance:
@@ -96,7 +95,7 @@ int main()
 
   auto tree = factory.createTreeFromText(xml_text);
 
-  tree.tickRoot();
+  tree.tickWhileRunning();
 
   /*  Expected output:
      *

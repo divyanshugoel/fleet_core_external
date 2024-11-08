@@ -14,8 +14,8 @@
 #include "action_test_node.h"
 #include <string>
 
-BT::AsyncActionTest::AsyncActionTest(const std::string& name, BT::Duration deadline_ms) :
-  AsyncActionNode(name, {}), success_count_(0), failure_count_(0)
+BT::AsyncActionTest::AsyncActionTest(const std::string& name, BT::Duration deadline_ms)
+  : ThreadedAction(name, {}), success_count_(0), failure_count_(0)
 {
   expected_result_ = NodeStatus::E_SUCCESS;
   time_ = deadline_ms;
@@ -30,22 +30,22 @@ BT::NodeStatus BT::AsyncActionTest::tick()
   auto initial_time = high_resolution_clock::now();
 
   // we simulate an asynchronous action that takes an amount of time equal to time_
-  while (!isHaltRequested() && high_resolution_clock::now() < initial_time + time_)
+  while(!isHaltRequested() && high_resolution_clock::now() < initial_time + time_)
   {
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
 
   // check if we exited the while() loop because of the flag stop_loop_
-  if (isHaltRequested())
+  if(isHaltRequested())
   {
     return NodeStatus::E_IDLE;
   }
 
-  if (expected_result_ == NodeStatus::E_SUCCESS)
+  if(expected_result_ == NodeStatus::E_SUCCESS)
   {
     success_count_++;
   }
-  else if (expected_result_ == NodeStatus::E_FAILURE)
+  else if(expected_result_ == NodeStatus::E_FAILURE)
   {
     failure_count_++;
   }
@@ -56,7 +56,7 @@ BT::NodeStatus BT::AsyncActionTest::tick()
 void BT::AsyncActionTest::halt()
 {
   // do more cleanup here if necessary
-  AsyncActionNode::halt();
+  ThreadedAction::halt();
 }
 
 void BT::AsyncActionTest::setTime(BT::Duration time)

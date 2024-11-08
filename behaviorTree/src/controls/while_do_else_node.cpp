@@ -10,12 +10,12 @@
 *   WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "behaviortree_cpp_v3/controls/while_do_else_node.h"
+#include "behaviortree_cpp/controls/while_do_else_node.h"
 
 namespace BT
 {
-WhileDoElseNode::WhileDoElseNode(const std::string& name) :
-  ControlNode::ControlNode(name, {})
+WhileDoElseNode::WhileDoElseNode(const std::string& name)
+  : ControlNode::ControlNode(name, {})
 {
   setRegistrationID("WhileDoElse");
 }
@@ -29,42 +29,52 @@ NodeStatus WhileDoElseNode::tick()
 {
   const size_t children_count = children_nodes_.size();
 
-  if (children_count != 3)
+  if(children_count != 2 && children_count != 3)
   {
-    throw std::logic_error("WhileDoElse must have 3 children");
+    throw std::logic_error("WhileDoElseNode must have either 2 or 3 children");
   }
 
   setStatus(NodeStatus::E_RUNNING);
 
   NodeStatus condition_status = children_nodes_[0]->executeTick();
 
-  if (condition_status == NodeStatus::E_RUNNING)
+  if(condition_status == NodeStatus::E_RUNNING)
   {
     return condition_status;
   }
 
   NodeStatus status = NodeStatus::E_IDLE;
 
-  if (condition_status == NodeStatus::E_SUCCESS)
+  if(condition_status == NodeStatus::E_SUCCESS)
   {
-    haltChild(2);
+    if(children_count == 3)
+    {
+      haltChild(2);
+    }
     status = children_nodes_[1]->executeTick();
   }
-  else if (condition_status == NodeStatus::E_FAILURE)
+  else if(condition_status == NodeStatus::E_FAILURE)
   {
-    haltChild(1);
-    status = children_nodes_[2]->executeTick();
+    if(children_count == 3)
+    {
+      haltChild(1);
+      status = children_nodes_[2]->executeTick();
+    }
+    else if(children_count == 2)
+    {
+      status = NodeStatus::E_FAILURE;
+    }
   }
 
-  if (status == NodeStatus::E_RUNNING)
+  if(status == NodeStatus::E_RUNNING)
   {
     return NodeStatus::E_RUNNING;
   }
   else
   {
-    haltChildren();
+    resetChildren();
     return status;
   }
 }
 
-}   // namespace BT
+}  // namespace BT

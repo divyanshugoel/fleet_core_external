@@ -1,5 +1,5 @@
-#include "behaviortree_cpp_v3/decorators/timeout_node.h"
-#include "behaviortree_cpp_v3/behavior_tree.h"
+#include "behaviortree_cpp/decorators/timeout_node.h"
+#include "behaviortree_cpp/behavior_tree.h"
 #include <chrono>
 #include <future>
 #include <gtest/gtest.h>
@@ -13,11 +13,11 @@ class SimpleCoroAction : public BT::CoroActionNode
 {
 public:
   SimpleCoroAction(milliseconds timeout, bool will_fail, const std::string& node_name,
-                   const BT::NodeConfiguration& config) :
-    BT::CoroActionNode(node_name, config),
-    will_fail_(will_fail),
-    timeout_(timeout),
-    start_time_(Timepoint::min())
+                   const BT::NodeConfig& config)
+    : BT::CoroActionNode(node_name, config)
+    , will_fail_(will_fail)
+    , timeout_(timeout)
+    , start_time_(Timepoint::min())
   {}
 
   virtual void halt() override
@@ -44,12 +44,12 @@ protected:
     std::cout << "Starting action " << std::endl;
     halted_ = false;
 
-    if (start_time_ == Timepoint::min())
+    if(start_time_ == Timepoint::min())
     {
       start_time_ = std::chrono::steady_clock::now();
     }
 
-    while (std::chrono::steady_clock::now() < (start_time_ + timeout_))
+    while(std::chrono::steady_clock::now() < (start_time_ + timeout_))
     {
       setStatusRunningAndYield();
     }
@@ -73,7 +73,7 @@ private:
 BT::NodeStatus executeWhileRunning(BT::TreeNode& node)
 {
   auto status = node.executeTick();
-  while (status == BT::NodeStatus::E_RUNNING)
+  while(status == BT::NodeStatus::E_RUNNING)
   {
     status = node.executeTick();
     std::this_thread::sleep_for(Millisecond(1));
@@ -83,7 +83,7 @@ BT::NodeStatus executeWhileRunning(BT::TreeNode& node)
 
 TEST(CoroTest, do_action)
 {
-  BT::NodeConfiguration node_config_;
+  BT::NodeConfig node_config_;
   node_config_.blackboard = BT::Blackboard::create();
   BT::assignDefaultRemapping<SimpleCoroAction>(node_config_);
   SimpleCoroAction node(milliseconds(200), false, "Action", node_config_);
@@ -108,12 +108,12 @@ TEST(CoroTest, do_action)
 
 TEST(CoroTest, do_action_timeout)
 {
-  BT::NodeConfiguration node_config_;
+  BT::NodeConfig node_config_;
   node_config_.blackboard = BT::Blackboard::create();
   BT::assignDefaultRemapping<SimpleCoroAction>(node_config_);
 
   SimpleCoroAction node(milliseconds(300), false, "Action", node_config_);
-  BT::TimeoutNode<> timeout("TimeoutAction", 200);
+  BT::TimeoutNode timeout("TimeoutAction", 200);
 
   timeout.setChild(&node);
 
@@ -128,13 +128,13 @@ TEST(CoroTest, do_action_timeout)
 
 TEST(CoroTest, sequence_child)
 {
-  BT::NodeConfiguration node_config_;
+  BT::NodeConfig node_config_;
   node_config_.blackboard = BT::Blackboard::create();
   BT::assignDefaultRemapping<SimpleCoroAction>(node_config_);
 
   SimpleCoroAction actionA(milliseconds(200), false, "action_A", node_config_);
   SimpleCoroAction actionB(milliseconds(200), false, "action_B", node_config_);
-  BT::TimeoutNode<> timeout("timeout", 300);
+  BT::TimeoutNode timeout("timeout", 300);
   BT::SequenceNode sequence("sequence");
 
   timeout.setChild(&sequence);
@@ -148,7 +148,7 @@ TEST(CoroTest, sequence_child)
 
 TEST(CoroTest, OtherThreadHalt)
 {
-  BT::NodeConfiguration node_config_;
+  BT::NodeConfig node_config_;
   node_config_.blackboard = BT::Blackboard::create();
   BT::assignDefaultRemapping<SimpleCoroAction>(node_config_);
 

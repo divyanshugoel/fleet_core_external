@@ -12,22 +12,22 @@
 
 #include <gtest/gtest.h>
 #include "action_test_node.h"
-#include "condition_test_node.h"
-#include "behaviortree_cpp_v3/behavior_tree.h"
+#include "behaviortree_cpp/bt_factory.h"
+#include "test_helper.hpp"
 
 using BT::NodeStatus;
 using std::chrono::milliseconds;
 
 struct DeadlineTest : testing::Test
 {
-  BT::TimeoutNode<> root;
+  BT::TimeoutNode root;
   BT::AsyncActionTest action;
 
   DeadlineTest() : root("deadline", 300), action("action", milliseconds(500))
   {
     root.setChild(&action);
   }
-  ~DeadlineTest() = default;
+  ~DeadlineTest() override = default;
 };
 
 struct RepeatTest : testing::Test
@@ -39,7 +39,7 @@ struct RepeatTest : testing::Test
   {
     root.setChild(&action);
   }
-  ~RepeatTest() = default;
+  ~RepeatTest() override = default;
 };
 
 struct RepeatTestAsync : testing::Test
@@ -51,7 +51,7 @@ struct RepeatTestAsync : testing::Test
   {
     root.setChild(&action);
   }
-  ~RepeatTestAsync() = default;
+  ~RepeatTestAsync() override = default;
 };
 
 struct RetryTest : testing::Test
@@ -63,12 +63,12 @@ struct RetryTest : testing::Test
   {
     root.setChild(&action);
   }
-  ~RetryTest() = default;
+  ~RetryTest() override = default;
 };
 
 struct TimeoutAndRetry : testing::Test
 {
-  BT::TimeoutNode<> timeout_root;
+  BT::TimeoutNode timeout_root;
   BT::RetryNode retry;
   BT::SyncActionTest action;
 
@@ -133,7 +133,7 @@ TEST_F(RepeatTestAsync, RepeatTestAsync)
 
   auto res = root.executeTick();
 
-  while (res == NodeStatus::E_RUNNING)
+  while(res == NodeStatus::E_RUNNING)
   {
     std::this_thread::sleep_for(std::chrono::milliseconds(20));
     res = root.executeTick();
@@ -148,7 +148,7 @@ TEST_F(RepeatTestAsync, RepeatTestAsync)
   action.resetCounters();
 
   res = root.executeTick();
-  while (res == NodeStatus::E_RUNNING)
+  while(res == NodeStatus::E_RUNNING)
   {
     std::this_thread::sleep_for(std::chrono::milliseconds(20));
     res = root.executeTick();
@@ -183,9 +183,38 @@ TEST_F(TimeoutAndRetry, Issue57)
 
   auto t1 = std::chrono::high_resolution_clock::now();
 
-  while (std::chrono::high_resolution_clock::now() < t1 + std::chrono::seconds(2))
+  while(std::chrono::high_resolution_clock::now() < t1 + std::chrono::seconds(2))
   {
     ASSERT_NE(timeout_root.executeTick(), BT::NodeStatus::E_IDLE);
     std::this_thread::sleep_for(std::chrono::microseconds(50));
   }
+}
+
+TEST(Decorator, RunOnce)
+{
+  BT::BehaviorTreeFactory factory;
+  std::array<int, 2> counters;
+  RegisterTestTick(factory, "Test", counters);
+
+  const std::string xml_text = R"(
+    <root BTCPP_format="4" >
+       <BehaviorTree>
+          <Sequence>
+            <RunOnce> <TestA/> </RunOnce>
+            <TestB/>
+          </Sequence>
+       </BehaviorTree>
+    </root>)";
+
+  auto tree = factory.createTreeFromText(xml_text);
+
+  for(int i = 0; i < 5; i++)
+  {
+    NodeStatus status = tree.tickWhileRunning();
+    ASSERT_EQ(status, NodeStatus::E_SUCCESS);
+  }
+  // counters[0] contains the number ot times TestA was ticked
+  ASSERT_EQ(counters[0], 1);
+  // counters[1] contains the number ot times TestB was ticked
+  ASSERT_EQ(counters[1], 5);
 }

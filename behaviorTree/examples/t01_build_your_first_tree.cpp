@@ -1,4 +1,4 @@
-#include "behaviortree_cpp_v3/bt_factory.h"
+#include "behaviortree_cpp/bt_factory.h"
 
 //#define MANUAL_STATIC_LINKING
 
@@ -20,7 +20,7 @@ using namespace BT;
 // clang-format off
 static const char* xml_text = R"(
 
- <root main_tree_to_execute = "MainTree" >
+ <root BTCPP_format="4" >
 
      <BehaviorTree ID="MainTree">
         <Sequence name="root_sequence">
@@ -59,19 +59,19 @@ int main()
 
   // Registering a SimpleActionNode using a function pointer.
   // you may also use C++11 lambdas instead of std::bind
-  factory.registerSimpleCondition("CheckBattery", std::bind(CheckBattery));
+  factory.registerSimpleCondition("CheckBattery",
+                                  [&](TreeNode&) { return CheckBattery(); });
 
   //You can also create SimpleActionNodes using methods of a class
   GripperInterface gripper;
-  factory.registerSimpleAction("OpenGripper",
-                               std::bind(&GripperInterface::open, &gripper));
+  factory.registerSimpleAction("OpenGripper", [&](TreeNode&) { return gripper.open(); });
   factory.registerSimpleAction("CloseGripper",
-                               std::bind(&GripperInterface::close, &gripper));
+                               [&](TreeNode&) { return gripper.close(); });
 
 #else
   // Load dynamically a plugin and register the TreeNodes it contains
   // it automated the registering step.
-  factory.registerFromPlugin("./libdummy_nodes_dyn.so");
+  factory.registerFromPlugin("../sample_nodes/bin/libdummy_nodes_dyn.so");
 #endif
 
   // Trees are created at deployment-time (i.e. at run-time, but only once at the beginning).
@@ -82,8 +82,8 @@ int main()
   // To "execute" a Tree you need to "tick" it.
   // The tick is propagated to the children based on the logic of the tree.
   // In this case, the entire sequence is executed, because all the children
-  // of the Sequence return SUCCESS.
-  tree.tickRoot();
+  // of the Sequence return E_SUCCESS.
+  tree.tickWhileRunning();
 
   return 0;
 }

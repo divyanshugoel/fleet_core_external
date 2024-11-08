@@ -10,52 +10,90 @@
 *   WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "behaviortree_cpp_v3/controls/reactive_fallback.h"
+#include "behaviortree_cpp/controls/reactive_fallback.h"
 
 namespace BT
 {
+
+bool ReactiveFallback::throw_if_multiple_running = false;
+
+void ReactiveFallback::EnableException(bool enable)
+{
+  ReactiveFallback::throw_if_multiple_running = enable;
+}
+
 NodeStatus ReactiveFallback::tick()
 {
-  size_t failure_count = 0;
+  bool all_skipped = true;
+  if(status() == NodeStatus::E_IDLE)
+  {
+    running_child_ = -1;
+  }
+  setStatus(NodeStatus::E_RUNNING);
 
-  for (size_t index = 0; index < childrenCount(); index++)
+  for(size_t index = 0; index < childrenCount(); index++)
   {
     TreeNode* current_child_node = children_nodes_[index];
     const NodeStatus child_status = current_child_node->executeTick();
 
-    switch (child_status)
+    // switch to E_RUNNING state as soon as you find an active child
+    all_skipped &= (child_status == NodeStatus::E_SKIPPED);
+
+    switch(child_status)
     {
       case NodeStatus::E_RUNNING: {
-        for (size_t i = index + 1; i < childrenCount(); i++)
+        // reset the previous children, to make sure that they are
+        // in E_IDLE state the next time we tick them
+        for(size_t i = 0; i < childrenCount(); i++)
         {
-          haltChild(i);
+          if(i != index)
+          {
+            haltChild(i);
+          }
+        }
+        if(running_child_ == -1)
+        {
+          running_child_ = int(index);
+        }
+        else if(throw_if_multiple_running && running_child_ != int(index))
+        {
+          throw LogicError("[ReactiveFallback]: only a single child can return E_RUNNING.\n"
+                           "This throw can be disabled with "
+                           "ReactiveFallback::EnableException(false)");
         }
         return NodeStatus::E_RUNNING;
       }
 
-      case NodeStatus::E_FAILURE: {
-        failure_count++;
-      }
-      break;
+      case NodeStatus::E_FAILURE:
+        break;
 
       case NodeStatus::E_SUCCESS: {
-        haltChildren();
+        resetChildren();
         return NodeStatus::E_SUCCESS;
       }
 
-      case NodeStatus::E_IDLE: {
-        throw LogicError("A child node must never return IDLE");
+      case NodeStatus::E_SKIPPED: {
+        // to allow it to be skipped again, we must reset the node
+        haltChild(index);
       }
-    }   // end switch
-  }     //end for
+      break;
 
-  if (failure_count == childrenCount())
-  {
-    haltChildren();
-    return NodeStatus::E_FAILURE;
-  }
+      case NodeStatus::E_IDLE: {
+        throw LogicError("[", name(), "]: A children should not return E_IDLE");
+      }
+    }  // end switch
+  }    //end for
 
-  return NodeStatus::E_RUNNING;
+  resetChildren();
+
+  // Skip if ALL the nodes have been skipped
+  return all_skipped ? NodeStatus::E_SKIPPED : NodeStatus::E_FAILURE;
 }
 
-}   // namespace BT
+void ReactiveFallback::halt()
+{
+  running_child_ = -1;
+  ControlNode::halt();
+}
+
+}  // namespace BT

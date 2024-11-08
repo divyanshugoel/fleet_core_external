@@ -1,4 +1,5 @@
 /* Copyright (C) 2015-2017 Michele Colledanchise - All Rights Reserved
+*  Copyright (C) 2018-2023 Davide Faconti -  All Rights Reserved
 *
 *   Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
 *   to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
@@ -12,8 +13,10 @@
 
 #include <gtest/gtest.h>
 #include "action_test_node.h"
+#include "behaviortree_cpp/loggers/bt_observer.h"
 #include "condition_test_node.h"
-#include "behaviortree_cpp_v3/behavior_tree.h"
+#include "behaviortree_cpp/bt_factory.h"
+#include "test_helper.hpp"
 
 using BT::NodeStatus;
 using std::chrono::milliseconds;
@@ -27,19 +30,19 @@ struct SimpleParallelTest : testing::Test
   BT::AsyncActionTest action_2;
   BT::ConditionTestNode condition_2;
 
-  SimpleParallelTest() :
-    root("root_parallel", 4),
-    action_1("action_1", milliseconds(100)),
-    condition_1("condition_1"),
-    action_2("action_2", milliseconds(300)),
-    condition_2("condition_2")
+  SimpleParallelTest()
+    : root("root_parallel")
+    , action_1("action_1", milliseconds(100))
+    , condition_1("condition_1")
+    , action_2("action_2", milliseconds(300))
+    , condition_2("condition_2")
   {
     root.addChild(&condition_1);
     root.addChild(&action_1);
     root.addChild(&condition_2);
     root.addChild(&action_2);
   }
-  ~SimpleParallelTest()
+  ~SimpleParallelTest() override
   {}
 };
 
@@ -58,16 +61,16 @@ struct ComplexParallelTest : testing::Test
   BT::AsyncActionTest action_R;
   BT::ConditionTestNode condition_R;
 
-  ComplexParallelTest() :
-    parallel_root("root", 2),
-    parallel_left("par1", 3),
-    parallel_right("par2", 1),
-    action_L1("action_1", milliseconds(100)),
-    condition_L1("condition_1"),
-    action_L2("action_2", milliseconds(200)),
-    condition_L2("condition_2"),
-    action_R("action_3", milliseconds(400)),
-    condition_R("condition_3")
+  ComplexParallelTest()
+    : parallel_root("root")
+    , parallel_left("par1")
+    , parallel_right("par2")
+    , action_L1("action_1", milliseconds(100))
+    , condition_L1("condition_1")
+    , action_L2("action_2", milliseconds(200))
+    , condition_L2("condition_2")
+    , action_R("action_3", milliseconds(400))
+    , condition_R("condition_3")
   {
     parallel_root.addChild(&parallel_left);
     {
@@ -81,8 +84,11 @@ struct ComplexParallelTest : testing::Test
       parallel_right.addChild(&condition_R);
       parallel_right.addChild(&action_R);
     }
+    parallel_root.setSuccessThreshold(2);
+    parallel_left.setSuccessThreshold(3);
+    parallel_right.setSuccessThreshold(1);
   }
-  ~ComplexParallelTest()
+  ~ComplexParallelTest() override
   {}
 };
 
@@ -121,7 +127,7 @@ TEST_F(SimpleParallelTest, Threshold_3)
 {
   root.setSuccessThreshold(3);
   action_1.setTime(milliseconds(100));
-  action_2.setTime(milliseconds(500));   // this takes a lot of time
+  action_2.setTime(milliseconds(500));  // this takes a lot of time
 
   BT::NodeStatus state = root.executeTick();
   // first tick, zero wait
@@ -146,7 +152,7 @@ TEST_F(SimpleParallelTest, Threshold_neg2)
 {
   root.setSuccessThreshold(-2);
   action_1.setTime(milliseconds(100));
-  action_2.setTime(milliseconds(500));   // this takes a lot of time
+  action_2.setTime(milliseconds(500));  // this takes a lot of time
 
   BT::NodeStatus state = root.executeTick();
   // first tick, zero wait
@@ -171,7 +177,7 @@ TEST_F(SimpleParallelTest, Threshold_neg1)
 {
   root.setSuccessThreshold(-1);
   action_1.setTime(milliseconds(100));
-  action_2.setTime(milliseconds(500));   // this takes a lot of time
+  action_2.setTime(milliseconds(500));  // this takes a lot of time
 
   BT::NodeStatus state = root.executeTick();
   // first tick, zero wait
@@ -389,4 +395,200 @@ TEST_F(ComplexParallelTest, ConditionRightFalseAction1Done)
   ASSERT_EQ(NodeStatus::E_IDLE, action_R.status());
 
   ASSERT_EQ(NodeStatus::E_SUCCESS, state);
+}
+
+TEST(Parallel, FailingParallel)
+{
+  static const char* xml_text = R"(
+<root BTCPP_format="4">
+  <BehaviorTree ID="MainTree">
+    <Parallel name="parallel" success_count="1" failure_count="3">
+      <GoodTest name="first"/>
+      <BadTest name="second"/>
+      <SlowTest name="third"/>
+    </Parallel>
+  </BehaviorTree>
+</root>  )";
+  using namespace BT;
+
+  BehaviorTreeFactory factory;
+
+  BT::TestNodeConfig good_config;
+  good_config.async_delay = std::chrono::milliseconds(200);
+  good_config.return_status = NodeStatus::E_SUCCESS;
+  factory.registerNodeType<BT::TestNode>("GoodTest", good_config);
+
+  BT::TestNodeConfig bad_config;
+  bad_config.async_delay = std::chrono::milliseconds(100);
+  bad_config.return_status = NodeStatus::E_FAILURE;
+  factory.registerNodeType<BT::TestNode>("BadTest", bad_config);
+
+  BT::TestNodeConfig slow_config;
+  slow_config.async_delay = std::chrono::milliseconds(300);
+  slow_config.return_status = NodeStatus::E_SUCCESS;
+  factory.registerNodeType<BT::TestNode>("SlowTest", slow_config);
+
+  auto tree = factory.createTreeFromText(xml_text);
+  BT::TreeObserver observer(tree);
+
+  auto state = tree.tickWhileRunning();
+  // since at least one succeeded.
+  ASSERT_EQ(NodeStatus::E_SUCCESS, state);
+  ASSERT_EQ(1, observer.getStatistics("first").success_count);
+  ASSERT_EQ(1, observer.getStatistics("second").failure_count);
+  ASSERT_EQ(0, observer.getStatistics("third").failure_count);
+}
+
+TEST(Parallel, ParallelAll)
+{
+  using namespace BT;
+
+  BehaviorTreeFactory factory;
+
+  BT::TestNodeConfig good_config;
+  good_config.async_delay = std::chrono::milliseconds(300);
+  good_config.return_status = NodeStatus::E_SUCCESS;
+  factory.registerNodeType<BT::TestNode>("GoodTest", good_config);
+
+  BT::TestNodeConfig bad_config;
+  bad_config.async_delay = std::chrono::milliseconds(100);
+  bad_config.return_status = NodeStatus::E_FAILURE;
+  factory.registerNodeType<BT::TestNode>("BadTest", bad_config);
+
+  {
+    const char* xml_text = R"(
+<root BTCPP_format="4">
+  <BehaviorTree ID="MainTree">
+    <ParallelAll max_failures="1">
+      <BadTest name="first"/>
+      <GoodTest name="second"/>
+      <GoodTest name="third"/>
+    </ParallelAll>
+  </BehaviorTree>
+</root>  )";
+    auto tree = factory.createTreeFromText(xml_text);
+    BT::TreeObserver observer(tree);
+
+    auto state = tree.tickWhileRunning();
+    ASSERT_EQ(NodeStatus::E_FAILURE, state);
+    ASSERT_EQ(1, observer.getStatistics("first").failure_count);
+    ASSERT_EQ(1, observer.getStatistics("second").success_count);
+    ASSERT_EQ(1, observer.getStatistics("third").success_count);
+  }
+
+  {
+    const char* xml_text = R"(
+<root BTCPP_format="4">
+  <BehaviorTree ID="MainTree">
+    <ParallelAll max_failures="2">
+      <BadTest name="first"/>
+      <GoodTest name="second"/>
+      <GoodTest name="third"/>
+    </ParallelAll>
+  </BehaviorTree>
+</root>  )";
+    auto tree = factory.createTreeFromText(xml_text);
+    BT::TreeObserver observer(tree);
+
+    auto state = tree.tickWhileRunning();
+    ASSERT_EQ(NodeStatus::E_SUCCESS, state);
+    ASSERT_EQ(1, observer.getStatistics("first").failure_count);
+    ASSERT_EQ(1, observer.getStatistics("second").success_count);
+    ASSERT_EQ(1, observer.getStatistics("third").success_count);
+  }
+}
+
+TEST(Parallel, Issue593)
+{
+  static const char* xml_text = R"(
+<root BTCPP_format="4">
+  <BehaviorTree ID="TestTree">
+    <Sequence>
+      <Script code="test := true"/>
+      <Parallel failure_count="1" success_count="-1">
+        <TestA _skipIf="test == true"/>
+        <Sleep msec="100"/>
+      </Parallel>
+    </Sequence>
+  </BehaviorTree>
+</root>
+)";
+  using namespace BT;
+
+  BehaviorTreeFactory factory;
+  std::array<int, 1> counters;
+  RegisterTestTick(factory, "Test", counters);
+
+  auto tree = factory.createTreeFromText(xml_text);
+  tree.tickWhileRunning();
+
+  ASSERT_EQ(0, counters[0]);
+}
+
+TEST(Parallel, PauseWithRetry)
+{
+  static const char* xml_text = R"(
+<root BTCPP_format="4">
+  <BehaviorTree ID="TestTree">
+    <Parallel>
+      <Sequence>
+        <Sleep msec="150"/>
+        <Script code="paused := false"/>
+        <Sleep msec="150"/>
+      </Sequence>
+
+      <Sequence>
+        <Script code="paused := true; done := false"/>
+        <RetryUntilSuccessful _while="paused" num_attempts="-1" _onHalted="done = true">
+          <AlwaysFailure/>
+        </RetryUntilSuccessful>
+      </Sequence>
+    </Parallel>
+  </BehaviorTree>
+</root>
+)";
+  using namespace BT;
+
+  BehaviorTreeFactory factory;
+
+  auto tree = factory.createTreeFromText(xml_text);
+  auto t1 = std::chrono::system_clock::now();
+  std::chrono::system_clock::time_point done_time;
+  bool done_detected = false;
+
+  auto status = tree.tickExactlyOnce();
+  auto toMsec = [](const auto& t) {
+    return std::chrono::duration_cast<std::chrono::milliseconds>(t).count();
+  };
+
+  while(!isStatusCompleted(status))
+  {
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+    if(!done_detected)
+    {
+      if(tree.subtrees.front()->blackboard->get<bool>("done"))
+      {
+        done_detected = true;
+        done_time = std::chrono::system_clock::now();
+        std::cout << "detected\n";
+      }
+    }
+    status = tree.tickExactlyOnce();
+  }
+  auto t2 = std::chrono::system_clock::now();
+
+  ASSERT_EQ(NodeStatus::E_SUCCESS, status);
+
+  // tolerate an error in time measurement within this margin
+#ifdef WIN32
+  const int margin_msec = 40;
+#else
+  const int margin_msec = 10;
+#endif
+
+  // the second branch with the RetryUntilSuccessful should take about 150 ms
+  ASSERT_LE(toMsec(done_time - t1) - 150, margin_msec);
+  // the whole process should take about 300 milliseconds
+  ASSERT_LE(toMsec(t2 - t1) - 300, margin_msec * 2);
 }

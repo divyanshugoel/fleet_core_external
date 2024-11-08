@@ -1,5 +1,5 @@
 #include "dummy_nodes.h"
-#include "behaviortree_cpp_v3/bt_factory.h"
+#include "behaviortree_cpp/bt_factory.h"
 
 /** This example show how it is possible to:
  * - load BehaviorTrees from multiple files manually (without the <include> tag)
@@ -9,7 +9,7 @@
 // clang-format off
 
 static const char* xml_text_main = R"(
-<root main_tree_to_execute="MainTree">
+<root BTCPP_format="4">
     <BehaviorTree ID="MainTree">
         <Sequence>
             <SaySomething message="starting MainTree" />
@@ -20,14 +20,14 @@ static const char* xml_text_main = R"(
 </root>  )";
 
 static const char* xml_text_subA = R"(
-<root>
+<root BTCPP_format="4">
     <BehaviorTree ID="SubA">
         <SaySomething message="Executing SubA" />
     </BehaviorTree>
 </root>  )";
 
 static const char* xml_text_subB = R"(
-<root>
+<root BTCPP_format="4">
     <BehaviorTree ID="SubB">
         <SaySomething message="Executing SubB" />
     </BehaviorTree>
@@ -50,7 +50,7 @@ int main()
 
   //Check that the BTs have been registered correctly
   std::cout << "Registered BehaviorTrees:" << std::endl;
-  for (const std::string& bt_name : factory.registeredBehaviorTrees())
+  for(const std::string& bt_name : factory.registeredBehaviorTrees())
   {
     std::cout << " - " << bt_name << std::endl;
   }
@@ -58,12 +58,12 @@ int main()
   // You can create the MainTree and the subtrees will be added automatically.
   std::cout << "----- MainTree tick ----" << std::endl;
   auto main_tree = factory.createTree("MainTree");
-  main_tree.tickRoot();
+  main_tree.tickWhileRunning();
 
   // ... or you can create only one of the subtree
   std::cout << "----- SubA tick ----" << std::endl;
   auto subA_tree = factory.createTree("SubA");
-  subA_tree.tickRoot();
+  subA_tree.tickWhileRunning();
 
   return 0;
 }

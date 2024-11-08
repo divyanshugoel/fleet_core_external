@@ -11,7 +11,7 @@
 *   WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "behaviortree_cpp_v3/decorators/inverter_node.h"
+#include "behaviortree_cpp/decorators/inverter_node.h"
 
 namespace BT
 {
@@ -23,28 +23,30 @@ InverterNode::InverterNode(const std::string& name) : DecoratorNode(name, {})
 NodeStatus InverterNode::tick()
 {
   setStatus(NodeStatus::E_RUNNING);
+  const NodeStatus child_status = child_node_->executeTick();
 
-  const NodeStatus child_state = child_node_->executeTick();
-
-  switch (child_state)
+  switch(child_status)
   {
     case NodeStatus::E_SUCCESS: {
+      resetChild();
       return NodeStatus::E_FAILURE;
     }
 
     case NodeStatus::E_FAILURE: {
+      resetChild();
       return NodeStatus::E_SUCCESS;
     }
 
-    case NodeStatus::E_RUNNING: {
-      return NodeStatus::E_RUNNING;
+    case NodeStatus::E_RUNNING:
+    case NodeStatus::E_SKIPPED: {
+      return child_status;
     }
 
-    default: {
-      throw LogicError("A child node must never return IDLE");
+    case NodeStatus::E_IDLE: {
+      throw LogicError("[", name(), "]: A children should not return E_IDLE");
     }
   }
-  //return status();
+  return status();
 }
 
-}   // namespace BT
+}  // namespace BT

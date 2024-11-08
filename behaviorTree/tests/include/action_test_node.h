@@ -1,7 +1,7 @@
 #ifndef ACTIONTEST_H
 #define ACTIONTEST_H
 
-#include "behaviortree_cpp_v3/action_node.h"
+#include "behaviortree_cpp/action_node.h"
 
 namespace BT
 {
@@ -29,7 +29,7 @@ private:
   int tick_count_;
 };
 
-class AsyncActionTest : public AsyncActionNode
+class AsyncActionTest : public ThreadedAction
 {
 public:
   AsyncActionTest(const std::string& name,
@@ -80,6 +80,6 @@ private:
   int success_count_;
   int failure_count_;
 };
-}   // namespace BT
+}  // namespace BT
 
 #endif

@@ -1,4 +1,4 @@
-#include "behaviortree_cpp_v3/bt_factory.h"
+#include "behaviortree_cpp/bt_factory.h"
 #include "dummy_nodes.h"
 
 using namespace BT;
@@ -10,7 +10,7 @@ using namespace BT;
 
 // clang-format off
 static const char* xml_text = R"(
- <root main_tree_to_execute = "MainTree" >
+ <root BTCPP_format="4" >
      <BehaviorTree ID="MainTree">
         <Repeat num_cycles="3">
             <ManualSelector repeat_last_selection="0">
@@ -32,7 +32,7 @@ int main()
   factory.registerNodeType<DummyNodes::SaySomething>("SaySomething");
 
   auto tree = factory.createTreeFromText(xml_text);
-  auto ret = tree.tickRoot();
+  auto ret = tree.tickWhileRunning();
 
   std::cout << "Result: " << ret << std::endl;
 
