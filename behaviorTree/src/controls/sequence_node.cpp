@@ -11,15 +11,17 @@
 *   WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "behaviortree_cpp_v3/controls/sequence_node.h"
-#include "behaviortree_cpp_v3/action_node.h"
+#include "behaviortree_cpp/controls/sequence_node.h"
 
 namespace BT
 {
-SequenceNode::SequenceNode(const std::string& name) :
-  ControlNode::ControlNode(name, {}), current_child_idx_(0)
+SequenceNode::SequenceNode(const std::string& name, bool make_async)
+  : ControlNode::ControlNode(name, {}), current_child_idx_(0), asynch_(make_async)
 {
-  setRegistrationID("Sequence");
+  if(asynch_)
+    setRegistrationID("AsyncSequence");
+  else
+    setRegistrationID("Sequence");
 }
 
 void SequenceNode::halt()
@@ -32,42 +34,65 @@ NodeStatus SequenceNode::tick()
 {
   const size_t children_count = children_nodes_.size();
 
+  if(status() == NodeStatus::E_IDLE)
+  {
+    skipped_count_ = 0;
+  }
+
   setStatus(NodeStatus::E_RUNNING);
 
-  while (current_child_idx_ < children_count)
+  while(current_child_idx_ < children_count)
   {
     TreeNode* current_child_node = children_nodes_[current_child_idx_];
+
+    auto prev_status = current_child_node->status();
     const NodeStatus child_status = current_child_node->executeTick();
 
-    switch (child_status)
+    switch(child_status)
     {
       case NodeStatus::E_RUNNING: {
-        return child_status;
+        return NodeStatus::E_RUNNING;
       }
       case NodeStatus::E_FAILURE: {
         // Reset on failure
-        haltChildren();
+        resetChildren();
         current_child_idx_ = 0;
         return child_status;
       }
       case NodeStatus::E_SUCCESS: {
         current_child_idx_++;
+        // Return the execution flow if the child is async,
+        // to make this interruptable.
+        if(asynch_ && requiresWakeUp() && prev_status == NodeStatus::E_IDLE &&
+           current_child_idx_ < children_count)
+        {
+          emitWakeUpSignal();
+          return NodeStatus::E_RUNNING;
+        }
+      }
+      break;
+
+      case NodeStatus::E_SKIPPED: {
+        // It was requested to skip this node
+        current_child_idx_++;
+        skipped_count_++;
       }
       break;
 
       case NodeStatus::E_IDLE: {
-        throw LogicError("A child node must never return IDLE");
+        throw LogicError("[", name(), "]: A children should not return E_IDLE");
       }
-    }   // end switch
-  }     // end while loop
+    }  // end switch
+  }    // end while loop
 
-  // The entire while loop completed. This means that all the children returned SUCCESS.
-  if (current_child_idx_ == children_count)
+  // The entire while loop completed. This means that all the children returned E_SUCCESS.
+  if(current_child_idx_ == children_count)
   {
-    haltChildren();
+    resetChildren();
     current_child_idx_ = 0;
   }
-  return NodeStatus::E_SUCCESS;
+  // Skip if ALL the nodes have been skipped
+  return (skipped_count_ == children_count) ? NodeStatus::E_SKIPPED : NodeStatus::E_SUCCESS;
 }
 
-}   // namespace BT
+}  // namespace BT

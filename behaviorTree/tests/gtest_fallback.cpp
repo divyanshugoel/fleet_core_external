@@ -13,7 +13,7 @@
 #include <gtest/gtest.h>
 #include "action_test_node.h"
 #include "condition_test_node.h"
-#include "behaviortree_cpp_v3/behavior_tree.h"
+#include "behaviortree_cpp/behavior_tree.h"
 
 using BT::NodeStatus;
 using std::chrono::milliseconds;
@@ -24,13 +24,13 @@ struct SimpleFallbackTest : testing::Test
   BT::ConditionTestNode condition;
   BT::AsyncActionTest action;
 
-  SimpleFallbackTest() :
-    root("root_fallback"), condition("condition"), action("action", milliseconds(100))
+  SimpleFallbackTest()
+    : root("root_fallback"), condition("condition"), action("action", milliseconds(100))
   {
     root.addChild(&condition);
     root.addChild(&action);
   }
-  ~SimpleFallbackTest()
+  ~SimpleFallbackTest() override
   {}
 };
 
@@ -41,17 +41,17 @@ struct ReactiveFallbackTest : testing::Test
   BT::ConditionTestNode condition_2;
   BT::AsyncActionTest action_1;
 
-  ReactiveFallbackTest() :
-    root("root_first"),
-    condition_1("condition_1"),
-    condition_2("condition_2"),
-    action_1("action_1", milliseconds(100))
+  ReactiveFallbackTest()
+    : root("root_first")
+    , condition_1("condition_1")
+    , condition_2("condition_2")
+    , action_1("action_1", milliseconds(100))
   {
     root.addChild(&condition_1);
     root.addChild(&condition_2);
     root.addChild(&action_1);
   }
-  ~ReactiveFallbackTest()
+  ~ReactiveFallbackTest() override
   {}
 };
 
@@ -61,13 +61,13 @@ struct SimpleFallbackWithMemoryTest : testing::Test
   BT::AsyncActionTest action;
   BT::ConditionTestNode condition;
 
-  SimpleFallbackWithMemoryTest() :
-    root("root_sequence"), action("action", milliseconds(100)), condition("condition")
+  SimpleFallbackWithMemoryTest()
+    : root("root_sequence"), action("action", milliseconds(100)), condition("condition")
   {
     root.addChild(&condition);
     root.addChild(&action);
   }
-  ~SimpleFallbackWithMemoryTest()
+  ~SimpleFallbackWithMemoryTest() override
   {}
 };
 
@@ -84,14 +84,14 @@ struct ComplexFallbackWithMemoryTest : testing::Test
   BT::FallbackNode fal_conditions;
   BT::FallbackNode fal_actions;
 
-  ComplexFallbackWithMemoryTest() :
-    root("root_fallback"),
-    action_1("action_1", milliseconds(100)),
-    action_2("action_2", milliseconds(100)),
-    condition_1("condition_1"),
-    condition_2("condition_2"),
-    fal_conditions("fallback_conditions"),
-    fal_actions("fallback_actions")
+  ComplexFallbackWithMemoryTest()
+    : root("root_fallback")
+    , action_1("action_1", milliseconds(100))
+    , action_2("action_2", milliseconds(100))
+    , condition_1("condition_1")
+    , condition_2("condition_2")
+    , fal_conditions("fallback_conditions")
+    , fal_actions("fallback_actions")
   {
     root.addChild(&fal_conditions);
     {
@@ -104,7 +104,7 @@ struct ComplexFallbackWithMemoryTest : testing::Test
       fal_actions.addChild(&action_2);
     }
   }
-  ~ComplexFallbackWithMemoryTest()
+  ~ComplexFallbackWithMemoryTest() override
   {}
 };
 
@@ -148,8 +148,8 @@ TEST_F(ReactiveFallbackTest, Condition1ToTrue)
   BT::NodeStatus state = root.executeTick();
 
   ASSERT_EQ(NodeStatus::E_RUNNING, state);
-  ASSERT_EQ(NodeStatus::E_FAILURE, condition_1.status());
-  ASSERT_EQ(NodeStatus::E_FAILURE, condition_2.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_2.status());
   ASSERT_EQ(NodeStatus::E_RUNNING, action_1.status());
 
   condition_1.setExpectedResult(NodeStatus::E_SUCCESS);
@@ -170,8 +170,8 @@ TEST_F(ReactiveFallbackTest, Condition2ToTrue)
   BT::NodeStatus state = root.executeTick();
 
   ASSERT_EQ(NodeStatus::E_RUNNING, state);
-  ASSERT_EQ(NodeStatus::E_FAILURE, condition_1.status());
-  ASSERT_EQ(NodeStatus::E_FAILURE, condition_2.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_2.status());
   ASSERT_EQ(NodeStatus::E_RUNNING, action_1.status());
 
   condition_2.setExpectedResult(NodeStatus::E_SUCCESS);

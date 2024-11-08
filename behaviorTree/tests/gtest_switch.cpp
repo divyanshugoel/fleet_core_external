@@ -1,16 +1,16 @@
 #include <gtest/gtest.h>
 #include "action_test_node.h"
 #include "condition_test_node.h"
-#include "behaviortree_cpp_v3/behavior_tree.h"
-#include "behaviortree_cpp_v3/tree_node.h"
-#include "behaviortree_cpp_v3/bt_factory.h"
+#include "behaviortree_cpp/behavior_tree.h"
+#include "behaviortree_cpp/tree_node.h"
+#include "behaviortree_cpp/bt_factory.h"
 
 using BT::NodeStatus;
 using std::chrono::milliseconds;
 
 static const char* xml_text = R"(
 
-<root main_tree_to_execute = "MainTree" >
+<root BTCPP_format="4" >
 
     <BehaviorTree ID="MainTree">
         <Switch3 name="simple_switch" variable="{my_var}"  case_1="1" case_2="42 case_3="666" >
@@ -23,6 +23,16 @@ static const char* xml_text = R"(
 </root>
         )";
 
+BT::NodeStatus TickWhileRunning(BT::TreeNode& node)
+{
+  auto status = node.executeTick();
+  while(status == BT::NodeStatus::E_RUNNING)
+  {
+    status = node.executeTick();
+  }
+  return status;
+}
+
 struct SwitchTest : testing::Test
 {
   using Switch2 = BT::SwitchNode<2>;
@@ -31,19 +41,19 @@ struct SwitchTest : testing::Test
   BT::AsyncActionTest action_42;
   BT::AsyncActionTest action_def;
   BT::Blackboard::Ptr bb = BT::Blackboard::create();
-  BT::NodeConfiguration simple_switch_config_;
+  BT::NodeConfig simple_switch_config_;
 
-  SwitchTest() :
-    action_1("action_1", milliseconds(100)),
-    action_42("action_42", milliseconds(100)),
-    action_def("action_default", milliseconds(100))
+  SwitchTest()
+    : action_1("action_1", milliseconds(200))
+    , action_42("action_42", milliseconds(200))
+    , action_def("action_default", milliseconds(200))
   {
     BT::PortsRemapping input;
     input.insert(std::make_pair("variable", "{my_var}"));
     input.insert(std::make_pair("case_1", "1"));
     input.insert(std::make_pair("case_2", "42"));
 
-    BT::NodeConfiguration simple_switch_config_;
+    BT::NodeConfig simple_switch_config_;
     simple_switch_config_.blackboard = bb;
     simple_switch_config_.input_ports = input;
 
@@ -68,7 +78,7 @@ TEST_F(SwitchTest, DefaultCase)
   ASSERT_EQ(NodeStatus::E_RUNNING, action_def.status());
   ASSERT_EQ(NodeStatus::E_RUNNING, state);
 
-  std::this_thread::sleep_for(milliseconds(110));
+  std::this_thread::sleep_for(milliseconds(300));
   state = root->executeTick();
 
   ASSERT_EQ(NodeStatus::E_IDLE, action_1.status());
@@ -87,7 +97,7 @@ TEST_F(SwitchTest, Case1)
   ASSERT_EQ(NodeStatus::E_IDLE, action_def.status());
   ASSERT_EQ(NodeStatus::E_RUNNING, state);
 
-  std::this_thread::sleep_for(milliseconds(110));
+  std::this_thread::sleep_for(milliseconds(300));
   state = root->executeTick();
 
   ASSERT_EQ(NodeStatus::E_IDLE, action_1.status());
@@ -106,7 +116,7 @@ TEST_F(SwitchTest, Case2)
   ASSERT_EQ(NodeStatus::E_IDLE, action_def.status());
   ASSERT_EQ(NodeStatus::E_RUNNING, state);
 
-  std::this_thread::sleep_for(milliseconds(110));
+  std::this_thread::sleep_for(milliseconds(300));
   state = root->executeTick();
 
   ASSERT_EQ(NodeStatus::E_IDLE, action_1.status());
@@ -125,7 +135,7 @@ TEST_F(SwitchTest, CaseNone)
   ASSERT_EQ(NodeStatus::E_RUNNING, action_def.status());
   ASSERT_EQ(NodeStatus::E_RUNNING, state);
 
-  std::this_thread::sleep_for(milliseconds(110));
+  std::this_thread::sleep_for(milliseconds(300));
   state = root->executeTick();
 
   ASSERT_EQ(NodeStatus::E_IDLE, action_1.status());
@@ -144,7 +154,7 @@ TEST_F(SwitchTest, CaseSwitchToDefault)
   ASSERT_EQ(NodeStatus::E_IDLE, action_def.status());
   ASSERT_EQ(NodeStatus::E_RUNNING, state);
 
-  std::this_thread::sleep_for(milliseconds(10));
+  std::this_thread::sleep_for(milliseconds(20));
   state = root->executeTick();
   ASSERT_EQ(NodeStatus::E_RUNNING, action_1.status());
   ASSERT_EQ(NodeStatus::E_IDLE, action_42.status());
@@ -153,22 +163,22 @@ TEST_F(SwitchTest, CaseSwitchToDefault)
 
   // Switch Node does not feels changes. Only when tick.
   // (not reactive)
-  std::this_thread::sleep_for(milliseconds(10));
+  std::this_thread::sleep_for(milliseconds(20));
   bb->set("my_var", "");
-  std::this_thread::sleep_for(milliseconds(10));
+  std::this_thread::sleep_for(milliseconds(20));
   ASSERT_EQ(NodeStatus::E_RUNNING, action_1.status());
   ASSERT_EQ(NodeStatus::E_IDLE, action_42.status());
   ASSERT_EQ(NodeStatus::E_IDLE, action_def.status());
   ASSERT_EQ(NodeStatus::E_RUNNING, root->status());
 
-  std::this_thread::sleep_for(milliseconds(10));
+  std::this_thread::sleep_for(milliseconds(20));
   state = root->executeTick();
   ASSERT_EQ(NodeStatus::E_IDLE, action_1.status());
   ASSERT_EQ(NodeStatus::E_IDLE, action_42.status());
   ASSERT_EQ(NodeStatus::E_RUNNING, action_def.status());
   ASSERT_EQ(NodeStatus::E_RUNNING, state);
 
-  std::this_thread::sleep_for(milliseconds(110));
+  std::this_thread::sleep_for(milliseconds(300));
   state = root->executeTick();
 
   ASSERT_EQ(NodeStatus::E_IDLE, action_1.status());
@@ -188,14 +198,14 @@ TEST_F(SwitchTest, CaseSwitchToAction2)
   ASSERT_EQ(NodeStatus::E_RUNNING, state);
 
   bb->set("my_var", "42");
-  std::this_thread::sleep_for(milliseconds(10));
+  std::this_thread::sleep_for(milliseconds(20));
   state = root->executeTick();
   ASSERT_EQ(NodeStatus::E_IDLE, action_1.status());
   ASSERT_EQ(NodeStatus::E_RUNNING, action_42.status());
   ASSERT_EQ(NodeStatus::E_IDLE, action_def.status());
   ASSERT_EQ(NodeStatus::E_RUNNING, state);
 
-  std::this_thread::sleep_for(milliseconds(110));
+  std::this_thread::sleep_for(milliseconds(300));
   state = root->executeTick();
 
   ASSERT_EQ(NodeStatus::E_IDLE, action_1.status());
@@ -216,7 +226,7 @@ TEST_F(SwitchTest, ActionFailure)
   ASSERT_EQ(NodeStatus::E_IDLE, action_def.status());
   ASSERT_EQ(NodeStatus::E_RUNNING, state);
 
-  std::this_thread::sleep_for(milliseconds(110));
+  std::this_thread::sleep_for(milliseconds(300));
   state = root->executeTick();
 
   ASSERT_EQ(NodeStatus::E_FAILURE, state);

@@ -11,17 +11,17 @@
 *   WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "behaviortree_cpp_v3/decorator_node.h"
+#include "behaviortree_cpp/decorator_node.h"
 
 namespace BT
 {
-DecoratorNode::DecoratorNode(const std::string& name, const NodeConfiguration& config) :
-  TreeNode::TreeNode(name, config), child_node_(nullptr)
+DecoratorNode::DecoratorNode(const std::string& name, const NodeConfig& config)
+  : TreeNode::TreeNode(name, config), child_node_(nullptr)
 {}
 
 void DecoratorNode::setChild(TreeNode* child)
 {
-  if (child_node_)
+  if(child_node_)
   {
     throw BehaviorTreeException("Decorator [", name(), "] has already a child assigned");
   }
@@ -31,7 +31,8 @@ void DecoratorNode::setChild(TreeNode* child)
 
 void DecoratorNode::halt()
 {
-  haltChild();
+  resetChild();
+  resetStatus();  // might be redundant
 }
 
 const TreeNode* DecoratorNode::child() const
@@ -46,21 +47,26 @@ TreeNode* DecoratorNode::child()
 
 void DecoratorNode::haltChild()
 {
-  if (!child_node_)
+  resetChild();
+}
+
+void DecoratorNode::resetChild()
+{
+  if(!child_node_)
   {
     return;
   }
-  if (child_node_->status() == NodeStatus::E_RUNNING)
+  if(child_node_->status() == NodeStatus::E_RUNNING)
   {
-    child_node_->halt();
+    child_node_->haltNode();
   }
   child_node_->resetStatus();
 }
 
 SimpleDecoratorNode::SimpleDecoratorNode(const std::string& name,
                                          TickFunctor tick_functor,
-                                         const NodeConfiguration& config) :
-  DecoratorNode(name, config), tick_functor_(std::move(tick_functor))
+                                         const NodeConfig& config)
+  : DecoratorNode(name, config), tick_functor_(std::move(tick_functor))
 {}
 
 NodeStatus SimpleDecoratorNode::tick()
@@ -72,11 +78,11 @@ NodeStatus DecoratorNode::executeTick()
 {
   NodeStatus status = TreeNode::executeTick();
   NodeStatus child_status = child()->status();
-  if (child_status == NodeStatus::E_SUCCESS || child_status == NodeStatus::E_FAILURE)
+  if(child_status == NodeStatus::E_SUCCESS || child_status == NodeStatus::E_FAILURE)
   {
     child()->resetStatus();
   }
   return status;
 }
 
-}   // namespace BT
+}  // namespace BT

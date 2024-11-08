@@ -1,35 +1,29 @@
 
-#include "behaviortree_cpp_v3/loggers/bt_minitrace_logger.h"
+#include "behaviortree_cpp/loggers/bt_minitrace_logger.h"
+
+#define MTR_ENABLED true
 #include "minitrace/minitrace.h"
 
 namespace BT
 {
-std::atomic<bool> MinitraceLogger::ref_count(false);
 
-MinitraceLogger::MinitraceLogger(const Tree& tree, const char* filename_json) :
-  StatusChangeLogger(tree.rootNode())
+MinitraceLogger::MinitraceLogger(const Tree& tree, const char* filename_json)
+  : StatusChangeLogger(tree.rootNode())
 {
-  bool expected = false;
-  if (!ref_count.compare_exchange_strong(expected, true))
-  {
-    throw LogicError("Only one instance of StdCoutLogger shall be created");
-  }
-
-  minitrace::mtr_register_sigint_handler();
-  minitrace::mtr_init(filename_json);
+  mtr_register_sigint_handler();
+  mtr_init(filename_json);
   this->enableTransitionToIdle(true);
 }
 
 MinitraceLogger::~MinitraceLogger()
 {
-  minitrace::mtr_flush();
-  minitrace::mtr_shutdown();
-  ref_count = false;
+  mtr_flush();
+  mtr_shutdown();
 }
 
 const char* toConstStr(NodeType type)
 {
-  switch (type)
+  switch(type)
   {
     case NodeType::ACTION:
       return "Action";
@@ -49,30 +43,28 @@ const char* toConstStr(NodeType type)
 void MinitraceLogger::callback(Duration /*timestamp*/, const TreeNode& node,
                                NodeStatus prev_status, NodeStatus status)
 {
-  using namespace minitrace;
-
-  const bool statusCompleted =
-      (status == NodeStatus::E_SUCCESS || status == NodeStatus::E_FAILURE);
+  const bool statusCompleted = isStatusCompleted(status);
 
   const char* category = toConstStr(node.type());
   const char* name = node.name().c_str();
 
-  if (prev_status == NodeStatus::E_IDLE && statusCompleted)
+  if(prev_status == NodeStatus::E_IDLE && statusCompleted)
   {
     MTR_INSTANT(category, name);
   }
-  else if (status == NodeStatus::E_RUNNING)
+  else if(status == NodeStatus::E_RUNNING)
   {
     MTR_BEGIN(category, name);
   }
-  else if (prev_status == NodeStatus::E_RUNNING && statusCompleted)
+  else if(prev_status == NodeStatus::E_RUNNING && statusCompleted)
   {
     MTR_END(category, name);
   }
+  mtr_flush();
 }
 
 void MinitraceLogger::flush()
 {
-  minitrace::mtr_flush();
+  mtr_flush();
 }
-}   // namespace BT
+}  // namespace BT

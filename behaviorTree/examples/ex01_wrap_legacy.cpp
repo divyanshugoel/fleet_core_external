@@ -1,5 +1,5 @@
-#include "behaviortree_cpp_v3/bt_factory.h"
-#include "behaviortree_cpp_v3/loggers/bt_cout_logger.h"
+#include "behaviortree_cpp/bt_factory.h"
+#include "behaviortree_cpp/loggers/bt_cout_logger.h"
 
 /** In this tutorial we will see how to wrap legacy code into a
  * BehaviorTree in a non-intrusive way, i.e. without modifying the
@@ -20,7 +20,7 @@ public:
   bool go(Point3D goal)
   {
     printf("Going to: %f %f %f\n", goal.x, goal.y, goal.z);
-    return true;   // true means success in my legacy code
+    return true;  // true means success in my legacy code
   }
 };
 
@@ -33,7 +33,7 @@ Point3D convertFromString(StringView key)
 {
   // three real numbers separated by semicolons
   auto parts = BT::splitString(key, ';');
-  if (parts.size() != 3)
+  if(parts.size() != 3)
   {
     throw RuntimeError("invalid input)");
   }
@@ -46,12 +46,12 @@ Point3D convertFromString(StringView key)
     return output;
   }
 }
-}   // namespace BT
+}  // namespace BT
 
 // clang-format off
 static const char* xml_text = R"(
 
- <root>
+ <root BTCPP_format="4">
      <BehaviorTree>
         <MoveTo  goal="-1;3;0.5" />
      </BehaviorTree>
@@ -81,12 +81,12 @@ int main()
 
   // Register the lambda with BehaviorTreeFactory::registerSimpleAction
 
-  PortsList ports = {BT::InputPort<Point3D>("goal")};
+  PortsList ports = { BT::InputPort<Point3D>("goal") };
   factory.registerSimpleAction("MoveTo", MoveToWrapperWithLambda, ports);
 
   auto tree = factory.createTreeFromText(xml_text);
 
-  tree.tickRoot();
+  tree.tickWhileRunning();
 
   return 0;
 }

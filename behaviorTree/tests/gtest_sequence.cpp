@@ -13,7 +13,8 @@
 #include <gtest/gtest.h>
 #include "action_test_node.h"
 #include "condition_test_node.h"
-#include "behaviortree_cpp_v3/behavior_tree.h"
+#include "behaviortree_cpp/bt_factory.h"
+#include "test_helper.hpp"
 
 using BT::NodeStatus;
 using std::chrono::milliseconds;
@@ -21,16 +22,16 @@ using std::chrono::milliseconds;
 struct SimpleSequenceTest : testing::Test
 {
   BT::SequenceNode root;
-  BT::AsyncActionTest action;
   BT::ConditionTestNode condition;
+  BT::AsyncActionTest action;
 
-  SimpleSequenceTest() :
-    root("root_sequence"), action("action", milliseconds(100)), condition("condition")
+  SimpleSequenceTest()
+    : root("root_sequence"), condition("condition"), action("action", milliseconds(100))
   {
     root.addChild(&condition);
     root.addChild(&action);
   }
-  ~SimpleSequenceTest()
+  ~SimpleSequenceTest() override
   {}
 };
 
@@ -43,12 +44,12 @@ struct ComplexSequenceTest : testing::Test
 
   BT::SequenceNode seq_conditions;
 
-  ComplexSequenceTest() :
-    root("root"),
-    action_1("action_1", milliseconds(100)),
-    condition_1("condition_1"),
-    condition_2("condition_2"),
-    seq_conditions("sequence_conditions")
+  ComplexSequenceTest()
+    : root("root")
+    , action_1("action_1", milliseconds(100))
+    , condition_1("condition_1")
+    , condition_2("condition_2")
+    , seq_conditions("sequence_conditions")
   {
     root.addChild(&seq_conditions);
     {
@@ -57,7 +58,7 @@ struct ComplexSequenceTest : testing::Test
     }
     root.addChild(&action_1);
   }
-  ~ComplexSequenceTest()
+  ~ComplexSequenceTest() override
   {}
 };
 
@@ -69,19 +70,19 @@ struct SequenceTripleActionTest : testing::Test
   BT::SyncActionTest action_2;
   BT::AsyncActionTest action_3;
 
-  SequenceTripleActionTest() :
-    root("root_sequence"),
-    condition("condition"),
-    action_1("action_1", milliseconds(100)),
-    action_2("action_2"),
-    action_3("action_3", milliseconds(100))
+  SequenceTripleActionTest()
+    : root("root_sequence")
+    , condition("condition")
+    , action_1("action_1", milliseconds(100))
+    , action_2("action_2")
+    , action_3("action_3", milliseconds(100))
   {
     root.addChild(&condition);
     root.addChild(&action_1);
     root.addChild(&action_2);
     root.addChild(&action_3);
   }
-  ~SequenceTripleActionTest()
+  ~SequenceTripleActionTest() override
   {}
 };
 
@@ -96,14 +97,14 @@ struct ComplexSequence2ActionsTest : testing::Test
   BT::ConditionTestNode condition_1;
   BT::ConditionTestNode condition_2;
 
-  ComplexSequence2ActionsTest() :
-    root("root_sequence"),
-    action_1("action_1", milliseconds(100)),
-    action_2("action_2", milliseconds(100)),
-    seq_1("sequence_1"),
-    seq_2("sequence_2"),
-    condition_1("condition_1"),
-    condition_2("condition_2")
+  ComplexSequence2ActionsTest()
+    : root("root_sequence")
+    , action_1("action_1", milliseconds(100))
+    , action_2("action_2", milliseconds(100))
+    , seq_1("sequence_1")
+    , seq_2("sequence_2")
+    , condition_1("condition_1")
+    , condition_2("condition_2")
   {
     root.addChild(&seq_1);
     {
@@ -116,29 +117,29 @@ struct ComplexSequence2ActionsTest : testing::Test
       seq_2.addChild(&action_2);
     }
   }
-  ~ComplexSequence2ActionsTest()
+  ~ComplexSequence2ActionsTest() override
   {}
 };
 
 struct SimpleSequenceWithMemoryTest : testing::Test
 {
-  BT::SequenceStarNode root;
+  BT::SequenceWithMemory root;
   BT::AsyncActionTest action;
   BT::ConditionTestNode condition;
 
-  SimpleSequenceWithMemoryTest() :
-    root("root_sequence"), action("action", milliseconds(100)), condition("condition")
+  SimpleSequenceWithMemoryTest()
+    : root("root_sequence"), action("action", milliseconds(100)), condition("condition")
   {
     root.addChild(&condition);
     root.addChild(&action);
   }
-  ~SimpleSequenceWithMemoryTest()
+  ~SimpleSequenceWithMemoryTest() override
   {}
 };
 
 struct ComplexSequenceWithMemoryTest : testing::Test
 {
-  BT::SequenceStarNode root;
+  BT::SequenceWithMemory root;
 
   BT::AsyncActionTest action_1;
   BT::AsyncActionTest action_2;
@@ -146,17 +147,17 @@ struct ComplexSequenceWithMemoryTest : testing::Test
   BT::ConditionTestNode condition_1;
   BT::ConditionTestNode condition_2;
 
-  BT::SequenceStarNode seq_conditions;
-  BT::SequenceStarNode seq_actions;
+  BT::SequenceWithMemory seq_conditions;
+  BT::SequenceWithMemory seq_actions;
 
-  ComplexSequenceWithMemoryTest() :
-    root("root_sequence"),
-    action_1("action_1", milliseconds(100)),
-    action_2("action_2", milliseconds(100)),
-    condition_1("condition_1"),
-    condition_2("condition_2"),
-    seq_conditions("sequence_conditions"),
-    seq_actions("sequence_actions")
+  ComplexSequenceWithMemoryTest()
+    : root("root_sequence")
+    , action_1("action_1", milliseconds(100))
+    , action_2("action_2", milliseconds(100))
+    , condition_1("condition_1")
+    , condition_2("condition_2")
+    , seq_conditions("sequence_conditions")
+    , seq_actions("sequence_actions")
   {
     root.addChild(&seq_conditions);
     {
@@ -169,7 +170,7 @@ struct ComplexSequenceWithMemoryTest : testing::Test
       seq_actions.addChild(&action_2);
     }
   }
-  ~ComplexSequenceWithMemoryTest()
+  ~ComplexSequenceWithMemoryTest() override
   {}
 };
 
@@ -182,19 +183,20 @@ struct SimpleParallelTest : testing::Test
   BT::AsyncActionTest action_2;
   BT::ConditionTestNode condition_2;
 
-  SimpleParallelTest() :
-    root("root_parallel", 4),
-    action_1("action_1", milliseconds(100)),
-    condition_1("condition_1"),
-    action_2("action_2", milliseconds(100)),
-    condition_2("condition_2")
+  SimpleParallelTest()
+    : root("root_parallel")
+    , action_1("action_1", milliseconds(100))
+    , condition_1("condition_1")
+    , action_2("action_2", milliseconds(100))
+    , condition_2("condition_2")
   {
+    root.setSuccessThreshold(4);
     root.addChild(&condition_1);
     root.addChild(&action_1);
     root.addChild(&condition_2);
     root.addChild(&action_2);
   }
-  ~SimpleParallelTest()
+  ~SimpleParallelTest() override
   {}
 };
 
@@ -226,9 +228,10 @@ TEST_F(ComplexSequenceTest, ComplexSequenceConditionsTrue)
   BT::NodeStatus state = root.executeTick();
 
   ASSERT_EQ(NodeStatus::E_RUNNING, state);
-  ASSERT_EQ(NodeStatus::E_SUCCESS, seq_conditions.status());
+  // reactive node already reset seq_conditions
+  ASSERT_EQ(NodeStatus::E_IDLE, seq_conditions.status());
   ASSERT_EQ(NodeStatus::E_IDLE, condition_1.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, condition_1.status());
+  ASSERT_EQ(NodeStatus::E_IDLE, condition_2.status());
   ASSERT_EQ(NodeStatus::E_RUNNING, action_1.status());
 }
 
@@ -236,7 +239,14 @@ TEST_F(SequenceTripleActionTest, TripleAction)
 {
   using namespace BT;
   using namespace std::chrono;
-  const auto timeout = system_clock::now() + milliseconds(650);
+
+#ifdef WIN32
+  const int margin_msec = 60;
+#else
+  const int margin_msec = 20;
+#endif
+
+  const auto timeout = system_clock::now() + milliseconds(600 + margin_msec);
 
   action_1.setTime(milliseconds(300));
   action_3.setTime(milliseconds(300));
@@ -250,10 +260,10 @@ TEST_F(SequenceTripleActionTest, TripleAction)
   ASSERT_EQ(NodeStatus::E_IDLE, action_2.status());
   ASSERT_EQ(NodeStatus::E_IDLE, action_3.status());
 
-  // continue until succesful
-  while (state != NodeStatus::E_SUCCESS && system_clock::now() < timeout)
+  // continue until successful
+  while(state != NodeStatus::E_SUCCESS && system_clock::now() < timeout)
   {
-    std::this_thread::sleep_for(milliseconds(10));
+    std::this_thread::sleep_for(milliseconds(1));
     state = root.executeTick();
   }
 
@@ -269,7 +279,7 @@ TEST_F(SequenceTripleActionTest, TripleAction)
   ASSERT_EQ(NodeStatus::E_IDLE, action_1.status());
   ASSERT_EQ(NodeStatus::E_IDLE, action_2.status());
   ASSERT_EQ(NodeStatus::E_IDLE, action_3.status());
-  ASSERT_TRUE(system_clock::now() < timeout);   // no timeout should occur
+  ASSERT_TRUE(system_clock::now() < timeout);  // no timeout should occur
 }
 
 TEST_F(ComplexSequence2ActionsTest, ConditionsTrue)
@@ -386,143 +396,42 @@ TEST_F(ComplexSequenceWithMemoryTest, Conditions1ToFalse)
   ASSERT_EQ(NodeStatus::E_IDLE, action_2.status());
 }
 
-TEST_F(ComplexSequenceWithMemoryTest, Conditions2ToFalse)
+TEST(SequenceWithMemoryTest, Issue_636)
 {
-  BT::NodeStatus state = root.executeTick();
+  static const char* xml_text = R"(
 
-  condition_2.setExpectedResult(NodeStatus::E_FAILURE);
-  state = root.executeTick();
-  // change in condition_2 does not affect the state of the tree,
-  // since the seq_conditions was executed already
-  ASSERT_EQ(NodeStatus::E_RUNNING, state);
-  ASSERT_EQ(NodeStatus::E_SUCCESS, seq_conditions.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, condition_1.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, condition_2.status());
-  ASSERT_EQ(NodeStatus::E_RUNNING, seq_actions.status());
-  ASSERT_EQ(NodeStatus::E_RUNNING, action_1.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, action_2.status());
-}
+<root BTCPP_format="4" main_tree_to_execute="MainTree" >
 
-TEST_F(ComplexSequenceWithMemoryTest, Action1DoneSeq)
-{
-  root.executeTick();
+    <BehaviorTree ID="MainTree">
+        <SequenceWithMemory>
+            <Script code = " var := 0 " />
+            <TestA/>
+            <ScriptCondition code = "var+=1; var >= 5" />
+            <TestB/>
+            <TestC/>
+        </SequenceWithMemory>
+    </BehaviorTree>
+</root> )";
 
-  condition_2.setExpectedResult(NodeStatus::E_FAILURE);
-  root.executeTick();
+  BT::BehaviorTreeFactory factory;
 
-  // change in condition_2 does not affect the state of the tree,
-  // since the seq_conditions was executed already
-  ASSERT_EQ(NodeStatus::E_SUCCESS, seq_conditions.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, condition_1.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, condition_2.status());
-  ASSERT_EQ(NodeStatus::E_RUNNING, seq_actions.status());
-  ASSERT_EQ(NodeStatus::E_RUNNING, action_1.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, action_2.status());
+  std::array<int, 3> counters;
+  RegisterTestTick(factory, "Test", counters);
 
-  std::this_thread::sleep_for(milliseconds(150));
-  root.executeTick();
+  auto tree = factory.createTreeFromText(xml_text);
 
-  ASSERT_EQ(NodeStatus::E_SUCCESS, seq_conditions.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, condition_1.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, condition_2.status());
-  ASSERT_EQ(NodeStatus::E_RUNNING, seq_actions.status());
-  ASSERT_EQ(NodeStatus::E_SUCCESS, action_1.status());
-  ASSERT_EQ(NodeStatus::E_RUNNING, action_2.status());
+  auto res = tree.tickOnce();
+  int tick_count = 1;
 
-  std::this_thread::sleep_for(milliseconds(150));
-  root.executeTick();
+  while(res != BT::NodeStatus::E_SUCCESS)
+  {
+    res = tree.tickOnce();
+    tick_count++;
+  }
 
-  ASSERT_EQ(NodeStatus::E_SUCCESS, root.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, seq_conditions.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, condition_1.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, condition_2.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, seq_actions.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, action_1.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, action_2.status());
-}
+  ASSERT_EQ(1, counters[0]);
+  ASSERT_EQ(1, counters[1]);
+  ASSERT_EQ(1, counters[2]);
 
-TEST_F(ComplexSequenceWithMemoryTest, Action2FailureSeq)
-{
-  root.executeTick();
-  std::this_thread::sleep_for(milliseconds(150));
-  root.executeTick();
-
-  ASSERT_EQ(NodeStatus::E_SUCCESS, seq_conditions.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, condition_1.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, condition_2.status());
-  ASSERT_EQ(NodeStatus::E_RUNNING, seq_actions.status());
-  ASSERT_EQ(NodeStatus::E_SUCCESS, action_1.status());
-  ASSERT_EQ(NodeStatus::E_RUNNING, action_2.status());
-
-  action_2.setExpectedResult(NodeStatus::E_FAILURE);
-  std::this_thread::sleep_for(milliseconds(150));
-  root.executeTick();
-
-  // failure in action_2 does not affect the state of already
-  // executed nodes (seq_conditions and action_1)
-  ASSERT_EQ(NodeStatus::E_FAILURE, root.status());
-  ASSERT_EQ(NodeStatus::E_SUCCESS, seq_conditions.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, condition_1.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, condition_2.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, seq_actions.status());
-  ASSERT_EQ(NodeStatus::E_SUCCESS, action_1.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, action_2.status());
-
-  action_2.setExpectedResult(NodeStatus::E_SUCCESS);
-  root.executeTick();
-
-  ASSERT_EQ(NodeStatus::E_SUCCESS, seq_conditions.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, condition_1.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, condition_2.status());
-  ASSERT_EQ(NodeStatus::E_RUNNING, seq_actions.status());
-  ASSERT_EQ(NodeStatus::E_SUCCESS, action_1.status());
-  ASSERT_EQ(NodeStatus::E_RUNNING, action_2.status());
-
-  std::this_thread::sleep_for(milliseconds(150));
-  root.executeTick();
-
-  ASSERT_EQ(NodeStatus::E_SUCCESS, root.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, seq_conditions.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, condition_1.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, condition_2.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, seq_actions.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, action_1.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, action_2.status());
-}
-
-TEST_F(ComplexSequenceWithMemoryTest, Action2HaltSeq)
-{
-  root.executeTick();
-  std::this_thread::sleep_for(milliseconds(150));
-  root.executeTick();
-
-  root.halt();
-
-  ASSERT_EQ(NodeStatus::E_IDLE, seq_conditions.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, condition_1.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, condition_2.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, seq_actions.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, action_1.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, action_2.status());
-
-  root.executeTick();
-
-  // tree retakes execution from action_2
-  ASSERT_EQ(NodeStatus::E_IDLE, seq_conditions.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, condition_1.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, condition_2.status());
-  ASSERT_EQ(NodeStatus::E_RUNNING, seq_actions.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, action_1.status());
-  ASSERT_EQ(NodeStatus::E_RUNNING, action_2.status());
-
-  std::this_thread::sleep_for(milliseconds(150));
-  root.executeTick();
-
-  ASSERT_EQ(NodeStatus::E_SUCCESS, root.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, seq_conditions.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, condition_1.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, condition_2.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, seq_actions.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, action_1.status());
-  ASSERT_EQ(NodeStatus::E_IDLE, action_2.status());
+  ASSERT_EQ(5, tick_count);
 }

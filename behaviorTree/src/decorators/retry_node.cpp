@@ -11,26 +11,26 @@
 *   WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "behaviortree_cpp_v3/decorators/retry_node.h"
+#include "behaviortree_cpp/decorators/retry_node.h"
 
 namespace BT
 {
 constexpr const char* RetryNode::NUM_ATTEMPTS;
 
-RetryNode::RetryNode(const std::string& name, int NTries) :
-  DecoratorNode(name, {}),
-  max_attempts_(NTries),
-  try_count_(0),
-  read_parameter_from_ports_(false)
+RetryNode::RetryNode(const std::string& name, int NTries)
+  : DecoratorNode(name, {})
+  , max_attempts_(NTries)
+  , try_count_(0)
+  , read_parameter_from_ports_(false)
 {
   setRegistrationID("RetryUntilSuccessful");
 }
 
-RetryNode::RetryNode(const std::string& name, const NodeConfiguration& config) :
-  DecoratorNode(name, config),
-  max_attempts_(0),
-  try_count_(0),
-  read_parameter_from_ports_(true)
+RetryNode::RetryNode(const std::string& name, const NodeConfig& config)
+  : DecoratorNode(name, config)
+  , max_attempts_(0)
+  , try_count_(0)
+  , read_parameter_from_ports_(true)
 {}
 
 void RetryNode::halt()
@@ -41,30 +41,43 @@ void RetryNode::halt()
 
 NodeStatus RetryNode::tick()
 {
-  if (read_parameter_from_ports_)
+  if(read_parameter_from_ports_)
   {
-    if (!getInput(NUM_ATTEMPTS, max_attempts_))
+    if(!getInput(NUM_ATTEMPTS, max_attempts_))
     {
       throw RuntimeError("Missing parameter [", NUM_ATTEMPTS, "] in RetryNode");
     }
   }
 
+  bool do_loop = try_count_ < max_attempts_ || max_attempts_ == -1;
   setStatus(NodeStatus::E_RUNNING);
 
-  while (try_count_ < max_attempts_ || max_attempts_ == -1)
+  while(do_loop)
   {
-    NodeStatus child_state = child_node_->executeTick();
-    switch (child_state)
+    NodeStatus prev_status = child_node_->status();
+    NodeStatus child_status = child_node_->executeTick();
+
+    switch(child_status)
     {
       case NodeStatus::E_SUCCESS: {
         try_count_ = 0;
-        haltChild();
+        resetChild();
         return (NodeStatus::E_SUCCESS);
       }
 
       case NodeStatus::E_FAILURE: {
         try_count_++;
-        haltChild();
+        do_loop = try_count_ < max_attempts_ || max_attempts_ == -1;
+
+        resetChild();
+
+        // Return the execution flow if the child is async,
+        // to make this interruptable.
+        if(requiresWakeUp() && prev_status == NodeStatus::E_IDLE && do_loop)
+        {
+          emitWakeUpSignal();
+          return NodeStatus::E_RUNNING;
+        }
       }
       break;
 
@@ -72,8 +85,15 @@ NodeStatus RetryNode::tick()
         return NodeStatus::E_RUNNING;
       }
 
-      default: {
-        throw LogicError("A child node must never return IDLE");
+      case NodeStatus::E_SKIPPED: {
+        // to allow it to be skipped again, we must reset the node
+        resetChild();
+        // the child has been skipped. Slip this too
+        return NodeStatus::E_SKIPPED;
+      }
+
+      case NodeStatus::E_IDLE: {
+        throw LogicError("[", name(), "]: A children should not return E_IDLE");
       }
     }
   }
@@ -82,4 +102,4 @@ NodeStatus RetryNode::tick()
   return NodeStatus::E_FAILURE;
 }
 
-}   // namespace BT
+}  // namespace BT

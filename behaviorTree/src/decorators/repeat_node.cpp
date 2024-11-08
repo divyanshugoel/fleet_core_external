@@ -11,55 +11,66 @@
 *   WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "behaviortree_cpp_v3/decorators/repeat_node.h"
+#include "behaviortree_cpp/decorators/repeat_node.h"
 
 namespace BT
 {
-constexpr const char* RepeatNode::NUM_CYCLES;
 
-RepeatNode::RepeatNode(const std::string& name, int NTries) :
-  DecoratorNode(name, {}),
-  num_cycles_(NTries),
-  repeat_count_(0),
-  read_parameter_from_ports_(false)
+RepeatNode::RepeatNode(const std::string& name, int NTries)
+  : DecoratorNode(name, {})
+  , num_cycles_(NTries)
+  , repeat_count_(0)
+  , read_parameter_from_ports_(false)
 {
   setRegistrationID("Repeat");
 }
 
-RepeatNode::RepeatNode(const std::string& name, const NodeConfiguration& config) :
-  DecoratorNode(name, config),
-  num_cycles_(0),
-  repeat_count_(0),
-  read_parameter_from_ports_(true)
+RepeatNode::RepeatNode(const std::string& name, const NodeConfig& config)
+  : DecoratorNode(name, config)
+  , num_cycles_(0)
+  , repeat_count_(0)
+  , read_parameter_from_ports_(true)
 {}
 
 NodeStatus RepeatNode::tick()
 {
-  if (read_parameter_from_ports_)
+  if(read_parameter_from_ports_)
   {
-    if (!getInput(NUM_CYCLES, num_cycles_))
+    if(!getInput(NUM_CYCLES, num_cycles_))
     {
       throw RuntimeError("Missing parameter [", NUM_CYCLES, "] in RepeatNode");
     }
   }
 
+  bool do_loop = repeat_count_ < num_cycles_ || num_cycles_ == -1;
   setStatus(NodeStatus::E_RUNNING);
 
-  while (repeat_count_ < num_cycles_ || num_cycles_ == -1)
+  while(do_loop)
   {
-    NodeStatus child_state = child_node_->executeTick();
+    NodeStatus const prev_status = child_node_->status();
+    NodeStatus child_status = child_node_->executeTick();
 
-    switch (child_state)
+    switch(child_status)
     {
       case NodeStatus::E_SUCCESS: {
         repeat_count_++;
-        haltChild();
+        do_loop = repeat_count_ < num_cycles_ || num_cycles_ == -1;
+
+        resetChild();
+
+        // Return the execution flow if the child is async,
+        // to make this interruptable.
+        if(requiresWakeUp() && prev_status == NodeStatus::E_IDLE && do_loop)
+        {
+          emitWakeUpSignal();
+          return NodeStatus::E_RUNNING;
+        }
       }
       break;
 
       case NodeStatus::E_FAILURE: {
         repeat_count_ = 0;
-        haltChild();
+        resetChild();
         return (NodeStatus::E_FAILURE);
       }
 
@@ -67,8 +78,15 @@ NodeStatus RepeatNode::tick()
         return NodeStatus::E_RUNNING;
       }
 
-      default: {
-        throw LogicError("A child node must never return IDLE");
+      case NodeStatus::E_SKIPPED: {
+        // to allow it to be skipped again, we must reset the node
+        resetChild();
+        // the child has been skipped. Skip the decorator too.
+        // Don't reset the counter, though !
+        return NodeStatus::E_SKIPPED;
+      }
+      case NodeStatus::E_IDLE: {
+        throw LogicError("[", name(), "]: A children should not return E_IDLE");
       }
     }
   }
@@ -83,4 +101,4 @@ void RepeatNode::halt()
   DecoratorNode::halt();
 }
 
-}   // namespace BT
+}  // namespace BT

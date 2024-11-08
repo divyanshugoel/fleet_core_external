@@ -1,5 +1,5 @@
-#include "behaviortree_cpp_v3/action_node.h"
-#include "behaviortree_cpp_v3/basic_types.h"
+#include "behaviortree_cpp/action_node.h"
+#include "behaviortree_cpp/basic_types.h"
 
 #include <chrono>
 #include <condition_variable>
@@ -13,9 +13,9 @@
 #include <gmock/gmock.h>
 
 // The mocked version of the base.
-struct MockedAsyncActionNode : public BT::AsyncActionNode
+struct MockedThreadedAction : public BT::ThreadedAction
 {
-  using BT::AsyncActionNode::AsyncActionNode;
+  using BT::ThreadedAction::ThreadedAction;
   MOCK_METHOD0(tick, BT::NodeStatus());
 
   // Tick while the node is running.
@@ -24,32 +24,32 @@ struct MockedAsyncActionNode : public BT::AsyncActionNode
     do
     {
       executeTick();
-    } while (status() == BT::NodeStatus::E_RUNNING);
+    } while(status() == BT::NodeStatus::E_RUNNING);
     return status();
   }
 
   // Expose the setStatus method.
-  using BT::AsyncActionNode::setStatus;
+  using BT::ThreadedAction::setStatus;
 };
 
 // The fixture taking care of the node-setup.
-struct MockedAsyncActionFixture : public testing::Test
+struct MockedThreadedActionFixture : public testing::Test
 {
-  BT::NodeConfiguration config;
-  MockedAsyncActionNode sn;
-  MockedAsyncActionFixture() : sn("node", config)
+  BT::NodeConfig config;
+  MockedThreadedAction sn;
+  MockedThreadedActionFixture() : sn("node", config)
   {}
 };
 
 // Parameters for the terminal node states.
 struct NodeStatusFixture : public testing::WithParamInterface<BT::NodeStatus>,
-                           public MockedAsyncActionFixture
+                           public MockedThreadedActionFixture
 {
 };
 
-INSTANTIATE_TEST_CASE_P(/**/, NodeStatusFixture,
-                        testing::Values(BT::NodeStatus::E_SUCCESS,
-                                        BT::NodeStatus::E_FAILURE));
+INSTANTIATE_TEST_SUITE_P(/**/, NodeStatusFixture,
+                         testing::Values(BT::NodeStatus::E_SUCCESS,
+                                         BT::NodeStatus::E_FAILURE));
 
 TEST_P(NodeStatusFixture, normal_routine)
 {
@@ -67,7 +67,7 @@ TEST_P(NodeStatusFixture, normal_routine)
   ASSERT_EQ(sn.spinUntilDone(), state);
 }
 
-TEST_F(MockedAsyncActionFixture, no_halt)
+TEST_F(MockedThreadedActionFixture, no_halt)
 {
   // Test verifies that halt returns immediately, if the node is idle. It
   // further checks if the halt-flag is resetted correctly.
@@ -75,7 +75,7 @@ TEST_F(MockedAsyncActionFixture, no_halt)
   ASSERT_TRUE(sn.isHaltRequested());
 
   // Below we further verify that the halt flag is cleaned up properly.
-  const BT::NodeStatus state{BT::NodeStatus::E_SUCCESS};
+  const BT::NodeStatus state{ BT::NodeStatus::E_SUCCESS };
   EXPECT_CALL(sn, tick()).WillOnce(testing::Return(state));
 
   // Spin the node and check.
@@ -83,18 +83,18 @@ TEST_F(MockedAsyncActionFixture, no_halt)
   ASSERT_FALSE(sn.isHaltRequested());
 }
 
-TEST_F(MockedAsyncActionFixture, halt)
+TEST_F(MockedThreadedActionFixture, halt)
 {
   // Test verifies that calling halt() is blocking.
   bool release = false;
   std::mutex m;
   std::condition_variable cv;
 
-  const BT::NodeStatus state{BT::NodeStatus::E_SUCCESS};
+  const BT::NodeStatus state{ BT::NodeStatus::E_SUCCESS };
   EXPECT_CALL(sn, tick()).WillOnce(testing::Invoke([&]() {
     // Sleep until we send the release signal.
     std::unique_lock<std::mutex> l(m);
-    while (!release)
+    while(!release)
       cv.wait(l);
 
     return state;
@@ -120,7 +120,7 @@ TEST_F(MockedAsyncActionFixture, halt)
   ASSERT_EQ(sn.status(), state);
 }
 
-TEST_F(MockedAsyncActionFixture, exception)
+TEST_F(MockedThreadedActionFixture, exception)
 {
   // Verifies that we can recover from the exceptions in the tick method:
   // 1) catch the exception, 2) re-raise it in the caller thread.
@@ -136,7 +136,7 @@ TEST_F(MockedAsyncActionFixture, exception)
 
   // Now verify that the exception is cleared up (we succeed).
   sn.setStatus(BT::NodeStatus::E_IDLE);
-  const BT::NodeStatus state{BT::NodeStatus::E_SUCCESS};
+  const BT::NodeStatus state{ BT::NodeStatus::E_SUCCESS };
   EXPECT_CALL(sn, tick()).WillOnce(testing::Return(state));
   ASSERT_EQ(sn.spinUntilDone(), state);
 }

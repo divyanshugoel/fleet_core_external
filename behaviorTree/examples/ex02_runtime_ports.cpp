@@ -1,9 +1,9 @@
-#include "behaviortree_cpp_v3/bt_factory.h"
+#include "behaviortree_cpp/bt_factory.h"
 using namespace BT;
 
 // clang-format off
 static const char* xml_text = R"(
- <root main_tree_to_execute = "MainTree" >
+ <root BTCPP_format="4" >
      <BehaviorTree ID="MainTree">
         <Sequence name="root">
             <ThinkRuntimePort   text="{the_answer}"/>
@@ -17,8 +17,8 @@ static const char* xml_text = R"(
 class ThinkRuntimePort : public BT::SyncActionNode
 {
 public:
-  ThinkRuntimePort(const std::string& name, const BT::NodeConfiguration& config) :
-    BT::SyncActionNode(name, config)
+  ThinkRuntimePort(const std::string& name, const BT::NodeConfig& config)
+    : BT::SyncActionNode(name, config)
   {}
 
   BT::NodeStatus tick() override
@@ -31,15 +31,15 @@ public:
 class SayRuntimePort : public BT::SyncActionNode
 {
 public:
-  SayRuntimePort(const std::string& name, const BT::NodeConfiguration& config) :
-    BT::SyncActionNode(name, config)
+  SayRuntimePort(const std::string& name, const BT::NodeConfig& config)
+    : BT::SyncActionNode(name, config)
   {}
 
   // You must override the virtual function tick()
   BT::NodeStatus tick() override
   {
     auto msg = getInput<std::string>("message");
-    if (!msg)
+    if(!msg)
     {
       throw BT::RuntimeError("missing required input [message]: ", msg.error());
     }
@@ -54,15 +54,17 @@ int main()
 
   //-------- register ports that might be defined at runtime --------
   // more verbose way
-  PortsList think_ports = {BT::OutputPort<std::string>("text")};
+  PortsList think_ports = { BT::OutputPort<std::string>("text") };
   factory.registerBuilder(
       CreateManifest<ThinkRuntimePort>("ThinkRuntimePort", think_ports),
       CreateBuilder<ThinkRuntimePort>());
   // less verbose way
-  PortsList say_ports = {BT::InputPort<std::string>("message")};
+  PortsList say_ports = { BT::InputPort<std::string>("message") };
   factory.registerNodeType<SayRuntimePort>("SayRuntimePort", say_ports);
 
-  auto tree = factory.createTreeFromText(xml_text);
-  tree.tickRoot();
+  factory.registerBehaviorTreeFromText(xml_text);
+  auto tree = factory.createTree("MainTree");
+  tree.tickWhileRunning();
+
   return 0;
 }

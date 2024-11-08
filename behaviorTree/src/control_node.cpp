@@ -11,12 +11,12 @@
 *   WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "behaviortree_cpp_v3/control_node.h"
+#include "behaviortree_cpp/control_node.h"
 
 namespace BT
 {
-ControlNode::ControlNode(const std::string& name, const NodeConfiguration& config) :
-  TreeNode::TreeNode(name, config)
+ControlNode::ControlNode(const std::string& name, const NodeConfig& config)
+  : TreeNode::TreeNode(name, config)
 {}
 
 void ControlNode::addChild(TreeNode* child)
@@ -31,7 +31,20 @@ size_t ControlNode::childrenCount() const
 
 void ControlNode::halt()
 {
-  haltChildren();
+  resetChildren();
+  resetStatus();  // might be redundant
+}
+
+void ControlNode::resetChildren()
+{
+  for(auto child : children_nodes_)
+  {
+    if(child->status() == NodeStatus::E_RUNNING)
+    {
+      child->haltNode();
+    }
+    child->resetStatus();
+  }
 }
 
 const std::vector<TreeNode*>& ControlNode::children() const
@@ -42,16 +55,16 @@ const std::vector<TreeNode*>& ControlNode::children() const
 void ControlNode::haltChild(size_t i)
 {
   auto child = children_nodes_[i];
-  if (child->status() == NodeStatus::E_RUNNING)
+  if(child->status() == NodeStatus::E_RUNNING)
   {
-    child->halt();
+    child->haltNode();
   }
   child->resetStatus();
 }
 
 void ControlNode::haltChildren()
 {
-  for (size_t i = 0; i < children_nodes_.size(); i++)
+  for(size_t i = 0; i < children_nodes_.size(); i++)
   {
     haltChild(i);
   }
@@ -59,10 +72,10 @@ void ControlNode::haltChildren()
 
 void ControlNode::haltChildren(size_t first)
 {
-  for (size_t i = first; i < children_nodes_.size(); i++)
+  for(size_t i = first; i < children_nodes_.size(); i++)
   {
     haltChild(i);
   }
 }
 
-}   // namespace BT
+}  // namespace BT

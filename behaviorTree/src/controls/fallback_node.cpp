@@ -11,56 +11,80 @@
 *   WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "behaviortree_cpp_v3/controls/fallback_node.h"
-#include "behaviortree_cpp_v3/action_node.h"
+#include "behaviortree_cpp/controls/fallback_node.h"
+
 namespace BT
 {
-FallbackNode::FallbackNode(const std::string& name) :
-  ControlNode::ControlNode(name, {}), current_child_idx_(0)
+FallbackNode::FallbackNode(const std::string& name, bool make_asynch)
+  : ControlNode::ControlNode(name, {}), current_child_idx_(0), asynch_(make_asynch)
 {
-  setRegistrationID("Fallback");
+  if(asynch_)
+    setRegistrationID("AsyncFallback");
+  else
+    setRegistrationID("Fallback");
 }
 
 NodeStatus FallbackNode::tick()
 {
   const size_t children_count = children_nodes_.size();
 
+  if(status() == NodeStatus::E_IDLE)
+  {
+    skipped_count_ = 0;
+  }
+
   setStatus(NodeStatus::E_RUNNING);
 
-  while (current_child_idx_ < children_count)
+  while(current_child_idx_ < children_count)
   {
     TreeNode* current_child_node = children_nodes_[current_child_idx_];
+
+    auto prev_status = current_child_node->status();
     const NodeStatus child_status = current_child_node->executeTick();
 
-    switch (child_status)
+    switch(child_status)
     {
       case NodeStatus::E_RUNNING: {
         return child_status;
       }
       case NodeStatus::E_SUCCESS: {
-        haltChildren();
+        resetChildren();
         current_child_idx_ = 0;
         return child_status;
       }
       case NodeStatus::E_FAILURE: {
         current_child_idx_++;
+        // Return the execution flow if the child is async,
+        // to make this interruptable.
+        if(asynch_ && requiresWakeUp() && prev_status == NodeStatus::E_IDLE &&
+           current_child_idx_ < children_count)
+        {
+          emitWakeUpSignal();
+          return NodeStatus::E_RUNNING;
+        }
       }
       break;
-
-      case NodeStatus::E_IDLE: {
-        throw LogicError("A child node must never return IDLE");
+      case NodeStatus::E_SKIPPED: {
+        // It was requested to skip this node
+        current_child_idx_++;
+        skipped_count_++;
       }
-    }   // end switch
-  }     // end while loop
+      break;
+      case NodeStatus::E_IDLE: {
+        throw LogicError("[", name(), "]: A children should not return E_IDLE");
+      }
+    }  // end switch
+  }    // end while loop
 
-  // The entire while loop completed. This means that all the children returned FAILURE.
-  if (current_child_idx_ == children_count)
+  // The entire while loop completed. This means that all the children returned E_FAILURE.
+  if(current_child_idx_ == children_count)
   {
-    haltChildren();
+    resetChildren();
     current_child_idx_ = 0;
   }
 
-  return NodeStatus::E_FAILURE;
+  // Skip if ALL the nodes have been skipped
+  return (skipped_count_ == children_count) ? NodeStatus::E_SKIPPED : NodeStatus::E_FAILURE;
 }
 
 void FallbackNode::halt()
@@ -69,4 +93,4 @@ void FallbackNode::halt()
   ControlNode::halt();
 }
 
-}   // namespace BT
+}  // namespace BT

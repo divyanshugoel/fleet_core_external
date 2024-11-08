@@ -1,14 +1,14 @@
-﻿#include <gtest/gtest.h>
-#include "behaviortree_cpp_v3/bt_factory.h"
+#include <gtest/gtest.h>
+#include "behaviortree_cpp/bt_factory.h"
 
 using namespace BT;
 
-class FastAction : public BT::AsyncActionNode
+class FastAction : public BT::ThreadedAction
 {
 public:
   // Any TreeNode with ports must have a constructor with this signature
-  FastAction(const std::string& name, const BT::NodeConfiguration& config) :
-    AsyncActionNode(name, config)
+  FastAction(const std::string& name, const BT::NodeConfig& config)
+    : ThreadedAction(name, config)
   {}
 
   static BT::PortsList providedPorts()
@@ -27,7 +27,7 @@ TEST(WakeUp, BasicTest)
 {
   static const char* xml_text = R"(
 
-<root>
+<root BTCPP_format="4">
     <BehaviorTree ID="MainTree">
         <FastAction/>
     </BehaviorTree>
@@ -41,7 +41,7 @@ TEST(WakeUp, BasicTest)
   using namespace std::chrono;
 
   auto t1 = system_clock::now();
-  tree.tickRoot();
+  tree.tickOnce();
   tree.sleep(milliseconds(200));
   auto t2 = system_clock::now();
 
