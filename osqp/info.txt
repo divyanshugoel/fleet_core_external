@@ -1,0 +1,3 @@
+Linux mph 6.8.0-52-generic #53~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Wed Jan 15 19:18:46 UTC 2 x86_64 x86_64 x86_64 GNU/Linux
+
+https://github.com/google/osqp-cpp/commit/43433736334d6b515ea4b0247156fea9e56c0d3f
