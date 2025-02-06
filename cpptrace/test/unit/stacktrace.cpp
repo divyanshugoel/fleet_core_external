@@ -1,8 +1,4 @@
-#include <algorithm>
-#include <iomanip>
-#include <sstream>
-#include <string_view>
-#include <string>
+#include <vector>
 
 #include <gtest/gtest.h>
 #include <gtest/gtest-matchers.h>
@@ -15,7 +11,7 @@ using namespace std::literals;
 #ifdef _MSC_VER
  #define CPPTRACE_FORCE_INLINE [[msvc::flatten]]
 #else
- #define CPPTRACE_FORCE_INLINE [[gnu::always_inline]]
+ #define CPPTRACE_FORCE_INLINE [[gnu::always_inline]] static
 #endif
 
 
@@ -29,6 +25,7 @@ TEST(Stacktrace, Empty) {
 
 
 CPPTRACE_FORCE_NO_INLINE void stacktrace_basic() {
+    static volatile int lto_guard; lto_guard = lto_guard + 1;
     auto line = __LINE__ + 1;
     auto trace = cpptrace::generate_trace();
     ASSERT_GE(trace.frames.size(), 1);
@@ -43,9 +40,10 @@ TEST(Stacktrace, Basic) {
 
 
 
-// NOTE: returning something and then return stacktrace_multi_3(line_numbers) * 2; later helps prevent the call from
-// being optimized to a jmp
+// NOTE: returning something and then return stacktrace_multi_3(line_numbers) * rand(); is done to prevent TCO even
+// under LTO https://github.com/jeremy-rifkin/cpptrace/issues/179#issuecomment-2467302052
 CPPTRACE_FORCE_NO_INLINE int stacktrace_multi_3(std::vector<int>& line_numbers) {
+    static volatile int lto_guard; lto_guard = lto_guard + 1;
     line_numbers.insert(line_numbers.begin(), __LINE__ + 1);
     auto trace = cpptrace::generate_trace();
     if(trace.frames.size() < 4) {
@@ -72,13 +70,15 @@ CPPTRACE_FORCE_NO_INLINE int stacktrace_multi_3(std::vector<int>& line_numbers) 
 }
 
 CPPTRACE_FORCE_NO_INLINE int stacktrace_multi_2(std::vector<int>& line_numbers) {
+    static volatile int lto_guard; lto_guard = lto_guard + 1;
     line_numbers.insert(line_numbers.begin(), __LINE__ + 1);
-    return stacktrace_multi_3(line_numbers) * 2;
+    return stacktrace_multi_3(line_numbers) * rand();
 }
 
 CPPTRACE_FORCE_NO_INLINE int stacktrace_multi_1(std::vector<int>& line_numbers) {
+    static volatile int lto_guard; lto_guard = lto_guard + 1;
     line_numbers.insert(line_numbers.begin(), __LINE__ + 1);
-    return stacktrace_multi_2(line_numbers) * 2;
+    return stacktrace_multi_2(line_numbers) * rand();
 }
 
 TEST(Stacktrace, MultipleFrames) {
@@ -90,16 +90,19 @@ TEST(Stacktrace, MultipleFrames) {
 
 
 CPPTRACE_FORCE_NO_INLINE cpptrace::raw_trace stacktrace_raw_resolve_3(std::vector<int>& line_numbers) {
+    static volatile int lto_guard; lto_guard = lto_guard + 1;
     line_numbers.insert(line_numbers.begin(), __LINE__ + 1);
     return cpptrace::generate_raw_trace();
 }
 
 CPPTRACE_FORCE_NO_INLINE cpptrace::raw_trace stacktrace_raw_resolve_2(std::vector<int>& line_numbers) {
+    static volatile int lto_guard; lto_guard = lto_guard + 1;
     line_numbers.insert(line_numbers.begin(), __LINE__ + 1);
     return stacktrace_raw_resolve_3(line_numbers);
 }
 
 CPPTRACE_FORCE_NO_INLINE cpptrace::raw_trace stacktrace_raw_resolve_1(std::vector<int>& line_numbers) {
+    static volatile int lto_guard; lto_guard = lto_guard + 1;
     line_numbers.insert(line_numbers.begin(), __LINE__ + 1);
     return stacktrace_raw_resolve_2(line_numbers);
 }
@@ -129,9 +132,9 @@ TEST(Stacktrace, RawTraceResolution) {
 }
 
 
-
-#ifndef _MSC_VER
+#ifdef CPPTRACE_GET_SYMBOLS_WITH_LIBDWARF
 CPPTRACE_FORCE_NO_INLINE int stacktrace_inline_resolution_3(std::vector<int>& line_numbers) {
+    static volatile int lto_guard; lto_guard = lto_guard + 1;
     line_numbers.insert(line_numbers.begin(), __LINE__ + 1);
     auto trace = cpptrace::generate_trace();
     if(trace.frames.size() < 4) {
@@ -170,13 +173,15 @@ CPPTRACE_FORCE_NO_INLINE int stacktrace_inline_resolution_3(std::vector<int>& li
 }
 
 CPPTRACE_FORCE_INLINE int stacktrace_inline_resolution_2(std::vector<int>& line_numbers) {
+    static volatile int lto_guard; lto_guard = lto_guard + 1;
     line_numbers.insert(line_numbers.begin(), __LINE__ + 1);
-    return stacktrace_inline_resolution_3(line_numbers) * 2;
+    return stacktrace_inline_resolution_3(line_numbers) * rand();
 }
 
 CPPTRACE_FORCE_NO_INLINE int stacktrace_inline_resolution_1(std::vector<int>& line_numbers) {
+    static volatile int lto_guard; lto_guard = lto_guard + 1;
     line_numbers.insert(line_numbers.begin(), __LINE__ + 1);
-    return stacktrace_inline_resolution_2(line_numbers) * 2;
+    return stacktrace_inline_resolution_2(line_numbers) * rand();
 }
 
 TEST(Stacktrace, InlineResolution) {

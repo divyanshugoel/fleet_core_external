@@ -4,6 +4,7 @@ project(rapidXML
 )
 # Commit: 2ae4b2888165a393dfb6382168825fddf00c27b9
 # Origin : https://github.com/discord/rapidxml
+cmake_minimum_required(VERSION 3.21)
 
 if (NOT DEFINED CMAKE_BUILD_TYPE)
   set (CMAKE_BUILD_TYPE Release CACHE STRING "Build type")

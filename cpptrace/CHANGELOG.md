@@ -1,6 +1,10 @@
 # Changelog
 
 - [Changelog](#changelog)
+- [v0.7.5](#v075)
+- [v0.7.4](#v074)
+- [v0.7.3](#v073)
+- [v0.7.2](#v072)
 - [v0.7.1](#v071)
 - [v0.7.0](#v070)
 - [v0.6.3](#v063)
@@ -20,6 +24,53 @@
 - [v0.2.0](#v020)
 - [v0.1.1](#v011)
 - [v0.1](#v01)
+
+# v0.7.5
+
+Fixed:
+- Fixed missing `<typeinfo>` include https://github.com/jeremy-rifkin/cpptrace/pull/202
+- Added `__cdecl` to a terminate handler to appease MSVC under some configurations https://github.com/jeremy-rifkin/cpptrace/issues/197
+- Set C++ standard for cmake support checks https://github.com/jeremy-rifkin/cpptrace/issues/200
+- Changed hyphens to underscores for cmake component names due to cpack issue https://github.com/jeremy-rifkin/cpptrace/issues/203
+
+# v0.7.4
+
+Added:
+- Added `<cpptrace/version.hpp>` header with version macros
+
+Fixes:
+- Bumped libdwarf to 0.11.0 which fixes a number of dwarf 5 debug fission issues
+
+Other:
+- Various improvements to internal testing setup
+
+# v0.7.3
+
+Fixed:
+- Fixed missing include affecting macos https://github.com/jeremy-rifkin/cpptrace/pull/183
+- Fixed issue with cmake not using the ccache program found by `find_program` https://github.com/jeremy-rifkin/cpptrace/pull/184
+- Fixed missing include and warnings affecting mingw https://github.com/jeremy-rifkin/cpptrace/pull/186
+- Fixed issue with identifying inlined call frames when the `DW_TAG_inlined_subroutine` is under a `DW_TAG_lexical_block`
+- Fixed a typo in the README
+- Improved unittest support on various configurations
+- Improved unittest robustness under LTO
+- Fixed bug signal_demo in the event `fork()` fails
+
+Added:
+- Added color overload for `stacktrace_frame::to_string`
+- Added CMake `export()` definition for cpptrace as well as a definition for libdwarf which currently doesn't provide one
+
+Changed:
+- Updated documentation surrounding the signal safe API
+
+# v0.7.2
+
+Changes:
+- Better support for older CMake with using `FetchContent_Declare` from a URL https://github.com/jeremy-rifkin/cpptrace/pull/176
+- Better portability for page size detection https://github.com/jeremy-rifkin/cpptrace/pull/177
+- Improved compile times https://github.com/jeremy-rifkin/cpptrace/pull/172
+- Split up `cpptrace.hpp` into finer-grained headers for lower compile time impact
+- Some minor readme restructuring
 
 # v0.7.1
 

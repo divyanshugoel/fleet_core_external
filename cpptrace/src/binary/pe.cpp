@@ -1,16 +1,18 @@
 #include "binary/pe.hpp"
 
-#include "utils/common.hpp"
+#include "platform/platform.hpp"
 #include "utils/error.hpp"
 #include "utils/utils.hpp"
 
 #if IS_WINDOWS
 #include <array>
-#include <cstddef>
 #include <cstdio>
 #include <cstring>
 #include <string>
 
+#ifndef WIN32_LEAN_AND_MEAN
+ #define WIN32_LEAN_AND_MEAN
+#endif
 #include <windows.h>
 
 namespace cpptrace {

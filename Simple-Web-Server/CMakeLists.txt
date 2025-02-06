@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.21)
 
 project(Simple-Web-Server)
 # Commit: 27b41f5ee154cca0fce4fe2955dd886d04e3a4ed

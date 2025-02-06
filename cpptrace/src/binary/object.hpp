@@ -1,14 +1,13 @@
 #ifndef OBJECT_HPP
 #define OBJECT_HPP
 
-#include "utils/common.hpp"
-#include "utils/utils.hpp"
-#include "binary/module_base.hpp"
+#include <cpptrace/forward.hpp>
 
-#include <string>
 #include <vector>
+#include <cstdint>
 
 namespace cpptrace {
+
 namespace detail {
     object_frame get_frame_object_info(frame_ptr address);
 

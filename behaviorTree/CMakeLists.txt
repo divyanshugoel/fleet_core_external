@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16.3) # version on Ubuntu Focal
+cmake_minimum_required(VERSION 3.21) # version on Ubuntu Focal
 
 project(behaviortree_cpp VERSION 4.6.2 LANGUAGES C CXX)
 
