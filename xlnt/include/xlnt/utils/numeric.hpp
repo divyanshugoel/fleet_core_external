@@ -88,7 +88,11 @@ bool float_equals(const LNumber &lhs, const RNumber &rhs,
         "epsilon >= 1.0 will cause all comparisons to return true");
 
     // NANs always compare false with themselves
+    #ifdef WIN32
     if (std::isnan(lhs) || std::isnan(rhs))
+    #else
+    if (isnan(lhs) || isnan(rhs))
+    #endif
     {
         return false;
     }
