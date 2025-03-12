@@ -1,7 +1,6 @@
 # Cpptrace <!-- omit in toc -->
 
-[![build](https://github.com/jeremy-rifkin/cpptrace/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/jeremy-rifkin/cpptrace/actions/workflows/build.yml)
-[![test](https://github.com/jeremy-rifkin/cpptrace/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/jeremy-rifkin/cpptrace/actions/workflows/test.yml)
+[![CI](https://github.com/jeremy-rifkin/cpptrace/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/jeremy-rifkin/cpptrace/actions/workflows/ci.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=jeremy-rifkin_cpptrace&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=jeremy-rifkin_cpptrace)
 <br/>
 [![Community Discord Link](https://img.shields.io/badge/Chat%20on%20the%20(very%20small)-Community%20Discord-blue?labelColor=2C3239&color=7289DA&style=flat&logo=discord&logoColor=959DA5)](https://discord.gg/frjaAZvqUZ)
@@ -17,9 +16,6 @@ Cpptrace also has a C API, docs [here](docs/c-api.md).
 
 - [30-Second Overview](#30-second-overview)
   - [CMake FetchContent Usage](#cmake-fetchcontent-usage)
-- [FAQ](#faq)
-  - [What about C++23 `<stacktrace>`?](#what-about-c23-stacktrace)
-  - [What does cpptrace have over other C++ stacktrace libraries?](#what-does-cpptrace-have-over-other-c-stacktrace-libraries)
 - [Prerequisites](#prerequisites)
 - [Basic Usage](#basic-usage)
 - [`namespace cpptrace`](#namespace-cpptrace)
@@ -27,6 +23,7 @@ Cpptrace also has a C API, docs [here](docs/c-api.md).
   - [Object Traces](#object-traces)
   - [Raw Traces](#raw-traces)
   - [Utilities](#utilities)
+  - [Formatting](#formatting)
   - [Configuration](#configuration)
   - [Traces From All Exceptions](#traces-from-all-exceptions)
     - [Removing the `CPPTRACE_` prefix](#removing-the-cpptrace_-prefix)
@@ -39,6 +36,7 @@ Cpptrace also has a C API, docs [here](docs/c-api.md).
   - [Signal-Safe Tracing](#signal-safe-tracing)
   - [Utility Types](#utility-types)
   - [Headers](#headers)
+  - [Libdwarf Tuning](#libdwarf-tuning)
 - [Supported Debug Formats](#supported-debug-formats)
 - [How to Include The Library](#how-to-include-the-library)
   - [CMake FetchContent](#cmake-fetchcontent)
@@ -56,6 +54,10 @@ Cpptrace also has a C API, docs [here](docs/c-api.md).
   - [Summary of Library Configurations](#summary-of-library-configurations)
 - [Testing Methodology](#testing-methodology)
 - [Notes About the Library](#notes-about-the-library)
+- [FAQ](#faq)
+  - [What about C++23 `<stacktrace>`?](#what-about-c23-stacktrace)
+  - [What does cpptrace have over other C++ stacktrace libraries?](#what-does-cpptrace-have-over-other-c-stacktrace-libraries)
+  - [I'm getting undefined standard library symbols like `std::__1::basic_string` on MacOS](#im-getting-undefined-standard-library-symbols-like-std__1basic_string-on-macos)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -126,6 +128,7 @@ Additional notable features:
 - Utilities for catching `std::exception`s and wrapping them in traced exceptions
 - Signal-safe stack tracing
 - Source code snippets in traces
+- Extensive configuration options for [trace formatting](#formatting)
 
 ![Snippets](res/snippets.png)
 
@@ -136,7 +139,7 @@ include(FetchContent)
 FetchContent_Declare(
   cpptrace
   GIT_REPOSITORY https://github.com/jeremy-rifkin/cpptrace.git
-  GIT_TAG        v0.7.5 # <HASH or TAG>
+  GIT_TAG        v0.8.2 # <HASH or TAG>
 )
 FetchContent_MakeAvailable(cpptrace)
 target_link_libraries(your_target cpptrace::cpptrace)
@@ -160,33 +163,6 @@ On macOS it is recommended to generate a `.dSYM` file, see [Platform Logistics](
 
 For other ways to use the library, such as through package managers, a system-wide installation, or on a platform
 without internet access see [How to Include The Library](#how-to-include-the-library) below.
-
-# FAQ
-
-## What about C++23 `<stacktrace>`?
-
-Some day C++23's `<stacktrace>` will be ubiquitous. And maybe one day the msvc implementation will be acceptable.
-The original motivation for cpptrace was to support projects using older C++ standards and as the library has grown its
-functionality has extended beyond the standard library's implementation.
-
-Cpptrace provides functionality beyond what the standard library provides and what implementations provide, such as:
-- Walking inlined function calls
-- Providing a lightweight interface for "raw traces"
-- Resolving function parameter types
-- Providing traced exception objects
-- Providing an API for signal-safe stacktrace generation
-- Providing a way to retrieve stack traces from arbitrary exceptions, not just special cpptrace traced exception
-  objects. This is a feature coming to C++26, but cpptrace provides a solution for C++11.
-
-## What does cpptrace have over other C++ stacktrace libraries?
-
-Other C++ stacktrace libraries, such as boost stacktrace and backward-cpp, fall short when it comes to portability and
-ease of use. In testing, I found neither to provide adaquate coverage of various environments. Even when they can be
-made to work in an environment they require manual configuration from the end-user, possibly requiring manual
-installation of third-party dependencies. This is a highly undesirable burden to impose on users, especially when it is
-for a software package which just provides diagnostics as opposed to core functionality. Additionally, cpptrace provides
-support for resolving inlined calls by default for DWARF symbols (boost does not do this, backward-cpp can do this but
-only for some back-ends), better support for resolving full function signatures, and nicer API, among other features.
 
 # Prerequisites
 
@@ -343,6 +319,87 @@ namespace cpptrace {
 }
 ```
 
+## Formatting
+
+Cpptrace provides a configurable formatter for stack trace printing which supports some common options. Formatters are
+configured with a sort of builder pattern, e.g.:
+```cpp
+auto formatter = cpptrace::formatter{}
+    .header("Stack trace:")
+    .addresses(cpptrace::formatter::address_mode::object)
+    .snippets(true);
+```
+
+This API is available through the `<cpptrace/formatting.hpp>` header.
+
+Synopsis:
+```cpp
+namespace cpptrace {
+    class formatter {
+        formatter& header(std::string);
+        enum class color_mode { always, none, automatic };
+        formatter& colors(color_mode);
+        enum class address_mode { raw, object, none };
+        formatter& addresses(address_mode);
+        enum class path_mode { full, basename };
+        formatter& paths(path_mode);
+        formatter& snippets(bool);
+        formatter& snippet_context(int);
+        formatter& columns(bool);
+        formatter& filtered_frame_placeholders(bool);
+        formatter& filter(std::function<bool(const stacktrace_frame&)>);
+
+        std::string format(const stacktrace_frame&) const;
+        std::string format(const stacktrace_frame&, bool color) const;
+
+        std::string format(const stacktrace&) const;
+        std::string format(const stacktrace&, bool color) const;
+
+        void print(const stacktrace_frame&) const;
+        void print(const stacktrace_frame&, bool color) const;
+        void print(std::ostream&, const stacktrace_frame&) const;
+        void print(std::ostream&, const stacktrace_frame&, bool color) const;
+        void print(std::FILE*, const stacktrace_frame&) const;
+        void print(std::FILE*, const stacktrace_frame&, bool color) const;
+
+        void print(const stacktrace&) const;
+        void print(const stacktrace&, bool color) const;
+        void print(std::ostream&, const stacktrace&) const;
+        void print(std::ostream&, const stacktrace&, bool color) const;
+        void print(std::FILE*, const stacktrace&) const;
+        void print(std::FILE*, const stacktrace&, bool color) const;
+    };
+}
+```
+
+Options:
+| Setting                       | Description                                                    | Default                                                                  |
+| ----------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `header`                      | Header line printed before the trace                           | `Stack trace (most recent call first):`                                  |
+| `colors`                      | Default color mode for the trace                               | `automatic`, which attempts to detect if the target stream is a terminal |
+| `addresses`                   | Raw addresses, object addresses, or no addresses               | `raw`                                                                    |
+| `paths`                       | Full paths or just filenames                                   | `full`                                                                   |
+| `snippets`                    | Whether to include source code snippets                        | `false`                                                                  |
+| `snippet_context`             | How many lines of source context to show in a snippet          | `2`                                                                      |
+| `columns`                     | Whether to include column numbers if present                   | `true`                                                                   |
+| `filtered_frame_placeholders` | Whether to still print filtered frames as just `#n (filtered)` | `true`                                                                   |
+| `filter`                      | A predicate to filter frames with                              | None                                                                     |
+
+The `automatic` color mode attempts to detect if a stream that may be attached to a terminal. As such, it will not use
+colors for the `formatter::format` method and it may not be able to detect if some ostreams correspond to terminals or
+not. For this reason, `formatter::format` and `formatter::print` methods have overloads taking a color parameter. This
+color parameter will override configured color mode.
+
+Recommended practice with formatters: It's generally preferable to create formatters objects that are long-lived rather
+than to create them on the fly every time a trace needs to be formatted.
+
+Cpptrace provides access to a formatter with default settings with `get_default_formatter`:
+```cpp
+namespace cpptrace {
+    const formatter& get_default_formatter();
+}
+```
+
 ## Configuration
 
 `cpptrace::absorb_trace_exceptions`: Configure whether the library silently absorbs internal exceptions and continues.
@@ -382,6 +439,8 @@ thrown exception object, with minimal or no overhead in the non-throwing path:
 
 ```cpp
 #include <cpptrace/from_current.hpp>
+#include <iostream>
+
 void foo() {
     throw std::runtime_error("foo failed");
 }
@@ -691,6 +750,7 @@ namespace cpptrace {
     };
     void get_safe_object_frame(frame_ptr address, safe_object_frame* out);
     bool can_signal_safe_unwind();
+    bool can_get_safe_object_frame();
 }
 ```
 
@@ -707,9 +767,9 @@ see the comprehensive overview and demo at [signal-safe-tracing.md](docs/signal-
 > [!IMPORTANT]
 > Currently signal-safe stack unwinding is only possible with `libunwind`, which must be
 > [manually enabled](#library-back-ends). If signal-safe unwinding isn't supported, `safe_generate_raw_trace` will just
-> produce an empty trace. `can_signal_safe_unwind` can be used to check for signal-safe unwinding support. If object
-> information can't be resolved in a signal-safe way then `get_safe_object_frame` will not populate fields beyond the
-> `raw_address`.
+> produce an empty trace. `can_signal_safe_unwind` can be used to check for signal-safe unwinding support and
+> `can_get_safe_object_frame` can be used to check `get_safe_object_frame` support. If object information can't be
+> resolved in a signal-safe way then `get_safe_object_frame` will not populate fields beyond the `raw_address`.
 
 > [!IMPORTANT]
 > `_dl_find_object` is required for signal-safe stack tracing. This is a relatively recent addition to glibc, added in
@@ -735,6 +795,7 @@ namespace cpptrace {
     template<typename T, typename std::enable_if<std::is_integral<T>::value, int>::type = 0>
     struct nullable {
         T raw_value;
+        // all members are constexpr for c++17 and beyond, some are constexpr before c++17
         nullable& operator=(T value)
         bool has_value() const noexcept;
         T& value() noexcept;
@@ -744,6 +805,7 @@ namespace cpptrace {
         void reset() noexcept;
         bool operator==(const nullable& other) const noexcept;
         bool operator!=(const nullable& other) const noexcept;
+        constexpr static T null_value() noexcept; // returns the raw null value
         constexpr static nullable null() noexcept; // returns a null instance
     };
 
@@ -786,11 +848,38 @@ Cpptrace provides a handful of headers to make inclusion more minimal.
 | `cpptrace/exceptions.hpp`   | [Traced Exception Objects](#traced-exception-objects) and related utilities ([Wrapping std::exceptions](#wrapping-stdexceptions))                                                                     |
 | `cpptrace/from_current.hpp` | [Traces From All Exceptions](#traces-from-all-exceptions)                                                                                                                                             |
 | `cpptrace/io.hpp`           | `operator<<` overloads for `std::ostream` and `std::formatter`s                                                                                                                                       |
+| `cpptrace/formatting.hpp`   | Configurable formatter API                                                                                                                                                                            |
 | `cpptrace/utils.hpp`        | Utility functions, configuration functions, and terminate utilities ([Utilities](#utilities), [Configuration](#configuration), and [Terminate Handling](#terminate-handling))                         |
 | `cpptrace/version.hpp`      | Library version macros                                                                                                                                                                                |
 
 The main cpptrace header is `cpptrace/cpptrace.hpp` which includes everything other than `from_current.hpp` and
 `version.hpp`.
+
+## Libdwarf Tuning
+
+For extraordinarily large binaries (multiple gigabytes), cpptrace's internal caching can result in a lot of memory
+usage. Cpptrace provides some options to reduce memory usage in exchange for performance in memory-constrained
+applications.
+
+Synopsis:
+
+```cpp
+namespace cpptrace {
+    namespace experimental {
+        void set_dwarf_resolver_line_table_cache_size(nullable<std::size_t> max_entries);
+        void set_dwarf_resolver_disable_aranges(bool disable);
+    }
+}
+```
+
+Explanation:
+- `set_dwarf_resolver_line_table_cache_size` can be used to set a limit to the cache size with evictions done LRU.
+  Cpptrace loads and caches line tables for dwarf compile units. These can take a lot of space for large binaries with
+  lots of debug info. Passing `nullable<std::size_t>::null()` will disable the cache size (which is the default
+  behavior).
+- `set_dwarf_resolver_disable_aranges` can be used to disable use of dwarf `.debug_aranges`, an accelerated range lookup
+  table for compile units emitted by many compilers. Cpptrace uses these by default if they are present since they can
+  speed up resolution, however, they can also result in significant memory usage.
 
 # Supported Debug Formats
 
@@ -816,7 +905,7 @@ include(FetchContent)
 FetchContent_Declare(
   cpptrace
   GIT_REPOSITORY https://github.com/jeremy-rifkin/cpptrace.git
-  GIT_TAG        v0.7.5 # <HASH or TAG>
+  GIT_TAG        v0.8.2 # <HASH or TAG>
 )
 FetchContent_MakeAvailable(cpptrace)
 target_link_libraries(your_target cpptrace::cpptrace)
@@ -832,7 +921,7 @@ information.
 
 ```sh
 git clone https://github.com/jeremy-rifkin/cpptrace.git
-git checkout v0.7.5
+git checkout v0.8.2
 mkdir cpptrace/build
 cd cpptrace/build
 cmake .. -DCMAKE_BUILD_TYPE=Release
@@ -875,7 +964,7 @@ you when installing new libraries.
 
 ```ps1
 git clone https://github.com/jeremy-rifkin/cpptrace.git
-git checkout v0.7.5
+git checkout v0.8.2
 mkdir cpptrace/build
 cd cpptrace/build
 cmake .. -DCMAKE_BUILD_TYPE=Release
@@ -893,7 +982,7 @@ To install just for the local user (or any custom prefix):
 
 ```sh
 git clone https://github.com/jeremy-rifkin/cpptrace.git
-git checkout v0.7.5
+git checkout v0.8.2
 mkdir cpptrace/build
 cd cpptrace/build
 cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$HOME/wherever
@@ -976,7 +1065,7 @@ make install
 cd ~/scratch/cpptrace-test
 git clone https://github.com/jeremy-rifkin/cpptrace.git
 cd cpptrace
-git checkout v0.7.5
+git checkout v0.8.2
 mkdir build
 cd build
 cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=On -DCPPTRACE_USE_EXTERNAL_LIBDWARF=On -DCMAKE_PREFIX_PATH=~/scratch/cpptrace-test/resources -DCMAKE_INSTALL_PREFIX=~/scratch/cpptrace-test/resources
@@ -996,7 +1085,7 @@ cpptrace and its dependencies.
 Cpptrace is available through conan at https://conan.io/center/recipes/cpptrace.
 ```
 [requires]
-cpptrace/0.7.5
+cpptrace/0.8.2
 [generators]
 CMakeDeps
 CMakeToolchain
@@ -1204,6 +1293,51 @@ A couple things I'd like to improve in the future:
 - On Windows when collecting symbols with dbghelp (msvc/clang) parameter types are almost perfect but due to limitations
   in dbghelp the library cannot accurately show const and volatile qualifiers or rvalue references (these appear as
   pointers).
+
+# FAQ
+
+## What about C++23 `<stacktrace>`?
+
+Some day C++23's `<stacktrace>` will be ubiquitous. And maybe one day the msvc implementation will be acceptable.
+The original motivation for cpptrace was to support projects using older C++ standards and as the library has grown its
+functionality has extended beyond the standard library's implementation.
+
+Cpptrace provides functionality beyond what the standard library provides and what implementations provide, such as:
+- Walking inlined function calls
+- Providing a lightweight interface for "raw traces"
+- Resolving function parameter types
+- Providing traced exception objects
+- Providing an API for signal-safe stacktrace generation
+- Providing a way to retrieve stack traces from arbitrary exceptions, not just special cpptrace traced exception
+  objects. This is a feature coming to C++26, but cpptrace provides a solution for C++11.
+
+## What does cpptrace have over other C++ stacktrace libraries?
+
+Other C++ stacktrace libraries, such as boost stacktrace and backward-cpp, fall short when it comes to portability and
+ease of use. In testing, I found neither to provide adaquate coverage of various environments. Even when they can be
+made to work in an environment they require manual configuration from the end-user, possibly requiring manual
+installation of third-party dependencies. This is a highly undesirable burden to impose on users, especially when it is
+for a software package which just provides diagnostics as opposed to core functionality. Additionally, cpptrace provides
+support for resolving inlined calls by default for DWARF symbols (boost does not do this, backward-cpp can do this but
+only for some back-ends), better support for resolving full function signatures, and nicer API, among other features.
+
+## I'm getting undefined standard library symbols like `std::__1::basic_string` on MacOS
+
+If you see a linker error along the lines of the following on MacOS then it's highly likely you are mixing standard
+library ABIs.
+
+```
+Undefined symbols for architecture arm64:
+  "std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >::find(char, unsigned long) const", referenced from:
+      cpptrace::detail::demangle(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > const&, bool) in libcpptrace.a(demangle_with_cxxabi.cpp.o)
+      cpptrace::detail::snippet_manager::build_line_table() in libcpptrace.a(snippet.cpp.o)
+```
+
+This can happen when using apple clang to compile cpptrace and gcc to compile your code, or vice versa. The reason is
+that apple clang defaults to libc++ and gcc defaults to libstdc++ and these two standard library implementations are not
+ABI-compatible. To resolve this, ensure you are compiling both cpptrace and your code with the same standard library by
+either using the same compiler for both or using `-stdlib=libc++`/`-stdlib=libstdc++` to control which standard library
+is used.
 
 # Contributing
 
