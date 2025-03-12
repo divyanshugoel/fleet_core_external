@@ -328,6 +328,9 @@ if(CPPTRACE_GET_SYMBOLS_WITH_LIBDWARF)
           DOWNLOAD_EXTRACT_TIMESTAMP TRUE
           URL "${CPPTRACE_ZSTD_URL}"
       )
+      if (NOT EXISTS "${zstd_SOURCE_DIR}")
+        message(STATUS "Cpptrace: Fetching zstd from ${CPPTRACE_ZSTD_URL}")
+      endif()
       FetchContent_MakeAvailable(zstd)
     endif()
     # Libdwarf itself
@@ -340,6 +343,9 @@ if(CPPTRACE_GET_SYMBOLS_WITH_LIBDWARF)
       GIT_TAG ${CPPTRACE_LIBDWARF_TAG}
       GIT_SHALLOW ${CPPTRACE_LIBDWARF_SHALLOW}
     )
+    if (NOT EXISTS "${libdwarf_SOURCE_DIR}")
+      message(STATUS "Cpptrace: Fetching libdwarf from ${CPPTRACE_LIBDWARF_REPO} at tag ${CPPTRACE_LIBDWARF_TAG}")
+    endif()
     FetchContent_MakeAvailable(libdwarf)
     target_include_directories(
       dwarf
