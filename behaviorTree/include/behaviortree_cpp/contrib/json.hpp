@@ -15240,9 +15240,9 @@ class binary_writer
             case value_t::number_float:
             {
                 #ifdef WIN32
-                    if (isnan(j.m_data.m_value.number_float))
+                if (isnan(j.m_data.m_value.number_float))
                 #else
-                    if (std::isnan(j.m_data.m_value.number_float))
+                if (std::isnan(j.m_data.m_value.number_float))
                 #endif
                 {
                     // NaN is 0xf97e00 in CBOR

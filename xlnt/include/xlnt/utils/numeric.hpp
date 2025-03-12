@@ -89,9 +89,9 @@ bool float_equals(const LNumber &lhs, const RNumber &rhs,
 
     // NANs always compare false with themselves
     #ifdef WIN32
-    if (std::isnan(lhs) || std::isnan(rhs))
-    #else
     if (isnan(lhs) || isnan(rhs))
+    #else
+    if (std::isnan(lhs) || std::isnan(rhs))
     #endif
     {
         return false;
