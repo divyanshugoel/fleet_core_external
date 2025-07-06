@@ -1,0 +1,11 @@
+project(license-manager VERSION 1.0.0 LANGUAGES CXX)
+
+execute_process(
+    COMMAND git rev-parse --short HEAD
+    OUTPUT_VARIABLE GIT_HASH
+    ERROR_QUIET
+)
+
+if(NOT GIT_HASH)
+  set(GIT_HASH "unknown")
+endif()

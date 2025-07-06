@@ -1,0 +1,6 @@
+{
+  "name": "license-manager",
+  "version-string": "1.0.0",
+  "description": "A library to manager various licenses, certificates and keys",
+  "dependencies": []
+}
