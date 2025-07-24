@@ -174,7 +174,6 @@ start_poll:
         return AMQP_STATUS_SOCKET_ERROR;
     }
   }
-  return AMQP_STATUS_OK;
 #elif defined(HAVE_SELECT)
   fd_set fds;
   fd_set exceptfds;
@@ -509,10 +508,10 @@ static amqp_bytes_t sasl_method_name(amqp_sasl_method_enum method) {
 
   switch (method) {
     case AMQP_SASL_METHOD_PLAIN:
-      res = amqp_cstring_bytes("PLAIN");
+      res = amqp_literal_bytes("PLAIN");
       break;
     case AMQP_SASL_METHOD_EXTERNAL:
-      res = amqp_cstring_bytes("EXTERNAL");
+      res = amqp_literal_bytes("EXTERNAL");
       break;
 
     default:
@@ -729,7 +728,7 @@ int amqp_try_recv(amqp_connection_state_t state) {
       state->last_queued_frame = link;
     }
   }
-  res = amqp_time_s_from_now(&timeout, 0);
+  res = amqp_time_from_now(&timeout, &(struct timeval){0});
   if (AMQP_STATUS_OK != res) {
     return res;
   }
@@ -1332,7 +1331,7 @@ static amqp_rpc_reply_t amqp_login_inner(amqp_connection_state_t state,
     s.client_properties = state->client_properties;
     s.mechanism = sasl_method_name(sasl_method);
     s.response = response_bytes;
-    s.locale = amqp_cstring_bytes("en_US");
+    s.locale = amqp_literal_bytes("en_US");
 
     res = amqp_send_method_inner(state, 0, AMQP_CONNECTION_START_OK_METHOD, &s,
                                  AMQP_SF_NONE, deadline);

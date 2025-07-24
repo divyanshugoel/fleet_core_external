@@ -1,4 +1,65 @@
 # Change Log
+## v0.15.0 - 2024-11-19
+## Fixed
+- Warning on MacOS about incompatible function declaration
+- Logic when decoding AMQP data after bad data may cause crash (#837)
+- Use SSL_get1_peer_certificate when compiling against OpenSSL 3+
+
+## Changed
+- Updates to various github actions.
+
+## Added
+- Add amqp_publisher_confirm_wait function (#841)
+- Add amqp_literal_bytes macro (#844)
+
+## v0.14.0 - 2024-03-18
+## Fixed
+- Fix potential stackoverflow in decoding table and array
+- Fix issue with Mach-O version (#758)
+- Make dependency on OpenSSL in rabbitmq-c.cmake match what is built (#725)
+- Fix pkg-config generation when CMAKE_INSTALL_DIR is absolute (#733)
+- Fix issue with amqp_basic_publish blocking in non-blocking mode (#780)
+- Fix SSL hostname check (#784)
+- Fix bug in amqp-consume documentation #791
+
+## Changed
+- CMake minimum version is now 3.22
+- OpenSSL minimum version is now 1.1.1
+- Minimum TLS version supported is v1.2 (v1.3 is also supported).
+- OpenSSL ENGINE APIs are conditionally enabled based on availability
+
+## Added
+- Add option to read username/password from file in tools (#781)
+- Add amqp_ssl_socket_enable_default_verify_paths API to allow loading from default certification paths
+- rabbitmq-c can be compiled against BoringSSL (#814)
+
+## v0.13.0 - 2023-02-05
+## Fixed
+- Fixed missing option to not install static library (#665)
+- Missing pkgconfig version in v0.12.0 output (#755, #751)
+- Correct return value from amqp_ssl_socket_set_key_buffer (#723)
+
+## Changed
+- Remove OpenSSL code no longer needed when used with OpenSSL >= 1.1.0. (Fixed: #715, #737)
+
+## Added
+- Integration with OSS-Fuzz (#736)
+
+## v0.12.0 - 2023-01-31
+## Changed
+- rabbitmq-c now compiles as C99
+- CMake 3.12 is new minimum required version
+- CMake -DBUILD_TESTS renamed to -DBUILD_TESTING
+- CMake -DBUILD_EXAMPLES now defaults to OFF
+- CMake -DBUILD_TOOLS now defaults to OFF
+- Unix library version now matches the release version, SONAME remains the same.
+- Modernized CMake scripts to better adopt modern standards
+- Public headers have moved to rabbitmq-c/ directory
+- Dropped support for MSVC older than VS 2010
+- Dropped support for OpenSSL v1.1.0 and older
+- Minimum SSL version set to TLSv1.2
+- Updated to RabbitMQ framing to v3.8.19
+
 ## v0.11.0 - 2021-03-31
 ## Added:
 - rabbitmq-c-config.cmake is now generated (#611)

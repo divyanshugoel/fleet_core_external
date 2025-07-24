@@ -9,6 +9,9 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
+// Use OpenSSL v1.1.1 API.
+#define OPENSSL_API_COMPAT 10101
+
 #include "amqp_openssl_bio.h"
 #include "amqp_private.h"
 #include "amqp_socket.h"
@@ -20,8 +23,11 @@
 #include <limits.h>
 #include <openssl/bio.h>
 #include <openssl/conf.h>
+#ifdef ENABLE_SSL_ENGINE_API
 #include <openssl/engine.h>
+#endif
 #include <openssl/err.h>
+#include <openssl/rsa.h>
 #include <openssl/ssl.h>
 #include <openssl/x509v3.h>
 #include <stdlib.h>
@@ -30,16 +36,12 @@
 static int initialize_ssl_and_increment_connections(void);
 static int decrement_ssl_connections(void);
 
-static unsigned long ssl_threadid_callback(void);
-static void ssl_locking_callback(int mode, int n, const char *file, int line);
-static pthread_mutex_t *amqp_openssl_lockarray = NULL;
-
 static pthread_mutex_t openssl_init_mutex = PTHREAD_MUTEX_INITIALIZER;
-static amqp_boolean_t do_initialize_openssl = 1;
-static amqp_boolean_t openssl_initialized = 0;
 static amqp_boolean_t openssl_bio_initialized = 0;
 static int openssl_connections = 0;
+#ifdef ENABLE_SSL_ENGINE_API
 static ENGINE *openssl_engine = NULL;
+#endif
 
 #define CHECK_SUCCESS(condition)                                            \
   do {                                                                      \
@@ -213,7 +215,11 @@ start_connect:
     goto error_out2;
   }
 
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
   cert = SSL_get_peer_certificate(self->ssl);
+#else
+  cert = SSL_get1_peer_certificate(self->ssl);
+#endif
 
   if (self->verify_peer) {
     if (!cert) {
@@ -236,7 +242,7 @@ start_connect:
       goto error_out3;
     }
 
-    if (1 != X509_check_host(cert, host, 0,
+    if (1 != X509_check_host(cert, host, strlen(host),
                              X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS, NULL)) {
       self->internal_error = 0;
       status = AMQP_STATUS_SSL_HOSTNAME_VERIFY_FAILED;
@@ -330,14 +336,15 @@ amqp_socket_t *amqp_ssl_socket_new(amqp_connection_state_t state) {
     goto error;
   }
 
-  self->ctx = SSL_CTX_new(SSLv23_client_method());
+  self->ctx = SSL_CTX_new(TLS_client_method());
   if (!self->ctx) {
     goto error;
   }
-  /* Disable SSLv2 and SSLv3 */
-  SSL_CTX_set_options(self->ctx, SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3);
-  amqp_ssl_socket_set_ssl_versions((amqp_socket_t *)self, AMQP_TLSv1_2,
-                                   AMQP_TLSvLATEST);
+  status = amqp_ssl_socket_set_ssl_versions((amqp_socket_t *)self, AMQP_TLSv1_2,
+                                            AMQP_TLSvLATEST);
+  if (status != AMQP_STATUS_OK) {
+    goto error;
+  }
 
   SSL_CTX_set_mode(self->ctx, SSL_MODE_ENABLE_PARTIAL_WRITE);
   /* OpenSSL v1.1.1 turns this on by default, which makes the non-blocking
@@ -357,6 +364,20 @@ void *amqp_ssl_socket_get_context(amqp_socket_t *base) {
     amqp_abort("<%p> is not of type amqp_ssl_socket_t", base);
   }
   return ((struct amqp_ssl_socket_t *)base)->ctx;
+}
+
+int amqp_ssl_socket_enable_default_verify_paths(amqp_socket_t *base) {
+  int status;
+  struct amqp_ssl_socket_t *self;
+  if (base->klass != &amqp_ssl_socket_class) {
+    amqp_abort("<%p> is not of type amqp_ssl_socket_t", base);
+  }
+  self = (struct amqp_ssl_socket_t *)base;
+  status = SSL_CTX_set_default_verify_paths(self->ctx);
+  if (1 != status) {
+    return AMQP_STATUS_SSL_ERROR;
+  }
+  return AMQP_STATUS_OK;
 }
 
 int amqp_ssl_socket_set_cacert(amqp_socket_t *base, const char *cacert) {
@@ -394,6 +415,7 @@ int amqp_ssl_socket_set_key(amqp_socket_t *base, const char *cert,
 
 int amqp_ssl_socket_set_key_engine(amqp_socket_t *base, const char *cert,
                                    const char *key) {
+#ifdef ENABLE_SSL_ENGINE_API
   int status;
   struct amqp_ssl_socket_t *self;
   EVP_PKEY *pkey = NULL;
@@ -418,6 +440,9 @@ int amqp_ssl_socket_set_key_engine(amqp_socket_t *base, const char *cert,
     return AMQP_STATUS_SSL_ERROR;
   }
   return AMQP_STATUS_OK;
+#else
+  return AMQP_STATUS_SSL_UNIMPLEMENTED;
+#endif
 }
 
 static int password_cb(AMQP_UNUSED char *buffer, AMQP_UNUSED int length,
@@ -454,6 +479,7 @@ int amqp_ssl_socket_set_key_buffer(amqp_socket_t *base, const char *cert,
   if (1 != status) {
     goto error;
   }
+  status = AMQP_STATUS_OK;
 exit:
   BIO_vfree(buf);
   RSA_free(rsa);
@@ -511,152 +537,68 @@ void amqp_ssl_socket_set_verify_hostname(amqp_socket_t *base,
   self->verify_hostname = verify;
 }
 
+static int get_tls_version(amqp_tls_version_t ver, int *tls_version) {
+  switch (ver) {
+    case AMQP_TLSv1_2:
+      *tls_version = TLS1_2_VERSION;
+      break;
+    case AMQP_TLSv1_3:
+    case AMQP_TLSvLATEST:
+      *tls_version = TLS1_3_VERSION;
+      break;
+    default:
+      return AMQP_STATUS_UNSUPPORTED;
+  }
+  return AMQP_STATUS_OK;
+}
+
 int amqp_ssl_socket_set_ssl_versions(amqp_socket_t *base,
                                      amqp_tls_version_t min,
                                      amqp_tls_version_t max) {
   struct amqp_ssl_socket_t *self;
+  int min_ver;
+  int max_ver;
+  int status;
   if (base->klass != &amqp_ssl_socket_class) {
     amqp_abort("<%p> is not of type amqp_ssl_socket_t", base);
   }
   self = (struct amqp_ssl_socket_t *)base;
 
-  {
-    long clear_options;
-    long set_options = 0;
-#if defined(SSL_OP_NO_TLSv1_3)
-    amqp_tls_version_t max_supported = AMQP_TLSv1_3;
-    clear_options = SSL_OP_NO_TLSv1 | SSL_OP_NO_TLSv1_1 | SSL_OP_NO_TLSv1_2 |
-                    SSL_OP_NO_TLSv1_3;
-#elif defined(SSL_OP_NO_TLSv1_2)
-    amqp_tls_version_t max_supported = AMQP_TLSv1_2;
-    clear_options = SSL_OP_NO_TLSv1 | SSL_OP_NO_TLSv1_1 | SSL_OP_NO_TLSv1_2;
-#else
-#error "Need a version of OpenSSL that can support TLSv1.2 or greater."
-#endif
+  if (max < min) {
+    return AMQP_STATUS_INVALID_PARAMETER;
+  }
 
-    if (AMQP_TLSvLATEST == max) {
-      max = max_supported;
-    }
-    if (AMQP_TLSvLATEST == min) {
-      min = max_supported;
-    }
+  status = get_tls_version(min, &min_ver);
+  if (status != AMQP_STATUS_OK) {
+    return status;
+  }
 
-    if (min > max) {
-      return AMQP_STATUS_INVALID_PARAMETER;
-    }
+  status = get_tls_version(max, &max_ver);
+  if (status != AMQP_STATUS_OK) {
+    return status;
+  }
 
-    if (max > max_supported || min > max_supported) {
-      return AMQP_STATUS_UNSUPPORTED;
-    }
-
-    if (min > AMQP_TLSv1) {
-      set_options |= SSL_OP_NO_TLSv1;
-    }
-#ifdef SSL_OP_NO_TLSv1_1
-    if (min > AMQP_TLSv1_1 || max < AMQP_TLSv1_1) {
-      set_options |= SSL_OP_NO_TLSv1_1;
-    }
-#endif
-#ifdef SSL_OP_NO_TLSv1_2
-    if (max < AMQP_TLSv1_2) {
-      set_options |= SSL_OP_NO_TLSv1_2;
-    }
-#endif
-#ifdef SSL_OP_NO_TLSv1_3
-    if (max < AMQP_TLSv1_3) {
-      set_options |= SSL_OP_NO_TLSv1_3;
-    }
-#endif
-    SSL_CTX_clear_options(self->ctx, clear_options);
-    SSL_CTX_set_options(self->ctx, set_options);
+  if (!SSL_CTX_set_min_proto_version(self->ctx, min_ver)) {
+    return AMQP_STATUS_INVALID_PARAMETER;
+  }
+  if (!SSL_CTX_set_max_proto_version(self->ctx, max_ver)) {
+    return AMQP_STATUS_INVALID_PARAMETER;
   }
 
   return AMQP_STATUS_OK;
 }
 
 void amqp_set_initialize_ssl_library(amqp_boolean_t do_initialize) {
-  CHECK_SUCCESS(pthread_mutex_lock(&openssl_init_mutex));
-
-  if (openssl_connections == 0 && !openssl_initialized) {
-    do_initialize_openssl = do_initialize;
-  }
-  CHECK_SUCCESS(pthread_mutex_unlock(&openssl_init_mutex));
+  (void)do_initialize;
+  return;
 }
 
-static unsigned long ssl_threadid_callback(void) {
-  return (unsigned long)pthread_self();
-}
-
-static void ssl_locking_callback(int mode, int n, AMQP_UNUSED const char *file,
-                                 AMQP_UNUSED int line) {
-  if (mode & CRYPTO_LOCK) {
-    CHECK_SUCCESS(pthread_mutex_lock(&amqp_openssl_lockarray[n]));
-  } else {
-    CHECK_SUCCESS(pthread_mutex_unlock(&amqp_openssl_lockarray[n]));
-  }
-}
-
-static int setup_openssl(void) {
-  int status;
-
-  int i;
-  amqp_openssl_lockarray = calloc(CRYPTO_num_locks(), sizeof(pthread_mutex_t));
-  if (!amqp_openssl_lockarray) {
-    status = AMQP_STATUS_NO_MEMORY;
-    goto out;
-  }
-  for (i = 0; i < CRYPTO_num_locks(); i++) {
-    if (pthread_mutex_init(&amqp_openssl_lockarray[i], NULL)) {
-      int j;
-      for (j = 0; j < i; j++) {
-        pthread_mutex_destroy(&amqp_openssl_lockarray[j]);
-      }
-      free(amqp_openssl_lockarray);
-      status = AMQP_STATUS_SSL_ERROR;
-      goto out;
-    }
-  }
-  CRYPTO_set_id_callback(ssl_threadid_callback);
-  CRYPTO_set_locking_callback(ssl_locking_callback);
-
-  if (OPENSSL_init_ssl(0, NULL) <= 0) {
-    status = AMQP_STATUS_SSL_ERROR;
-    goto out;
-  }
-  SSL_library_init();
-  SSL_load_error_strings();
-
-  status = AMQP_STATUS_OK;
-out:
-  return status;
-}
-
-int amqp_initialize_ssl_library(void) {
-  int status;
-  CHECK_SUCCESS(pthread_mutex_lock(&openssl_init_mutex));
-
-  if (!openssl_initialized) {
-    status = setup_openssl();
-    if (status) {
-      goto out;
-    }
-    openssl_initialized = 1;
-  }
-
-  status = AMQP_STATUS_OK;
-out:
-  CHECK_SUCCESS(pthread_mutex_unlock(&openssl_init_mutex));
-  return status;
-}
+int amqp_initialize_ssl_library(void) { return AMQP_STATUS_OK; }
 
 int amqp_set_ssl_engine(const char *engine) {
+#ifdef ENABLE_SSL_ENGINE_API
   int status = AMQP_STATUS_OK;
   CHECK_SUCCESS(pthread_mutex_lock(&openssl_init_mutex));
-
-  if (!openssl_initialized) {
-    status = AMQP_STATUS_SSL_ERROR;
-    goto out;
-  }
 
   if (openssl_engine != NULL) {
     ENGINE_free(openssl_engine);
@@ -684,19 +626,14 @@ int amqp_set_ssl_engine(const char *engine) {
 out:
   CHECK_SUCCESS(pthread_mutex_unlock(&openssl_init_mutex));
   return status;
+#else
+  return AMQP_STATUS_SSL_UNIMPLEMENTED;
+#endif
 }
 
-static int initialize_ssl_and_increment_connections() {
+static int initialize_ssl_and_increment_connections(void) {
   int status;
   CHECK_SUCCESS(pthread_mutex_lock(&openssl_init_mutex));
-
-  if (do_initialize_openssl && !openssl_initialized) {
-    status = setup_openssl();
-    if (status) {
-      goto exit;
-    }
-    openssl_initialized = 1;
-  }
 
   if (!openssl_bio_initialized) {
     status = amqp_openssl_bio_init();
@@ -720,50 +657,13 @@ static int decrement_ssl_connections(void) {
     openssl_connections--;
   }
 
+  if (openssl_connections == 0) {
+    amqp_openssl_bio_destroy();
+    openssl_bio_initialized = 0;
+  }
+
   CHECK_SUCCESS(pthread_mutex_unlock(&openssl_init_mutex));
   return AMQP_STATUS_OK;
 }
 
-int amqp_uninitialize_ssl_library(void) {
-  int status;
-  CHECK_SUCCESS(pthread_mutex_lock(&openssl_init_mutex));
-
-  if (openssl_connections > 0) {
-    status = AMQP_STATUS_SOCKET_INUSE;
-    goto out;
-  }
-
-  amqp_openssl_bio_destroy();
-  openssl_bio_initialized = 0;
-
-  CRYPTO_set_locking_callback(NULL);
-  CRYPTO_set_id_callback(NULL);
-  {
-    int i;
-    for (i = 0; i < CRYPTO_num_locks(); i++) {
-      pthread_mutex_destroy(&amqp_openssl_lockarray[i]);
-    }
-    free(amqp_openssl_lockarray);
-  }
-
-  if (openssl_engine != NULL) {
-    ENGINE_free(openssl_engine);
-    openssl_engine = NULL;
-  }
-
-  ENGINE_cleanup();
-  CONF_modules_free();
-  EVP_cleanup();
-  CRYPTO_cleanup_all_ex_data();
-  ERR_free_strings();
-#if (OPENSSL_VERSION_NUMBER >= 0x10002003L) && !defined(LIBRESSL_VERSION_NUMBER)
-  SSL_COMP_free_compression_methods();
-#endif
-
-  openssl_initialized = 0;
-
-  status = AMQP_STATUS_OK;
-out:
-  CHECK_SUCCESS(pthread_mutex_unlock(&openssl_init_mutex));
-  return status;
-}
+int amqp_uninitialize_ssl_library(void) { return AMQP_STATUS_OK; }

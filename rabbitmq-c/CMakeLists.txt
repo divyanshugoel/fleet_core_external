@@ -1,9 +1,10 @@
 # Copyright 2007 - 2021, Alan Antonuk and the rabbitmq-c contributors.
 # SPDX-License-Identifier: mit
 
-cmake_minimum_required(VERSION 3.12...3.18)
-# Commit : a64c08c68aff34d49a2ac152f04988cd921084f9
+cmake_minimum_required(VERSION 3.22...3.26)
+# Commit : 8b7471eab8d09536b3c104dbb30a65699cf48104
 # Origin: https://github.com/alanxz/rabbitmq-c
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 # Follow all steps below in order to calculate new ABI version when updating the library
@@ -14,9 +15,15 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 # 3. If any interfaces have been added since the last public release, then increment age.
 # 4. If any interfaces have been removed since the last public release, then set age to 0.
 
-set(RMQ_SOVERSION_CURRENT   9)
-set(RMQ_SOVERSION_REVISION  1)
-set(RMQ_SOVERSION_AGE       5)
+set(RMQ_SOVERSION_CURRENT   11)
+set(RMQ_SOVERSION_REVISION  0)
+set(RMQ_SOVERSION_AGE       7)
+
+if (MSVC)
+  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+else()
+  add_definitions(-Wno-deprecated-declarations)
+endif()
 
 include(VersionFunctions)
 get_library_version(RMQ_VERSION)
@@ -35,13 +42,6 @@ set(CMAKE_C_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 
 set(default_build_type "Release")
-
-if (MSVC)
-  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-else()
-  add_definitions(-Wno-deprecated-declarations)
-endif()
-
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   message(STATUS "Setting build type to '${default_build_type}' as none was specified.")
   set(CMAKE_BUILD_TYPE "${default_build_type}" CACHE STRING "Choose the type of build." FORCE)
@@ -50,6 +50,7 @@ endif()
 
 include(CheckSymbolExists)
 include(CheckLibraryExists)
+include(CMakeDependentOption)
 include(CMakePushCheckState)
 include(GNUInstallDirs)
 
@@ -121,28 +122,42 @@ endif()
 option(ENABLE_SSL_SUPPORT "Enable SSL support" ON)
 
 if (ENABLE_SSL_SUPPORT)
-  find_package(OpenSSL 1.1.1 REQUIRED)
+  # Manually check OpenSSL version because BoringSSL doesn't support version checking via find_package
+  set(RMQ_OPENSSL_MIN_VERSION 1.1.1)
+  find_package(OpenSSL REQUIRED)
+  if(OPENSSL_VERSION) # Will be empty for BoringSSL
+    if(OPENSSL_VERSION VERSION_LESS RMQ_OPENSSL_MIN_VERSION)
+      MESSAGE(FATAL_ERROR "Found OpenSSL version ${OPENSSL_VERSION} but ${RMQ_OPENSSL_MIN_VERSION} or later is required")
+    endif()
+  endif()
 
   cmake_push_check_state()
   set(THREADS_PREFER_PTHREAD_FLAG ON)
   find_package(Threads REQUIRED)
   cmake_pop_check_state()
+
+  cmake_push_check_state()
+  set(CMAKE_REQUIRED_LIBRARIES OpenSSL::SSL)
+  check_symbol_exists(ENGINE_new openssl/engine.h HAS_OPENSSL_ENGINE)
+  cmake_pop_check_state()
+
+  cmake_dependent_option(ENABLE_SSL_ENGINE_API "Enable support for deprecated OpenSSL ENGINE feature" ON "HAS_OPENSSL_ENGINE" OFF)
 endif()
 
-if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+if(PROJECT_IS_TOP_LEVEL)
   include(CTest)
 endif()
 
-include(CMakeDependentOption)
-
 option(BUILD_SHARED_LIBS "Build rabbitmq-c as a shared library" ON)
 option(BUILD_STATIC_LIBS "Build rabbitmq-c as a static library" ON)
+option(INSTALL_STATIC_LIBS "Install rabbitmq-c static library" ON)
 
 option(BUILD_EXAMPLES "Build Examples" OFF)
 option(BUILD_TOOLS "Build Tools (requires POPT Library)" OFF)
 cmake_dependent_option(BUILD_TOOLS_DOCS "Build man pages for tools (requires xmlto)" OFF "BUILD_TOOLS" OFF)
 option(BUILD_API_DOCS "Build Doxygen API docs" OFF)
 option(RUN_SYSTEM_TESTS "Run system tests (i.e. tests requiring an accessible RabbitMQ server instance on localhost)" OFF)
+option(BUILD_OSSFUZZ "Build OSSFUZZ" OFF)
 
 if (NOT BUILD_SHARED_LIBS AND NOT BUILD_STATIC_LIBS)
     message(FATAL_ERROR "One or both of BUILD_SHARED_LIBS or BUILD_STATIC_LIBS must be set to ON to build")
@@ -167,13 +182,20 @@ if(BUILD_TOOLS)
   add_subdirectory(tools)
 endif()
 
-if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
+if(PROJECT_IS_TOP_LEVEL AND BUILD_TESTING)
   if (NOT BUILD_STATIC_LIBS)
     message(FATAL_ERROR
       "Tests can only be built against static libraries "
       "(set BUILD_STATIC_LIBS=ON)")
   endif ()
   add_subdirectory(tests)
+endif ()
+
+if(BUILD_OSSFUZZ)
+  if (NOT BUILD_STATIC_LIBS)
+    message(FATAL_ERROR "OSS-FUZZ can only be built against static libraries " "(set BUILD_STATIC_LIBS=ON)")
+  endif ()
+  add_subdirectory(fuzz)
 endif ()
 
 if (BUILD_API_DOCS)
@@ -200,8 +222,8 @@ endif()
 
 set(prefix ${CMAKE_INSTALL_PREFIX})
 set(exec_prefix "\${prefix}")
-set(libdir "\${exec_prefix}/${CMAKE_INSTALL_LIBDIR}")
-set(includedir "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
+cmake_path(APPEND libdir "\${exec_prefix}" "${CMAKE_INSTALL_LIBDIR}")
+cmake_path(APPEND includedir "\${prefix}" "${CMAKE_INSTALL_INCLUDEDIR}")
 
 configure_file(cmake/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/librabbitmq/config.h)
 configure_file(librabbitmq.pc.in ${CMAKE_CURRENT_BINARY_DIR}/librabbitmq.pc @ONLY)
@@ -214,7 +236,7 @@ set(version_config "${CMAKE_CURRENT_BINARY_DIR}/rabbitmq-c-config-version.cmake"
 write_basic_package_version_file(
     "${version_config}"
     VERSION ${RMQ_VERSION}
-    COMPATIBILITY AnyNewerVersion)
+    COMPATIBILITY SameMajorVersion)
 
 configure_package_config_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/rabbitmq-c-config.cmake.in"
@@ -225,7 +247,7 @@ configure_package_config_file(
 if(BUILD_SHARED_LIBS)
     list(APPEND INSTALL_TARGETS rabbitmq)
 endif()
-if(BUILD_STATIC_LIBS)
+if(BUILD_STATIC_LIBS AND INSTALL_STATIC_LIBS)
     list(APPEND INSTALL_TARGETS rabbitmq-static)
 endif()
 
