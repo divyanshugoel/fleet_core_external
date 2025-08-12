@@ -4,6 +4,8 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 
 #include "imgui_neo_sequencer.h"
+#include "imgui_internal.h"
+#include "imgui_neo_internal.h"
 
 #include <unordered_map>
 
@@ -328,7 +330,7 @@ namespace ImGui
 
     static ImGuiID getKeyframeID(int32_t* frame)
     {
-        return GetCurrentWindow()->GetID(frame);
+        return GetCurrentWindow()->GetID(*frame);
     }
 
     static bool createKeyframe(int32_t* frame)
