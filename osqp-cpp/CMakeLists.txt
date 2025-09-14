@@ -49,7 +49,7 @@ else()
 endif()
 
 # OSQP
-if (NOT TARGET osqpstatic)
+if (NOT TARGET osqp::osqpstatic)
   message(STATUS "osqp-cpp: `osqp` targets not found. Attempting to fetch contents...")
   FetchContent_Declare(
     osqp
@@ -81,7 +81,7 @@ endif()
 
 message(STATUS "osqp-cpp: Adding osqp-cpp library...")
 add_library(osqp-cpp src/osqp++.cc)
-target_link_libraries(osqp-cpp PUBLIC absl::strings absl::status absl::statusor Eigen3::Eigen PRIVATE osqpstatic ${CMAKE_DL_LIBS})
+target_link_libraries(osqp-cpp PUBLIC absl::strings absl::status absl::statusor Eigen3::Eigen PRIVATE osqp::osqpstatic ${CMAKE_DL_LIBS})
 target_include_directories(osqp-cpp PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>")
 message(STATUS "osqp-cpp: Added osqp-cpp library.")
 
