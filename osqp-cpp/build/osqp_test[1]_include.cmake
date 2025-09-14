@@ -1,0 +1,5 @@
+if(EXISTS "/home/munish/dev_zippy/profile/external/osqp-cpp/build/osqp_test[1]_tests.cmake")
+  include("/home/munish/dev_zippy/profile/external/osqp-cpp/build/osqp_test[1]_tests.cmake")
+else()
+  add_test(osqp_test_NOT_BUILT osqp_test_NOT_BUILT)
+endif()
