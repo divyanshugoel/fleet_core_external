@@ -94,3 +94,18 @@ message(STATUS "osqp-cpp: Added osqp-cpp library.")
 #   message(STATUS "osqp-cpp: Added osqp-cpp tests.")
 # endif()
 
+
+######################################################
+# INSTALL
+
+INSTALL(TARGETS osqp-cpp
+    EXPORT osqp-cppTargets
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_RPATH}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_RPATH}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_RPATH}
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDE_PATH}
+    )
+
+INSTALL( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
+    DESTINATION ${CMAKE_INSTALL_INCLUDE_PATH}
+    FILES_MATCHING PATTERN "*.h*")
