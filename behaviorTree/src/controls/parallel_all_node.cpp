@@ -78,7 +78,7 @@ NodeStatus ParallelAllNode::tick()
       break;
 
       case NodeStatus::E_IDLE: {
-        throw LogicError("[", name(), "]: A children should not return E_IDLE");
+        throw LogicError("[", name(), "]: A children should not return IDLE");
       }
     }
   }

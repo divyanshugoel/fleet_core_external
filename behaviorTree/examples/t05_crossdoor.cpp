@@ -56,7 +56,7 @@ int main()
   // helper function to print the tree
   BT::printTreeRecursively(tree.rootNode());
 
-  // Tick multiple times, until either E_FAILURE of E_SUCCESS is returned
+  // Tick multiple times, until either FAILURE of SUCCESS is returned
   tree.tickWhileRunning();
 
   return 0;

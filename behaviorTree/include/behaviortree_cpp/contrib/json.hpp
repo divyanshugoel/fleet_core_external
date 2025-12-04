@@ -4155,9 +4155,9 @@ inline constexpr bool value_in_range_of(T val)
 template<bool Value>
 using bool_constant = std::integral_constant<bool, Value>;
 
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // is_c_string
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 namespace impl
 {
@@ -4183,9 +4183,9 @@ struct is_c_string : bool_constant<impl::is_c_string<T>()> {};
 template<typename T>
 using is_c_string_uncvref = is_c_string<uncvref_t<T>>;
 
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // is_transparent
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 namespace impl
 {
@@ -4202,7 +4202,7 @@ inline constexpr bool is_transparent()
 template<typename T>
 struct is_transparent : bool_constant<impl::is_transparent<T>()> {};
 
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 }  // namespace detail
 NLOHMANN_JSON_NAMESPACE_END
@@ -15239,11 +15239,7 @@ class binary_writer
 
             case value_t::number_float:
             {
-                #ifdef WIN32
-                if (isnan(j.m_data.m_value.number_float))
-                #else
                 if (std::isnan(j.m_data.m_value.number_float))
-                #endif
                 {
                     // NaN is 0xf97e00 in CBOR
                     oa->write_character(to_char_type(0xF9));
@@ -22962,13 +22958,8 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     // an operation is computed as an odd number of inverses of others
     static bool compares_unordered(const_reference lhs, const_reference rhs, bool inverse = false) noexcept
     {
-        #ifdef WIN32
-        if ((lhs.is_number_float() && isnan(lhs.m_data.m_value.number_float) && rhs.is_number())
-                || (rhs.is_number_float() && isnan(rhs.m_data.m_value.number_float) && lhs.is_number()))
-        #else
         if ((lhs.is_number_float() && std::isnan(lhs.m_data.m_value.number_float) && rhs.is_number())
                 || (rhs.is_number_float() && std::isnan(rhs.m_data.m_value.number_float) && lhs.is_number()))
-        #endif
         {
             return true;
         }

@@ -1,10 +1,10 @@
 namespace Serialization;
 
 enum NodeStatus : byte {
-    E_IDLE = 0,
-    E_RUNNING,
-    E_SUCCESS,
-    E_FAILURE
+    IDLE = 0,
+    RUNNING,
+    SUCCESS,
+    FAILURE
 }
 
 enum NodeType : byte {

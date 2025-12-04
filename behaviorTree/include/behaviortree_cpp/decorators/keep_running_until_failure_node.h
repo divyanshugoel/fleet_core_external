@@ -18,7 +18,7 @@
 namespace BT
 {
 /**
- * @brief The KeepRunningUntilFailureNode returns always E_FAILURE or E_RUNNING.
+ * @brief The KeepRunningUntilFailureNode returns always FAILURE or RUNNING.
  */
 class KeepRunningUntilFailureNode : public DecoratorNode
 {

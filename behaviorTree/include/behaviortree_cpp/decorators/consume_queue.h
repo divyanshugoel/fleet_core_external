@@ -23,7 +23,7 @@ namespace BT
  * At each iteration, an item of type T is popped from the "queue" and
  * inserted in "popped_item".
  *
- * An empty queue will return E_SUCCESS
+ * An empty queue will return SUCCESS
  */
 
 template <typename T>
@@ -37,7 +37,7 @@ public:
 
   NodeStatus tick() override
   {
-    // by default, return E_SUCCESS, even if queue is empty
+    // by default, return SUCCESS, even if queue is empty
     NodeStatus status_to_be_returned = NodeStatus::E_SUCCESS;
 
     if(running_child_)

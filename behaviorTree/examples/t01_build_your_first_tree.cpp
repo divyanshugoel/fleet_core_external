@@ -82,7 +82,7 @@ int main()
   // To "execute" a Tree you need to "tick" it.
   // The tick is propagated to the children based on the logic of the tree.
   // In this case, the entire sequence is executed, because all the children
-  // of the Sequence return E_SUCCESS.
+  // of the Sequence return SUCCESS.
   tree.tickWhileRunning();
 
   return 0;

@@ -67,12 +67,14 @@ NodeStatus RetryNode::tick()
 
       case NodeStatus::E_FAILURE: {
         try_count_++;
+        // Refresh max_attempts_ in case it changed in one of the child nodes
+        getInput(NUM_ATTEMPTS, max_attempts_);
         do_loop = try_count_ < max_attempts_ || max_attempts_ == -1;
 
         resetChild();
 
         // Return the execution flow if the child is async,
-        // to make this interruptable.
+        // to make this interruptible.
         if(requiresWakeUp() && prev_status == NodeStatus::E_IDLE && do_loop)
         {
           emitWakeUpSignal();
@@ -93,7 +95,7 @@ NodeStatus RetryNode::tick()
       }
 
       case NodeStatus::E_IDLE: {
-        throw LogicError("[", name(), "]: A children should not return E_IDLE");
+        throw LogicError("[", name(), "]: A children should not return IDLE");
       }
     }
   }

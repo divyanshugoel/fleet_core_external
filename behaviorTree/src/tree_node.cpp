@@ -106,19 +106,13 @@ NodeStatus TreeNode::executeTick()
     if(!substituted)
     {
       using namespace std::chrono;
-
-      auto t1 = steady_clock::now();
-      // trick to prevent the compile from reordering the order of execution. See #861
-      // This makes sure that the code is executed at the end of this scope
-      std::shared_ptr<void> execute_later(nullptr, [&](...) {
-        auto t2 = steady_clock::now();
-        if(monitor_tick)
-        {
-          monitor_tick(*this, new_status, duration_cast<microseconds>(t2 - t1));
-        }
-      });
-
+      const auto t1 = steady_clock::now();
       new_status = tick();
+      const auto t2 = steady_clock::now();
+      if(monitor_tick)
+      {
+        monitor_tick(*this, new_status, duration_cast<microseconds>(t2 - t1));
+      }
     }
   }
 
@@ -137,7 +131,7 @@ NodeStatus TreeNode::executeTick()
     }
   }
 
-  // preserve the E_IDLE state if skipped, but communicate E_SKIPPED to parent
+  // preserve the IDLE state if skipped, but communicate SKIPPED to parent
   if(new_status != NodeStatus::E_SKIPPED)
   {
     setStatus(new_status);
@@ -162,7 +156,7 @@ void TreeNode::setStatus(NodeStatus new_status)
   if(new_status == NodeStatus::E_IDLE)
   {
     throw RuntimeError("Node [", name(),
-                       "]: you are not allowed to set manually the status to E_IDLE. "
+                       "]: you are not allowed to set manually the status to IDLE. "
                        "If you know what you are doing (?) use resetStatus() instead.");
   }
 
@@ -205,7 +199,7 @@ Expected<NodeStatus> TreeNode::checkPreConditions()
 
     const PreCond preID = PreCond(index);
 
-    // Some preconditions are applied only when the node state is E_IDLE or E_SKIPPED
+    // Some preconditions are applied only when the node state is IDLE or SKIPPED
     if(_p->status == NodeStatus::E_IDLE || _p->status == NodeStatus::E_SKIPPED)
     {
       // what to do if the condition is true
@@ -464,39 +458,23 @@ void TreeNode::modifyPortsRemapping(const PortsRemapping& new_remapping)
 }
 
 template <>
-std::string toStr<PreCond>(const PreCond& pre)
+std::string toStr<PreCond>(const PreCond& cond)
 {
-  switch(pre)
+  if(cond < PreCond::COUNT_)
   {
-    case PreCond::SUCCESS_IF:
-      return "_successIf";
-    case PreCond::FAILURE_IF:
-      return "_failureIf";
-    case PreCond::SKIP_IF:
-      return "_skipIf";
-    case PreCond::WHILE_TRUE:
-      return "_while";
-    default:
-      return "Undefined";
+    return BT::PreCondNames[static_cast<size_t>(cond)];
   }
+  return "Undefined";
 }
 
 template <>
-std::string toStr<PostCond>(const PostCond& pre)
+std::string toStr<PostCond>(const PostCond& cond)
 {
-  switch(pre)
+  if(cond < BT::PostCond::COUNT_)
   {
-    case PostCond::ON_SUCCESS:
-      return "_onSuccess";
-    case PostCond::ON_FAILURE:
-      return "_onFailure";
-    case PostCond::ALWAYS:
-      return "_post";
-    case PostCond::ON_HALTED:
-      return "_onHalted";
-    default:
-      return "Undefined";
+    return BT::PostCondNames[static_cast<size_t>(cond)];
   }
+  return "Undefined";
 }
 
 AnyPtrLocked BT::TreeNode::getLockedPortContent(const std::string& key)

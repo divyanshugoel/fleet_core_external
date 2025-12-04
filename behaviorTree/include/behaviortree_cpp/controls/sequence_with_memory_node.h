@@ -19,14 +19,14 @@ namespace BT
 {
 /**
  * @brief The SequenceWithMemory is used to tick children in an ordered sequence.
- * If any child returns E_RUNNING, previous children are not ticked again.
+ * If any child returns RUNNING, previous children are not ticked again.
  *
- * - If all the children return E_SUCCESS, this node returns E_SUCCESS.
+ * - If all the children return SUCCESS, this node returns SUCCESS.
  *
- * - If a child returns E_RUNNING, this node returns E_RUNNING.
+ * - If a child returns RUNNING, this node returns RUNNING.
  *   Loop is NOT restarted, the same running child will be ticked again.
  *
- * - If a child returns E_FAILURE, stop the loop and return E_FAILURE.
+ * - If a child returns FAILURE, stop the loop and return FAILURE.
  *   Loop is NOT restarted, the same running child will be ticked again.
  *
  */

@@ -27,7 +27,7 @@ using SimpleString = SafeAny::SimpleString;
 
 using expr_ptr = std::shared_ptr<struct ExprBase>;
 
-// extended strin to number that consider enums and booleans
+// extended string to number that consider enums and booleans
 inline double StringToDouble(const Any& value, const Environment& env)
 {
   const auto str = value.cast<std::string>();
@@ -129,6 +129,11 @@ struct ExprUnaryArithmetic : ExprBase
         case negate:
           return Any(-rv);
         case complement:
+          if(rv > static_cast<double>(std::numeric_limits<int64_t>::max()) ||
+             rv < static_cast<double>(std::numeric_limits<int64_t>::min()))
+          {
+            throw RuntimeError("Number out of range for bitwise operation");
+          }
           return Any(static_cast<double>(~static_cast<int64_t>(rv)));
         case logical_not:
           return Any(static_cast<double>(!static_cast<bool>(rv)));
@@ -796,9 +801,9 @@ struct Expression : lexy::expression_production
                                dsl::op<Ast::ExprComparison::greater_equal>(LEXY_LIT(">"
                                                                                     "="));
 
-    // The use of dsl::groups ensures that an expression can either contain math or bit
+    // The use of dsl::groups ensures that an expression can either contain math or bit or string
     // operators. Mixing requires parenthesis.
-    using operand = dsl::groups<math_sum, bit_or>;
+    using operand = dsl::groups<math_sum, bit_or, string_concat>;
   };
 
   // Logical operators,  || and &&
@@ -808,7 +813,7 @@ struct Expression : lexy::expression_production
         dsl::op<Ast::ExprBinaryArithmetic::logic_or>(LEXY_LIT("||")) /
         dsl::op<Ast::ExprBinaryArithmetic::logic_and>(LEXY_LIT("&&"));
 
-    using operand = dsl::groups<string_concat, comparison>;
+    using operand = comparison;
   };
 
   // x ? y : z

@@ -68,8 +68,8 @@ public:
   // this function is invoked once at the beginning.
   BT::NodeStatus onStart() override;
 
-  // If onStart() returned E_RUNNING, we will keep calling
-  // this method until it return something different from E_RUNNING
+  // If onStart() returned RUNNING, we will keep calling
+  // this method until it return something different from RUNNING
   BT::NodeStatus onRunning() override;
 
   // callback to execute if the action was aborted by another node

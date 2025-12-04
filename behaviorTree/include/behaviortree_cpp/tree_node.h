@@ -41,6 +41,7 @@ struct TreeNodeManifest
 };
 
 using PortsRemapping = std::unordered_map<std::string, std::string>;
+using NonPortAttributes = std::unordered_map<std::string, std::string>;
 
 enum class PreCond
 {
@@ -50,6 +51,10 @@ enum class PreCond
   SKIP_IF,
   WHILE_TRUE,
   COUNT_
+};
+
+static const std::array<std::string, 4> PreCondNames = {  //
+  "_failureIf", "_successIf", "_skipIf", "_while"
 };
 
 enum class PostCond
@@ -62,11 +67,15 @@ enum class PostCond
   COUNT_
 };
 
-template <>
-[[nodiscard]] std::string toStr<BT::PostCond>(const BT::PostCond& status);
+static const std::array<std::string, 4> PostCondNames = {  //
+  "_onHalted", "_onFailure", "_onSuccess", "_post"
+};
 
 template <>
-[[nodiscard]] std::string toStr<BT::PreCond>(const BT::PreCond& status);
+[[nodiscard]] std::string toStr<BT::PostCond>(const BT::PostCond& cond);
+
+template <>
+[[nodiscard]] std::string toStr<BT::PreCond>(const BT::PreCond& cond);
 
 using ScriptingEnumsRegistry = std::unordered_map<std::string, int>;
 
@@ -84,9 +93,13 @@ struct NodeConfig
   // output ports
   PortsRemapping output_ports;
 
+  // Any other attributes found in the xml that are not parsed as ports
+  // or built-in identifier (e.g. anything with a leading '_')
+  NonPortAttributes other_attributes;
+
   const TreeNodeManifest* manifest = nullptr;
 
-  // Numberic unique identifier
+  // Numeric unique identifier
   uint16_t uid = 0;
   // Unique human-readable name, that encapsulate the subtree
   // hierarchy, for instance, given 2 nested trees, it should be:
@@ -153,7 +166,7 @@ public:
   [[nodiscard]] const std::string& name() const;
 
   /// Blocking function that will sleep until the setStatus() is called with
-  /// either E_RUNNING, E_FAILURE or E_SUCCESS.
+  /// either RUNNING, FAILURE or SUCCESS.
   [[nodiscard]] BT::NodeStatus waitValidStatus();
 
   virtual NodeType type() const = 0;
@@ -183,7 +196,7 @@ public:
      *
      *     NodeStatus callback(TreeNode& node)
      *
-     * This callback is executed BEFORE the tick() and, if it returns E_SUCCESS or E_FAILURE,
+     * This callback is executed BEFORE the tick() and, if it returns SUCCESS or FAILURE,
      * the actual tick() will NOT be executed and this result will be returned instead.
      *
      * This is useful to inject a "dummy" implementation of the TreeNode at run-time
@@ -195,8 +208,8 @@ public:
    *
    *     NodeStatus myCallback(TreeNode& node, NodeStatus status)
    *
-   * This callback is executed AFTER the tick() and, if it returns E_SUCCESS or E_FAILURE,
-   * the value returned by the actual tick() is overriden with this one.
+   * This callback is executed AFTER the tick() and, if it returns SUCCESS or FAILURE,
+   * the value returned by the actual tick() is overridden with this one.
    */
   void setPostTickFunction(PostTickCallback callback);
 
@@ -238,7 +251,7 @@ public:
 
   /**
    * @brief getInputStamped is similar to getInput(dey, destination),
-   * but it returne also the Timestamp object, that can be used to check if
+   * but it returns also the Timestamp object, that can be used to check if
    * a value was updated and when.
    *
    * @param key   the name of the port.
@@ -285,7 +298,7 @@ public:
    * @brief setOutput modifies the content of an Output port
    * @param key    the name of the port.
    * @param value  new value
-   * @return       valid Result, if succesful.
+   * @return       valid Result, if successful.
    */
   template <typename T>
   Result setOutput(const std::string& key, const T& value);
@@ -374,7 +387,7 @@ protected:
   /// Method to be implemented by the user
   virtual BT::NodeStatus tick() = 0;
 
-  /// Set the status to E_IDLE
+  /// Set the status to IDLE
   void resetStatus();
 
   // Only BehaviorTreeFactory should call this
@@ -386,7 +399,7 @@ protected:
 
   /**
      * @brief setStatus changes the status of the node.
-     * it will throw if you try to change the status to E_IDLE, because
+     * it will throw if you try to change the status to IDLE, because
      * your parent node should do that, not the user!
      */
   void setStatus(NodeStatus new_status);
@@ -407,8 +420,8 @@ private:
   Expected<NodeStatus> checkPreConditions();
   void checkPostConditions(NodeStatus status);
 
-  /// The method used to interrupt the execution of a E_RUNNING node.
-  /// Only Async nodes that may return E_RUNNING should implement it.
+  /// The method used to interrupt the execution of a RUNNING node.
+  /// Only Async nodes that may return RUNNING should implement it.
   virtual void halt() = 0;
 };
 
@@ -585,7 +598,8 @@ inline Result TreeNode::setOutput(const std::string& key, const T& value)
 
   if constexpr(std::is_same_v<BT::Any, T>)
   {
-    if(config().manifest->ports.at(key).type() != typeid(BT::Any))
+    auto port_type = config().manifest->ports.at(key).type();
+    if(port_type != typeid(BT::Any) && port_type != typeid(BT::AnyTypeAllowed))
     {
       throw LogicError("setOutput<Any> is not allowed, unless the port "
                        "was declared using OutputPort<Any>");

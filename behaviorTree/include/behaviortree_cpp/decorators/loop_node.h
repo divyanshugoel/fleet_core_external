@@ -60,11 +60,12 @@ public:
       // special case: the port contains a string that was converted to SharedQueue<T>
       if(static_queue_)
       {
-        current_queue_ = static_queue_;
+        current_queue_ = std::make_shared<std::deque<T>>();
+        *current_queue_ = *static_queue_;
       }
     }
 
-    // Pop value from queue, if the child is not E_RUNNING
+    // Pop value from queue, if the child is not RUNNING
     if(!child_running_)
     {
       // if the port is static, any_ref is empty, otherwise it will keep access to
@@ -116,7 +117,7 @@ public:
     return { BidirectionalPort<SharedQueue<T>>("queue"),
              InputPort<NodeStatus>("if_empty", NodeStatus::E_SUCCESS,
                                    "Status to return if queue is empty: "
-                                   "E_SUCCESS, E_FAILURE, E_SKIPPED"),
+                                   "SUCCESS, FAILURE, SKIPPED"),
              OutputPort<T>("value") };
   }
 };

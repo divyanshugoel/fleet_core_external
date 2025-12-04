@@ -64,7 +64,7 @@ int main()
   // xml_text_sequence and xml_text_reactive.
 
   // The main difference that you should notice is:
-  //  1) When Sequence is used, the ConditionNode is executed only __once__ because it returns E_SUCCESS.
+  //  1) When Sequence is used, the ConditionNode is executed only __once__ because it returns SUCCESS.
   //  2) When ReactiveSequence is used, BatteryOK is executed at __each__ tick()
 
   for(auto& xml_text : { xml_text_sequence, xml_text_reactive })
@@ -75,7 +75,7 @@ int main()
 
     NodeStatus status = NodeStatus::E_IDLE;
 #if 0
-    // Tick the root until we receive either E_SUCCESS or E_RUNNING
+    // Tick the root until we receive either SUCCESS or RUNNING
     // same as: tree.tickRoot(Tree::WHILE_RUNNING)
     std::cout << "--- ticking\n";
     status = tree.tickWhileRunning();

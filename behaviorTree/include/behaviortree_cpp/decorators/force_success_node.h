@@ -17,7 +17,7 @@
 namespace BT
 {
 /**
- * @brief The ForceSuccessNode returns always E_SUCCESS or E_RUNNING.
+ * @brief The ForceSuccessNode returns always SUCCESS or RUNNING.
  */
 class ForceSuccessNode : public DecoratorNode
 {
@@ -45,7 +45,7 @@ inline NodeStatus ForceSuccessNode::tick()
     return NodeStatus::E_SUCCESS;
   }
 
-  // E_RUNNING or skipping
+  // RUNNING or skipping
   return child_status;
 }
 }  // namespace BT

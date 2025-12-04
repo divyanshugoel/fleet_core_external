@@ -20,10 +20,10 @@ namespace BT
 {
 /**
  * @brief The TimeoutNode will halt() a running child if
- * the latter has been E_RUNNING longer than a given time.
+ * the latter has been RUNNING longer than a given time.
  * The timeout is in milliseconds and it is passed using the port "msec".
  *
- * If timeout is reached, the node returns E_FAILURE.
+ * If timeout is reached, the node returns FAILURE.
  *
  * Example:
  *

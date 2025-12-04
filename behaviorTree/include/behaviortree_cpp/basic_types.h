@@ -29,7 +29,7 @@ enum class NodeType
 
 /// Enumerates the states every node can be in after execution during a particular
 /// time step.
-/// IMPORTANT: Your custom nodes should NEVER return E_IDLE.
+/// IMPORTANT: Your custom nodes should NEVER return IDLE.
 enum class NodeStatus
 {
   E_IDLE = 0,
@@ -182,6 +182,10 @@ template <>
 // Real numbers separated by the character ";"
 template <>
 [[nodiscard]] std::vector<double> convertFromString<std::vector<double>>(StringView str);
+
+// Boolean values separated by the character ";"
+template <>
+[[nodiscard]] std::vector<bool> convertFromString<std::vector<bool>>(StringView str);
 
 // Strings separated by the character ";"
 template <>
@@ -341,6 +345,8 @@ struct Timestamp
 };
 
 [[nodiscard]] bool IsAllowedPortName(StringView str);
+
+[[nodiscard]] bool IsReservedAttribute(StringView str);
 
 class TypeInfo
 {

@@ -1,7 +1,7 @@
 # Copyright (C) 2020-2024 Jonathan Müller and lexy contributors
 # SPDX-License-Identifier: BSL-1.0
 
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.8)
 project(lexy VERSION 2022.12.1 LANGUAGES CXX)
 
 set(LEXY_USER_CONFIG_HEADER "" CACHE FILEPATH "The user config header for lexy.")
@@ -9,7 +9,7 @@ option(LEXY_FORCE_CPP17     "Whether or not lexy should use C++17 even if compil
 
 add_subdirectory(src)
 
-option(LEXY_ENABLE_INSTALL   "whether or not to enable the install rule" ON)
+option(LEXY_ENABLE_INSTALL   "whether or not to enable the install rule" OFF)
 if(LEXY_ENABLE_INSTALL)
     include(CMakePackageConfigHelpers)
     include(GNUInstallDirs)

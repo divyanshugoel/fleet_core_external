@@ -23,7 +23,7 @@ namespace BT
  * child returning the status of the child as it is upon completion
  * The delay is in milliseconds and it is passed using the port "delay_msec".
  *
- * During the delay the node changes status to E_RUNNING
+ * During the delay the node changes status to RUNNING
  *
  * Example:
  *

@@ -55,8 +55,8 @@ public:
     return NodeType::CONTROL;
   }
 
-  /// Set the status of all children to E_IDLE.
-  /// also send a halt() signal to all E_RUNNING children
+  /// Set the status of all children to IDLE.
+  /// also send a halt() signal to all RUNNING children
   void resetChildren();
 };
 }  // namespace BT

@@ -18,9 +18,9 @@
 namespace BT
 {
 /**
- * @brief The InverterNode returns E_SUCCESS if child fails
- * of E_FAILURE is child succeeds.
- * E_RUNNING status is propagated
+ * @brief The InverterNode returns SUCCESS if child fails
+ * of FAILURE is child succeeds.
+ * RUNNING status is propagated
  */
 class InverterNode : public DecoratorNode
 {

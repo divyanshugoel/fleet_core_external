@@ -27,18 +27,18 @@ public:
 
   struct NodeStatistics
   {
-    // Last __valid__ result, either E_SUCCESS or E_FAILURE
+    // Last __valid__ result, either SUCCESS or FAILURE
     NodeStatus last_result = NodeStatus::E_IDLE;
-    // Last status. Can be any status, including E_IDLE or E_SKIPPED
+    // Last status. Can be any status, including IDLE or SKIPPED
     NodeStatus current_status = NodeStatus::E_IDLE;
 
-    // count status transitions, excluding transition to E_IDLE
+    // count status transitions, excluding transition to IDLE
     unsigned transitions_count = 0;
-    // count number of transitions to E_SUCCESS
+    // count number of transitions to SUCCESS
     unsigned success_count = 0;
-    // count number of transitions to E_FAILURE
+    // count number of transitions to FAILURE
     unsigned failure_count = 0;
-    // count number of transitions to E_SKIPPED
+    // count number of transitions to SKIPPED
     unsigned skip_count = 0;
 
     Duration last_timestamp = {};

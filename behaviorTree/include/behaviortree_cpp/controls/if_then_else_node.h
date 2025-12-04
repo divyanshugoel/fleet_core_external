@@ -21,12 +21,12 @@ namespace BT
  *
  * The first child is the "statement" of the if.
  *
- * If that return E_SUCCESS, then the second child is executed.
+ * If that return SUCCESS, then the second child is executed.
  *
- * Instead, if it returned E_FAILURE, the third child is executed.
+ * Instead, if it returned FAILURE, the third child is executed.
  *
- * If you have only 2 children, this node will return E_FAILURE whenever the
- * statement returns E_FAILURE.
+ * If you have only 2 children, this node will return FAILURE whenever the
+ * statement returns FAILURE.
  *
  * This is equivalent to add AlwaysFailure as 3rd child.
  *

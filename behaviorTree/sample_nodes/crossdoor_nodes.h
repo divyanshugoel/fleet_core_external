@@ -9,16 +9,16 @@ public:
 
   void reset();
 
-  // E_SUCCESS if _door_open == true
+  // SUCCESS if _door_open == true
   BT::NodeStatus isDoorClosed();
 
-  // E_SUCCESS if _door_open == true
+  // SUCCESS if _door_open == true
   BT::NodeStatus passThroughDoor();
 
   // After 3 attempts, will open a locked door
   BT::NodeStatus pickLock();
 
-  // E_FAILURE if door locked
+  // FAILURE if door locked
   BT::NodeStatus openDoor();
 
   // WILL always open a door

@@ -20,7 +20,7 @@ namespace BT
 {
 /**
  * @brief Execute a script, and if the result is true, return
- * E_SUCCESS, E_FAILURE otherwise.
+ * SUCCESS, FAILURE otherwise.
  */
 class ScriptCondition : public ConditionNode
 {

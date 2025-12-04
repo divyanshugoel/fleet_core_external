@@ -36,14 +36,14 @@ NodeStatus ReactiveFallback::tick()
     TreeNode* current_child_node = children_nodes_[index];
     const NodeStatus child_status = current_child_node->executeTick();
 
-    // switch to E_RUNNING state as soon as you find an active child
+    // switch to RUNNING state as soon as you find an active child
     all_skipped &= (child_status == NodeStatus::E_SKIPPED);
 
     switch(child_status)
     {
       case NodeStatus::E_RUNNING: {
         // reset the previous children, to make sure that they are
-        // in E_IDLE state the next time we tick them
+        // in IDLE state the next time we tick them
         for(size_t i = 0; i < childrenCount(); i++)
         {
           if(i != index)
@@ -57,7 +57,7 @@ NodeStatus ReactiveFallback::tick()
         }
         else if(throw_if_multiple_running && running_child_ != int(index))
         {
-          throw LogicError("[ReactiveFallback]: only a single child can return E_RUNNING.\n"
+          throw LogicError("[ReactiveFallback]: only a single child can return RUNNING.\n"
                            "This throw can be disabled with "
                            "ReactiveFallback::EnableException(false)");
         }
@@ -79,7 +79,7 @@ NodeStatus ReactiveFallback::tick()
       break;
 
       case NodeStatus::E_IDLE: {
-        throw LogicError("[", name(), "]: A children should not return E_IDLE");
+        throw LogicError("[", name(), "]: A children should not return IDLE");
       }
     }  // end switch
   }    //end for

@@ -13,7 +13,7 @@
 
 #include "behaviortree_cpp/controls/manual_node.h"
 #include "behaviortree_cpp/action_node.h"
-#include <ncurses.h>
+#include <curses.h>
 
 namespace BT
 {
@@ -91,8 +91,8 @@ NodeStatus ManualSelectorNode::selectStatus() const
 
   mvwprintw(win, 0, 0, "No children.");
   mvwprintw(win, 1, 0, "Press: S to return SUCCESSFUL,");
-  mvwprintw(win, 2, 0, "       F to return E_FAILURE, or");
-  mvwprintw(win, 3, 0, "       R to return E_RUNNING.");
+  mvwprintw(win, 2, 0, "       F to return FAILURE, or");
+  mvwprintw(win, 3, 0, "       R to return RUNNING.");
 
   wrefresh(win);      // update the terminal screen
   noecho();           // disable echoing of characters on the screen
@@ -152,8 +152,8 @@ uint8_t ManualSelectorNode::selectChild() const
 
   mvwprintw(win, 0, 0, "Use UP/DOWN arrow to select the child, Enter to confirm.");
   mvwprintw(win, 1, 0, "Press: S to skip and return SUCCESSFUL,");
-  mvwprintw(win, 2, 0, "       F to skip and return E_FAILURE, or");
-  mvwprintw(win, 3, 0, "       R to skip and return E_RUNNING.");
+  mvwprintw(win, 2, 0, "       F to skip and return FAILURE, or");
+  mvwprintw(win, 3, 0, "       R to skip and return RUNNING.");
 
   // now print all the menu items and highlight the first one
   for(size_t i = 0; i < list.size(); i++)
