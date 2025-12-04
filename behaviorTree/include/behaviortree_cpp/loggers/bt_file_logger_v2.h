@@ -35,8 +35,8 @@ public:
   FileLogger2(const FileLogger2& other) = delete;
   FileLogger2& operator=(const FileLogger2& other) = delete;
 
-  FileLogger2(FileLogger2&& other) = default;
-  FileLogger2& operator=(FileLogger2&& other) = default;
+  FileLogger2(FileLogger2&& other) = delete;
+  FileLogger2& operator=(FileLogger2&& other) = delete;
 
   virtual ~FileLogger2() override;
 

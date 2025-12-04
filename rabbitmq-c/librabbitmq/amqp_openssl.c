@@ -448,6 +448,7 @@ int amqp_ssl_socket_set_key_engine(amqp_socket_t *base, const char *cert,
 static int password_cb(AMQP_UNUSED char *buffer, AMQP_UNUSED int length,
                        AMQP_UNUSED int rwflag, AMQP_UNUSED void *user_data) {
   amqp_abort("rabbitmq-c does not support password protected keys");
+  return -1;
 }
 
 int amqp_ssl_socket_set_key_buffer(amqp_socket_t *base, const char *cert,

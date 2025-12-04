@@ -21,8 +21,8 @@ public:
   StatusChangeLogger(const StatusChangeLogger& other) = delete;
   StatusChangeLogger& operator=(const StatusChangeLogger& other) = delete;
 
-  StatusChangeLogger(StatusChangeLogger&& other) = default;
-  StatusChangeLogger& operator=(StatusChangeLogger&& other) = default;
+  StatusChangeLogger(StatusChangeLogger&& other) = delete;
+  StatusChangeLogger& operator=(StatusChangeLogger&& other) = delete;
 
   virtual void callback(BT::Duration timestamp, const TreeNode& node,
                         NodeStatus prev_status, NodeStatus status) = 0;
