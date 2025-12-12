@@ -88,7 +88,7 @@ int main(int argc, char** argv)
 
   // This is the configuration passed to the TestNode
   BT::TestNodeConfig test_config;
-  // we want this to return always E_SUCCESS
+  // we want this to return always SUCCESS
   test_config.return_status = BT::NodeStatus::E_SUCCESS;
   // Convert the node in asynchronous and wait 2000 ms
   test_config.async_delay = std::chrono::milliseconds(2000);
@@ -97,7 +97,7 @@ int main(int argc, char** argv)
 
   // this will be synchronous (async_delay is 0)
   BT::TestNodeConfig counting_config;
-  test_config.return_status = BT::NodeStatus::E_SUCCESS;
+  counting_config.return_status = BT::NodeStatus::E_SUCCESS;
 
   //---------------------------------------------------------------
   // Next, we want to substitute one or more of out Nodes with this mocks
@@ -128,11 +128,11 @@ int main(int argc, char** argv)
       "TestNodeConfigs": {
         "NewMessage": {
           "async_delay": 2000,
-          "return_status": "E_SUCCESS",
+          "return_status": "SUCCESS",
           "post_script": "msg ='message SUBSTITUTED'"
         },
         "NoCounting": {
-          "return_status": "E_SUCCESS"
+          "return_status": "SUCCESS"
         }
       },
 
@@ -147,7 +147,7 @@ int main(int argc, char** argv)
     factory.loadSubstitutionRuleFromJSON(json_text);
   }
   //---------------------------------------------------------------
-  // IMPORTANT: all substiutions must be done BEFORE creating the tree
+  // IMPORTANT: all substitutions must be done BEFORE creating the tree
   // During the construction phase of the tree, the substitution
   // rules will be used to instantiate the test nodes, instead of the
   // original ones.
@@ -158,7 +158,7 @@ int main(int argc, char** argv)
   return 0;
 }
 
-/* Expecte output:
+/* Expected output:
 
 ----- Nodes fullPath() -------
 Sequence::1

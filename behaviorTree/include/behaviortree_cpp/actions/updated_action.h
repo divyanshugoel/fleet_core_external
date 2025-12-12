@@ -20,8 +20,8 @@ namespace BT
  * @brief The EntryUpdatedAction checks the Timestamp in an entry
  * to determine if the value was updated since the last time.
  *
- * E_SUCCESS if it was updated, since the last time it was checked,
- * E_FAILURE if it doesn't exist or was not updated.
+ * SUCCESS if it was updated, since the last time it was checked,
+ * FAILURE if it doesn't exist or was not updated.
  */
 class EntryUpdatedAction : public SyncActionNode
 {

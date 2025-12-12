@@ -23,7 +23,7 @@
 
 namespace BT
 {
-// IMPORTANT: Actions which returned E_SUCCESS or E_FAILURE will not be ticked
+// IMPORTANT: Actions which returned SUCCESS or FAILURE will not be ticked
 // again unless resetStatus() is called first.
 // Keep this in mind when writing your custom Control and Decorator nodes.
 
@@ -46,7 +46,7 @@ public:
 
 /**
  * @brief The SyncActionNode is an ActionNode that
- * explicitly prevents the status E_RUNNING and doesn't require
+ * explicitly prevents the status RUNNING and doesn't require
  * an implementation of halt().
  */
 class SyncActionNode : public ActionNodeBase
@@ -55,7 +55,7 @@ public:
   SyncActionNode(const std::string& name, const NodeConfig& config);
   ~SyncActionNode() override = default;
 
-  /// throws if the derived class return E_RUNNING.
+  /// throws if the derived class return RUNNING.
   virtual NodeStatus executeTick() override;
 
   /// You don't need to override this
@@ -99,10 +99,10 @@ protected:
  * IMPORTANT: this action is quite hard to implement correctly.
  * Please make sure that you know what you are doing.
  *
- * - In your overriden tick() method, you must check periodically
+ * - In your overridden tick() method, you must check periodically
  *   the result of the method isHaltRequested() and stop your execution accordingly.
  *
- * - in the overriden halt() method, you can do some cleanup, but do not forget to
+ * - in the overridden halt() method, you can do some cleanup, but do not forget to
  *   invoke the base class method ThreadedAction::halt();
  *
  * - remember, with few exceptions, a halted ThreadedAction must return NodeStatus::E_IDLE.
@@ -148,11 +148,11 @@ using AsyncActionNode = ThreadedAction;
  * It is particularly useful when your code contains a request-reply pattern,
  * i.e. when the actions sends an asynchronous request, then checks periodically
  * if the reply has been received and, eventually, analyze the reply to determine
- * if the result is E_SUCCESS or E_FAILURE.
+ * if the result is SUCCESS or FAILURE.
  *
- * -) an action that was in E_IDLE state will call onStart()
+ * -) an action that was in IDLE state will call onStart()
  *
- * -) A E_RUNNING action will call onRunning()
+ * -) A RUNNING action will call onRunning()
  *
  * -) if halted, method onHalted() is invoked
  */
@@ -163,14 +163,14 @@ public:
     : ActionNodeBase(name, config)
   {}
 
-  /// Method called once, when transitioning from the state E_IDLE.
-  /// If it returns E_RUNNING, this becomes an asynchronous node.
+  /// Method called once, when transitioning from the state IDLE.
+  /// If it returns RUNNING, this becomes an asynchronous node.
   virtual NodeStatus onStart() = 0;
 
-  /// method invoked when the action is already in the E_RUNNING state.
+  /// method invoked when the action is already in the RUNNING state.
   virtual NodeStatus onRunning() = 0;
 
-  /// when the method halt() is called and the action is E_RUNNING, this method is invoked.
+  /// when the method halt() is called and the action is RUNNING, this method is invoked.
   /// This is a convenient place todo a cleanup, if needed.
   virtual void onHalted() = 0;
 
@@ -199,7 +199,7 @@ public:
   CoroActionNode(const std::string& name, const NodeConfig& config);
   virtual ~CoroActionNode() override;
 
-  /// Use this method to return E_RUNNING and temporary "pause" the Action.
+  /// Use this method to return RUNNING and temporary "pause" the Action.
   void setStatusRunningAndYield();
 
   // This method triggers the TickEngine. Do NOT remove the "final" keyword.

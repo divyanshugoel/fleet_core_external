@@ -134,7 +134,7 @@ public:
   }
 
   // copy the value (casting into dst). We preserve the destination type.
-  void copyInto(Any& dst);
+  void copyInto(Any& dst) const;
 
   // this is different from any_cast, because if allows safe
   // conversions between arithmetic values and from/to string.
@@ -162,32 +162,7 @@ public:
   [[nodiscard]] T* castPtr()
   {
     static_assert(!std::is_same_v<T, float>, "The value has been casted internally to "
-                                             "[double]. "
-                                             "Use that instead");
-    static_assert(!SafeAny::details::is_integer<T>() || std::is_same_v<T, uint64_t>, "The"
-                                                                                     " va"
-                                                                                     "lue"
-                                                                                     " ha"
-                                                                                     "s "
-                                                                                     "bee"
-                                                                                     "n "
-                                                                                     "cas"
-                                                                                     "ted"
-                                                                                     " in"
-                                                                                     "ter"
-                                                                                     "nal"
-                                                                                     "ly "
-                                                                                     "to "
-                                                                                     "[in"
-                                                                                     "t64"
-                                                                                     "_t]"
-                                                                                     ". "
-                                                                                     "Use"
-                                                                                     " th"
-                                                                                     "at "
-                                                                                     "ins"
-                                                                                     "tea"
-                                                                                     "d");
+                                             "[double]. Use that instead");
 
     return _any.empty() ? nullptr : linb::any_cast<T>(&_any);
   }
@@ -245,7 +220,34 @@ private:
 template <typename SRC, typename TO>
 inline bool ValidCast(const SRC& val)
 {
-  return (val == static_cast<SRC>(static_cast<TO>(val)));
+  // First check numeric limits
+  if constexpr(std::is_arithmetic_v<SRC> && std::is_arithmetic_v<TO>)
+  {
+    // Handle conversion to floating point
+    if constexpr(std::is_floating_point_v<TO>)
+    {
+      if constexpr(std::is_integral_v<SRC>)
+      {
+        // For integral to float, check if we can represent the value exactly
+        TO as_float = static_cast<TO>(val);
+        SRC back_conv = static_cast<SRC>(as_float);
+        return back_conv == val;
+      }
+    }
+    // Handle conversion to integral
+    else if constexpr(std::is_integral_v<TO>)
+    {
+      if(val > static_cast<SRC>(std::numeric_limits<TO>::max()) ||
+         val < static_cast<SRC>(std::numeric_limits<TO>::lowest()))
+      {
+        return false;
+      }
+    }
+  }
+
+  TO as_target = static_cast<TO>(val);
+  SRC back_to_source = static_cast<SRC>(as_target);
+  return val == back_to_source;
 }
 
 template <typename T>
@@ -319,7 +321,7 @@ inline bool Any::isIntegral() const
   return _any.type() == typeid(int64_t) || _any.type() == typeid(uint64_t);
 }
 
-inline void Any::copyInto(Any& dst)
+inline void Any::copyInto(Any& dst) const
 {
   if(dst.empty())
   {
@@ -492,7 +494,7 @@ inline nonstd::expected<T, std::string> Any::tryCast() const
   }
 
   // special case when the output is an enum.
-  // We will try first a int convertion
+  // We will try first a int conversion
   if constexpr(std::is_enum_v<T>)
   {
     if(isNumber())

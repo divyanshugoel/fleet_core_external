@@ -8,11 +8,11 @@ static const char* json_text = R"(
   "TestNodeConfigs": {
     "TestA": {
       "async_delay": 2000,
-      "return_status": "E_SUCCESS",
+      "return_status": "SUCCESS",
       "post_script": "msg ='message SUBSTITUED'"
     },
     "TestB": {
-      "return_status": "E_FAILURE"
+      "return_status": "FAILURE"
     }
   },
 

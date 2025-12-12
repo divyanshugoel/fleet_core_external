@@ -21,7 +21,7 @@ namespace BT
 /**
  * @brief The RunOnceNode is used when you want to execute the child
  * only once.
- * If the child is asynchronous, we will tick until either E_SUCCESS or E_FAILURE is
+ * If the child is asynchronous, we will tick until either SUCCESS or FAILURE is
  * returned.
  *
  * After that first execution, you can set value of the port "then_skip" to:
@@ -42,7 +42,7 @@ public:
   {
     return { InputPort<bool>("then_skip", true,
                              "If true, skip after the first execution, "
-                             "otherwise return the same NodeStatus returned once bu the "
+                             "otherwise return the same NodeStatus returned once by the "
                              "child.") };
   }
 

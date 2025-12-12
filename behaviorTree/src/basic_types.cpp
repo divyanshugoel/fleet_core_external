@@ -1,4 +1,5 @@
 #include "behaviortree_cpp/basic_types.h"
+#include "behaviortree_cpp/tree_node.h"
 #include "behaviortree_cpp/json_export.h"
 
 #include <cstdlib>
@@ -14,15 +15,15 @@ std::string toStr<NodeStatus>(const NodeStatus& status)
   switch(status)
   {
     case NodeStatus::E_SUCCESS:
-      return "E_SUCCESS";
+      return "SUCCESS";
     case NodeStatus::E_FAILURE:
-      return "E_FAILURE";
+      return "FAILURE";
     case NodeStatus::E_RUNNING:
-      return "E_RUNNING";
+      return "RUNNING";
     case NodeStatus::E_IDLE:
-      return "E_IDLE";
+      return "IDLE";
     case NodeStatus::E_SKIPPED:
-      return "E_SKIPPED";
+      return "SKIPPED";
   }
   return "";
 }
@@ -51,23 +52,23 @@ std::string toStr(NodeStatus status, bool colored)
     {
       case NodeStatus::E_SUCCESS:
         return "\x1b[32m"
-               "E_SUCCESS"
+               "SUCCESS"
                "\x1b[0m";  // RED
       case NodeStatus::E_FAILURE:
         return "\x1b[31m"
-               "E_FAILURE"
+               "FAILURE"
                "\x1b[0m";  // GREEN
       case NodeStatus::E_RUNNING:
         return "\x1b[33m"
-               "E_RUNNING"
+               "RUNNING"
                "\x1b[0m";  // YELLOW
       case NodeStatus::E_SKIPPED:
         return "\x1b[34m"
-               "E_SKIPPED"
+               "SKIPPED"
                "\x1b[0m";  // BLUE
       case NodeStatus::E_IDLE:
         return "\x1b[36m"
-               "E_IDLE"
+               "IDLE"
                "\x1b[0m";  // CYAN
     }
   }
@@ -237,6 +238,19 @@ std::vector<double> convertFromString<std::vector<double>>(StringView str)
 }
 
 template <>
+std::vector<bool> convertFromString<std::vector<bool>>(StringView str)
+{
+  auto parts = splitString(str, ';');
+  std::vector<bool> output;
+  output.reserve(parts.size());
+  for(const StringView& part : parts)
+  {
+    output.push_back(convertFromString<bool>(part));
+  }
+  return output;
+}
+
+template <>
 std::vector<std::string> convertFromString<std::vector<std::string>>(StringView str)
 {
   auto parts = splitString(str, ';');
@@ -283,15 +297,15 @@ bool convertFromString<bool>(StringView str)
 template <>
 NodeStatus convertFromString<NodeStatus>(StringView str)
 {
-  if(str == "E_IDLE")
+  if(str == "IDLE")
     return NodeStatus::E_IDLE;
-  if(str == "E_RUNNING")
+  if(str == "RUNNING")
     return NodeStatus::E_RUNNING;
-  if(str == "E_SUCCESS")
+  if(str == "SUCCESS")
     return NodeStatus::E_SUCCESS;
-  if(str == "E_FAILURE")
+  if(str == "FAILURE")
     return NodeStatus::E_FAILURE;
-  if(str == "E_SKIPPED")
+  if(str == "SKIPPED")
     return NodeStatus::E_SKIPPED;
 
   throw RuntimeError(std::string("Cannot convert this to NodeStatus: ") +
@@ -420,10 +434,6 @@ const std::string& PortInfo::defaultValueString() const
 
 bool IsAllowedPortName(StringView str)
 {
-  if(str == "_autoremap")
-  {
-    return true;
-  }
   if(str.empty())
   {
     return false;
@@ -433,11 +443,26 @@ bool IsAllowedPortName(StringView str)
   {
     return false;
   }
-  if(str == "name" || str == "ID")
+  return !IsReservedAttribute(str);
+}
+
+bool IsReservedAttribute(StringView str)
+{
+  for(const auto& name : PreCondNames)
   {
-    return false;
+    if(name == str)
+    {
+      return true;
+    }
   }
-  return true;
+  for(const auto& name : PostCondNames)
+  {
+    if(name == str)
+    {
+      return true;
+    }
+  }
+  return str == "name" || str == "ID" || str == "_autoremap";
 }
 
 Any convertFromJSON(StringView json_text, std::type_index type)

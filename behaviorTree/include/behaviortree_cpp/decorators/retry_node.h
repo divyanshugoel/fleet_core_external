@@ -20,10 +20,10 @@ namespace BT
 /**
  * @brief The RetryNode is used to execute a child several times if it fails.
  *
- * If the child returns E_SUCCESS, the loop is stopped and this node
- * returns E_SUCCESS.
+ * If the child returns SUCCESS, the loop is stopped and this node
+ * returns SUCCESS.
  *
- * If the child returns E_FAILURE, this node will try again up to N times
+ * If the child returns FAILURE, this node will try again up to N times
  * (N is read from port "num_attempts").
  *
  * Example:

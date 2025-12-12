@@ -22,7 +22,7 @@ namespace BT
  * __concurrently__, but not in separate threads!
  *
  * It differs in the way ParallelNode works because the latter may stop
- * and halt other children if a certain number of E_SUCCESS/FAILURES is reached,
+ * and halt other children if a certain number of SUCCESS/FAILURES is reached,
  * whilst this one will always complete the execution of ALL its children.
  *
  * Note that threshold indexes work as in Python:
@@ -38,9 +38,9 @@ public:
   static PortsList providedPorts()
   {
     return { InputPort<int>("max_failures", 1,
-                            "If the number of children returning E_FAILURE exceeds this "
+                            "If the number of children returning FAILURE exceeds this "
                             "value, "
-                            "ParallelAll returns E_FAILURE") };
+                            "ParallelAll returns FAILURE") };
   }
 
   ~ParallelAllNode() override = default;

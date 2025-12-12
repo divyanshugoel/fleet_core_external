@@ -230,7 +230,7 @@ TEST(Navigationtest, MoveBaseRecovery)
     std::this_thread::sleep_for(Milliseconds(100));
   }
 
-  // E_SUCCESS expected
+  // SUCCESS expected
   ASSERT_EQ(status, NodeStatus::E_SUCCESS);
   // IsStuck on the left branch must run several times
   ASSERT_GE(first_stuck_node->tickCount(), 6);
@@ -267,7 +267,7 @@ TEST(Navigationtest, MoveBaseRecovery)
     std::this_thread::sleep_for(Milliseconds(100));
   }
 
-  // E_SUCCESS expected
+  // SUCCESS expected
   ASSERT_EQ(status, NodeStatus::E_SUCCESS);
 
   // First IsStuck must run several times
@@ -306,7 +306,7 @@ TEST(Navigationtest, MoveBaseRecovery)
     std::this_thread::sleep_for(Milliseconds(100));
   }
 
-  // E_SUCCESS expected
+  // SUCCESS expected
   ASSERT_EQ(status, NodeStatus::E_SUCCESS);
 
   ASSERT_GE(first_stuck_node->tickCount(), 6);

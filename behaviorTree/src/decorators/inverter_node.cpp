@@ -43,7 +43,7 @@ NodeStatus InverterNode::tick()
     }
 
     case NodeStatus::E_IDLE: {
-      throw LogicError("[", name(), "]: A children should not return E_IDLE");
+      throw LogicError("[", name(), "]: A children should not return IDLE");
     }
   }
   return status();

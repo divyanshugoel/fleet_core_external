@@ -1,8 +1,7 @@
 #include "behaviortree_cpp/loggers/groot2_publisher.h"
 #include "behaviortree_cpp/loggers/groot2_protocol.h"
 #include "behaviortree_cpp/xml_parsing.h"
-#include "cppzmq/zmq.hpp"
-#include "cppzmq/zmq_addon.hpp"
+#include "zmq_addon.hpp"
 
 namespace BT
 {
@@ -362,11 +361,11 @@ void Groot2Publisher::serverLoop()
         bool remove = json.at("remove_when_done").get<bool>();
 
         NodeStatus desired_status = NodeStatus::E_SKIPPED;
-        if(status_str == "E_SUCCESS")
+        if(status_str == "SUCCESS")
         {
           desired_status = NodeStatus::E_SUCCESS;
         }
-        else if(status_str == "E_FAILURE")
+        else if(status_str == "FAILURE")
         {
           desired_status = NodeStatus::E_FAILURE;
         }

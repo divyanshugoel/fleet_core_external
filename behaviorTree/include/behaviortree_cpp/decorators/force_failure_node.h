@@ -17,7 +17,7 @@
 namespace BT
 {
 /**
- * @brief The ForceFailureNode returns always E_FAILURE or E_RUNNING.
+ * @brief The ForceFailureNode returns always FAILURE or RUNNING.
  */
 class ForceFailureNode : public DecoratorNode
 {
@@ -45,7 +45,7 @@ inline NodeStatus ForceFailureNode::tick()
     return NodeStatus::E_FAILURE;
   }
 
-  // E_RUNNING or skipping
+  // RUNNING or skipping
   return child_status;
 }
 }  // namespace BT

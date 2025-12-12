@@ -20,11 +20,11 @@ namespace BT
  * @brief The ReactiveSequence is similar to a ParallelNode.
  * All the children are ticked from first to last:
  *
- * - If a child returns E_RUNNING, halt the remaining siblings in the sequence and return E_RUNNING.
- * - If a child returns E_SUCCESS, tick the next sibling.
- * - If a child returns E_FAILURE, stop and return E_FAILURE.
+ * - If a child returns RUNNING, halt the remaining siblings in the sequence and return RUNNING.
+ * - If a child returns SUCCESS, tick the next sibling.
+ * - If a child returns FAILURE, stop and return FAILURE.
  *
- * If all the children return E_SUCCESS, this node returns E_SUCCESS.
+ * If all the children return SUCCESS, this node returns SUCCESS.
  *
  * IMPORTANT: to work properly, this node should not have more than a single
  *            asynchronous child.

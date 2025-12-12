@@ -84,19 +84,19 @@ public:
     getInput("msec", msec);
     if(msec <= 0)
     {
-      // no need to go into the E_RUNNING state
+      // no need to go into the RUNNING state
       return NodeStatus::E_SUCCESS;
     }
     else
     {
       using namespace std::chrono;
-      // once the deadline is reached, we will return E_SUCCESS.
+      // once the deadline is reached, we will return SUCCESS.
       deadline_ = system_clock::now() + milliseconds(msec);
       return NodeStatus::E_RUNNING;
     }
   }
 
-  /// method invoked by an action in the E_RUNNING state.
+  /// method invoked by an action in the RUNNING state.
   NodeStatus onRunning() override
   {
     if(std::chrono::system_clock::now() >= deadline_)

@@ -31,8 +31,8 @@ public:
   Groot2Publisher(const Groot2Publisher& other) = delete;
   Groot2Publisher& operator=(const Groot2Publisher& other) = delete;
 
-  Groot2Publisher(Groot2Publisher&& other) = default;
-  Groot2Publisher& operator=(Groot2Publisher&& other) = default;
+  Groot2Publisher(Groot2Publisher&& other) = delete;
+  Groot2Publisher& operator=(Groot2Publisher&& other) = delete;
 
   /**
    * @brief setMaxHeartbeatDelay is used to tell the publisher

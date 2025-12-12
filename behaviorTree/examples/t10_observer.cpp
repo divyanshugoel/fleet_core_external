@@ -47,7 +47,7 @@ int main()
   BT::printTreeRecursively(tree.rootNode());
 
   // The purpose of the observer is to save some statistics about the number of times
-  // a certain node returns E_SUCCESS or E_FAILURE.
+  // a certain node returns SUCCESS or FAILURE.
   // This is particularly useful to create unit tests and to check if
   // a certain set of transitions happened as expected
   BT::TreeObserver observer(tree);

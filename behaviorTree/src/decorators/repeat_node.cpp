@@ -59,7 +59,7 @@ NodeStatus RepeatNode::tick()
         resetChild();
 
         // Return the execution flow if the child is async,
-        // to make this interruptable.
+        // to make this interruptible.
         if(requiresWakeUp() && prev_status == NodeStatus::E_IDLE && do_loop)
         {
           emitWakeUpSignal();
@@ -86,7 +86,7 @@ NodeStatus RepeatNode::tick()
         return NodeStatus::E_SKIPPED;
       }
       case NodeStatus::E_IDLE: {
-        throw LogicError("[", name(), "]: A children should not return E_IDLE");
+        throw LogicError("[", name(), "]: A children should not return IDLE");
       }
     }
   }

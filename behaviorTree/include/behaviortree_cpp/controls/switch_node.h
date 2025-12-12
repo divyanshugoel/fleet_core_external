@@ -144,8 +144,8 @@ inline NodeStatus SwitchNode<NUM_CASES>::tick()
   NodeStatus ret = selected_child->executeTick();
   if(ret == NodeStatus::E_SKIPPED)
   {
-    // if the matching child is E_SKIPPED, should I jump to default or
-    // be E_SKIPPED myself? Going with the former, for the time being.
+    // if the matching child is SKIPPED, should I jump to default or
+    // be SKIPPED myself? Going with the former, for the time being.
     running_child_ = -1;
     return NodeStatus::E_SKIPPED;
   }

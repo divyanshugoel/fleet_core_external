@@ -15,8 +15,9 @@
 
 namespace BT
 {
-SequenceNode::SequenceNode(const std::string& name, bool make_async)
-  : ControlNode::ControlNode(name, {}), current_child_idx_(0), asynch_(make_async)
+SequenceNode::SequenceNode(const std::string& name, bool make_async,
+                           const NodeConfiguration& conf)
+  : ControlNode::ControlNode(name, conf), current_child_idx_(0), asynch_(make_async)
 {
   if(asynch_)
     setRegistrationID("AsyncSequence");
@@ -27,6 +28,7 @@ SequenceNode::SequenceNode(const std::string& name, bool make_async)
 void SequenceNode::halt()
 {
   current_child_idx_ = 0;
+  skipped_count_ = 0;
   ControlNode::halt();
 }
 
@@ -34,7 +36,7 @@ NodeStatus SequenceNode::tick()
 {
   const size_t children_count = children_nodes_.size();
 
-  if(status() == NodeStatus::E_IDLE)
+  if(!isStatusActive(status()))
   {
     skipped_count_ = 0;
   }
@@ -62,7 +64,7 @@ NodeStatus SequenceNode::tick()
       case NodeStatus::E_SUCCESS: {
         current_child_idx_++;
         // Return the execution flow if the child is async,
-        // to make this interruptable.
+        // to make this interruptible.
         if(asynch_ && requiresWakeUp() && prev_status == NodeStatus::E_IDLE &&
            current_child_idx_ < children_count)
         {
@@ -80,19 +82,21 @@ NodeStatus SequenceNode::tick()
       break;
 
       case NodeStatus::E_IDLE: {
-        throw LogicError("[", name(), "]: A children should not return E_IDLE");
+        throw LogicError("[", name(), "]: A children should not return IDLE");
       }
     }  // end switch
   }    // end while loop
 
-  // The entire while loop completed. This means that all the children returned E_SUCCESS.
+  // The entire while loop completed. This means that all the children returned SUCCESS.
+  const bool all_children_skipped = (skipped_count_ == children_count);
   if(current_child_idx_ == children_count)
   {
     resetChildren();
     current_child_idx_ = 0;
+    skipped_count_ = 0;
   }
   // Skip if ALL the nodes have been skipped
-  return (skipped_count_ == children_count) ? NodeStatus::E_SKIPPED : NodeStatus::E_SUCCESS;
+  return (all_children_skipped) ? NodeStatus::E_SKIPPED : NodeStatus::E_SUCCESS;
 }
 
 }  // namespace BT

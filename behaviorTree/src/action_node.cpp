@@ -12,7 +12,7 @@
 */
 
 #define MINICORO_IMPL
-#include "minicoro/minicoro.h"
+#include "minicoro.h"
 #include "behaviortree_cpp/action_node.h"
 
 using namespace BT;
@@ -58,7 +58,7 @@ NodeStatus SyncActionNode::executeTick()
   auto stat = ActionNodeBase::executeTick();
   if(stat == NodeStatus::E_RUNNING)
   {
-    throw LogicError("SyncActionNode MUST never return E_RUNNING");
+    throw LogicError("SyncActionNode MUST never return RUNNING");
   }
   return stat;
 }
@@ -159,7 +159,7 @@ NodeStatus StatefulActionNode::tick()
     NodeStatus new_status = onStart();
     if(new_status == NodeStatus::E_IDLE)
     {
-      throw LogicError("StatefulActionNode::onStart() must not return E_IDLE");
+      throw LogicError("StatefulActionNode::onStart() must not return IDLE");
     }
     return new_status;
   }
@@ -169,7 +169,7 @@ NodeStatus StatefulActionNode::tick()
     NodeStatus new_status = onRunning();
     if(new_status == NodeStatus::E_IDLE)
     {
-      throw LogicError("StatefulActionNode::onRunning() must not return E_IDLE");
+      throw LogicError("StatefulActionNode::onRunning() must not return IDLE");
     }
     return new_status;
   }

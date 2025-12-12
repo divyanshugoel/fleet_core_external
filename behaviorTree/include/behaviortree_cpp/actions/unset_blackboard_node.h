@@ -17,7 +17,7 @@
 namespace BT
 {
 /**
- * Action that removes an entry from the blackboard and return E_SUCCESS.
+ * Action that removes an entry from the blackboard and return SUCCESS.
  */
 class UnsetBlackboardNode : public SyncActionNode
 {

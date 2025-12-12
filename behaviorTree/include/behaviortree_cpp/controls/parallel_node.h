@@ -24,7 +24,7 @@ namespace BT
  *
  * Even if this may look similar to ReactiveSequence,
  * this Control Node is the __only__ one that can have
- * multiple children E_RUNNING at the same time.
+ * multiple children RUNNING at the same time.
  *
  * The Node is completed either when the THRESHOLD_SUCCESS
  * or THRESHOLD_FAILURE number is reached (both configured using ports).
@@ -48,10 +48,10 @@ public:
   {
     return { InputPort<int>(THRESHOLD_SUCCESS, -1,
                             "number of children that need to succeed to trigger a "
-                            "E_SUCCESS"),
+                            "SUCCESS"),
              InputPort<int>(THRESHOLD_FAILURE, 1,
                             "number of children that need to fail to trigger a "
-                            "E_FAILURE") };
+                            "FAILURE") };
   }
 
   ~ParallelNode() override = default;

@@ -17,7 +17,7 @@
 namespace BT
 {
 /**
- * Simple actions that always returns E_FAILURE.
+ * Simple actions that always returns FAILURE.
  */
 class AlwaysFailureNode : public SyncActionNode
 {

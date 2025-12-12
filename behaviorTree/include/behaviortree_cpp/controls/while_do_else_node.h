@@ -22,12 +22,12 @@ namespace BT
  *
  * The first child is the "statement" that is executed at each tick
  *
- * If result is E_SUCCESS, the second child is executed.
+ * If result is SUCCESS, the second child is executed.
  *
- * If result is E_FAILURE, the third child is executed.
+ * If result is FAILURE, the third child is executed.
  *
- * If the 2nd or 3d child is E_RUNNING and the statement changes,
- * the E_RUNNING child will be stopped before starting the sibling.
+ * If the 2nd or 3d child is RUNNING and the statement changes,
+ * the RUNNING child will be stopped before starting the sibling.
  *
  */
 class WhileDoElseNode : public ControlNode

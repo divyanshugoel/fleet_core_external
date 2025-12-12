@@ -20,13 +20,13 @@ namespace BT
 /**
  * @brief The FallbackNode is used to try different strategies,
  * until one succeeds.
- * If any child returns E_RUNNING, previous children will NOT be ticked again.
+ * If any child returns RUNNING, previous children will NOT be ticked again.
  *
- * - If all the children return E_FAILURE, this node returns E_FAILURE.
+ * - If all the children return FAILURE, this node returns FAILURE.
  *
- * - If a child returns E_RUNNING, this node returns E_RUNNING.
+ * - If a child returns RUNNING, this node returns RUNNING.
  *
- * - If a child returns E_SUCCESS, stop the loop and return E_SUCCESS.
+ * - If a child returns SUCCESS, stop the loop and return SUCCESS.
  *
  */
 class FallbackNode : public ControlNode
